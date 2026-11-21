@@ -5,6 +5,7 @@ import { HomeScreen } from './components/HomeScreen';
 import { BossIcon, ConsumableIcon, GameIcons } from './components/Icons';
 import { RulesModal } from './components/RulesModal';
 import { ShopOverlay } from './components/ShopOverlay';
+import { StageClearModal } from './components/StageClearModal';
 import { SwirlBackground } from './components/SwirlBackground';
 import { DieState, DieType } from './core/die';
 import { FarkleGameManager } from './core/farkleGameManager';
@@ -27,6 +28,7 @@ export const App: React.FC = () => {
   const [, setTick] = useState(0);
   const [targetingSlot, setTargetingSlot] = useState<number | null>(null);
   const [showRules, setShowRules] = useState(false);
+  const [showStageClear, setShowStageClear] = useState(false);
   const [muted, setMuted] = useState(false);
   const [isRollingAnim, setIsRollingAnim] = useState(false);
   const [feedback, setFeedback] = useState<string>('Seleziona i dadi per fare punti');
@@ -48,6 +50,9 @@ export const App: React.FC = () => {
     const unsubGrace = gm.on('graceRoll', () => {
       setFeedback('GRACE ROLL! Primo tiro salvato!');
     });
+    const unsubShop = gm.on('shopOpened', () => {
+      setShowStageClear(true);
+    });
     const unsubFarkle = gm.on('farkle', () => {
       if (gm.lastFarkleUsedClover) {
         setFeedback('TRIFOGLIO! Farkle annullato, rilancio gratuito!');
@@ -66,6 +71,7 @@ export const App: React.FC = () => {
       unsubState();
       unsubHotDice();
       unsubGrace();
+      unsubShop();
       unsubFarkle();
     };
   }, [gm]);
@@ -388,13 +394,23 @@ export const App: React.FC = () => {
       )}
 
       {/* OVERLAYS */}
-      {screen === 'game' && gm.isInShop && (
+        { screen === 'game' && gm.isInShop && showStageClear && (
+          <StageClearModal
+            clearedStage={gm.currentStage}
+            bankScore={gm.bankScore}
+            stageTarget={gm.currentStageTarget}
+            overkillPoints={gm.lastStageOverkillPoints}
+            totalCoinsEarned={gm.lastStageCoinsEarned}
+            currentCoins={gm.coins}
+            anteBoss={gm.anteBoss}
+            onOpenShop={() => setShowStageClear(false)}
+          />
+        )}
+
+      {screen === 'game' && gm.isInShop && !showStageClear && (
         <ShopOverlay
           currentStage={gm.currentStage}
-          anteBoss={gm.anteBoss}
           coins={gm.coins}
-          lastStageCoinsEarned={gm.lastStageCoinsEarned}
-          lastStageOverkillPoints={gm.lastStageOverkillPoints}
           remainingShields={gm.remainingShields}
           trisBaseMultiplier={gm.trisBaseMultiplier}
           equippedConsumables={gm.equippedConsumables}
@@ -425,7 +441,9 @@ export const App: React.FC = () => {
             }
           }}
           onBuyTrisUpgrade={() => {
-            if (gm.buyTrisMultiplierUpgrade()) setShopFeedback('Maestria Tris potenziata (+0.5x)!');
+            if (gm.buyTrisMultiplierUpgrade()) {
+              setShopFeedback(`Bonus Tris potenziato a x${gm.trisBaseMultiplier.toFixed(1)}!`);
+            }
           }}
           onNextStage={() => {
             setShopFeedback('');
