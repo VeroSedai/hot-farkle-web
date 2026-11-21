@@ -164,17 +164,26 @@ export const App: React.FC = () => {
     soundManager.unlock();
     setOpenPopover('none');
     if (targetingSlot !== null) {
+      const usedType = gm.equippedConsumables[targetingSlot];
       const ok = gm.useTargetedConsumable(targetingSlot, dieId);
       setTargetingSlot(null);
       if (ok) {
-        soundManager.playSelect();
+        if (usedType === 'GettoneSpinta') {
+          soundManager.playRoll(true);
+        } else {
+          soundManager.playSelect(true, 2);
+        }
         setFeedback(t('feedback.consumableApplied'));
       }
       return;
     }
 
-    soundManager.playSelect();
     gm.toggleSelectDie(dieId);
+    const clickedDie = gm.dice.find((d) => d.id === dieId);
+    const isNowSelected = clickedDie?.state === DieState.Selected;
+    const currentSelectedCount = gm.dice.filter((d) => d.state === DieState.Selected).length;
+    soundManager.playSelect(isNowSelected, currentSelectedCount);
+
     if (tutorialStep === 2 && gm.isSelectionValid && gm.previewSelectionScore > 0) {
       setTutorialStep(3);
     }
