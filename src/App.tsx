@@ -99,7 +99,9 @@ export const App: React.FC = () => {
       }
       window.setTimeout(() => {
         gm.completePendingFarkleTurn();
-        triggerRollAnim();
+        if (!gm.isGameOver && !gm.isInShop) {
+          triggerRollAnim();
+        }
       }, 1150);
     });
 
@@ -203,11 +205,14 @@ export const App: React.FC = () => {
   const handleBank = () => {
     if (!gm.canBank) return;
     setTargetingSlot(null);
-    soundManager.playSelect();
     const potToBank = gm.totalBankablePot;
     if (gm.bankPotAndEndTurn()) {
       setStats(recordBankedPot(potToBank, gm.bankScore));
-      triggerRollAnim();
+      if (!gm.isGameOver && !gm.isInShop) {
+        triggerRollAnim();
+      } else {
+        soundManager.playSelect(true, 3);
+      }
       setFeedback(t('feedback.banked'));
     }
   };

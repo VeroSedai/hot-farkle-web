@@ -2,7 +2,9 @@ class SoundManager {
   private bgm: HTMLAudioElement | null = null;
   private audioCtx: AudioContext | null = null;
   private rollBuffer: AudioBuffer | null = null;
+  private rollOffset = 0;
   private selectBuffer: AudioBuffer | null = null;
+  private selectOffset = 0;
   private buffersLoading = false;
   private bgmMuted = false;
   private sfxMuted = false;
@@ -30,11 +32,24 @@ class SoundManager {
       this.buffersLoading = true;
       this.loadBuffer('./audio/dice_roll.wav').then((buf) => {
         this.rollBuffer = buf;
+        this.rollOffset = buf ? this.findSoundStartOffset(buf) : 0;
       });
       this.loadBuffer('./audio/dice_select.wav').then((buf) => {
         this.selectBuffer = buf;
+        this.selectOffset = buf ? this.findSoundStartOffset(buf) : 0;
       });
     }
+  }
+
+  private findSoundStartOffset(buffer: AudioBuffer): number {
+    const data = buffer.getChannelData(0);
+    const threshold = 0.01;
+    for (let i = 0; i < data.length; i++) {
+      if (Math.abs(data[i]) > threshold) {
+        return Math.max(0, (i - 16) / buffer.sampleRate);
+      }
+    }
+    return 0;
   }
 
   private async loadBuffer(url: string): Promise<AudioBuffer | null> {
@@ -48,7 +63,12 @@ class SoundManager {
     }
   }
 
-  private playOneShot(buffer: AudioBuffer | null, pitch: number, volume: number): void {
+  private playOneShot(
+    buffer: AudioBuffer | null,
+    offset: number,
+    pitch: number,
+    volume: number
+  ): void {
     if (!this.audioCtx || !buffer) return;
     if (this.audioCtx.state === 'suspended') {
       this.audioCtx.resume().catch(() => {});
@@ -63,7 +83,7 @@ class SoundManager {
 
     source.connect(gainNode);
     gainNode.connect(this.audioCtx.destination);
-    source.start(0);
+    source.start(0, offset);
   }
 
   public unlock(): void {
@@ -83,7 +103,7 @@ class SoundManager {
       ? 1.12 + Math.random() * 0.12
       : 0.95 + Math.random() * 0.12;
     const volume = isSingleDie ? 0.5 : 0.65;
-    this.playOneShot(this.rollBuffer, pitch, volume);
+    this.playOneShot(this.rollBuffer, this.rollOffset, pitch, volume);
   }
 
   public playSelect(isSelecting = true, selectedCount = 1): void {
@@ -94,7 +114,7 @@ class SoundManager {
       ? Math.min(1.35, Math.max(1.0, 1.0 + (clampedCount - 1) * 0.05))
       : 0.86;
     const volume = isSelecting ? 0.6 : 0.45;
-    this.playOneShot(this.selectBuffer, pitch, volume);
+    this.playOneShot(this.selectBuffer, this.selectOffset, pitch, volume);
   }
 
   public toggleBgm(): boolean {
