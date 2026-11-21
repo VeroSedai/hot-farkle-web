@@ -8,17 +8,17 @@ class SoundManager {
   private ensureInit(): void {
     if (typeof Audio === 'undefined') return;
     if (!this.bgm) {
-      this.bgm = new Audio('/audio/bgm_main.wav');
+      this.bgm = new Audio('./audio/bgm_main.wav');
       this.bgm.loop = true;
       this.bgm.autoplay = true;
       this.bgm.volume = 0.25;
     }
     if (!this.rollAudio) {
-      this.rollAudio = new Audio('/audio/dice_roll.wav');
+      this.rollAudio = new Audio('./audio/dice_roll.wav');
       this.rollAudio.volume = 0.55;
     }
     if (!this.selectAudio) {
-      this.selectAudio = new Audio('/audio/dice_select.wav');
+      this.selectAudio = new Audio('./audio/dice_select.wav');
       this.selectAudio.volume = 0.5;
     }
   }
