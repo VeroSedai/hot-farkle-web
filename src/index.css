@@ -24,6 +24,7 @@
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  touch-action: manipulation;
 }
 
 html,
@@ -38,6 +39,7 @@ body,
   font-family: 'm6x11', system-ui, -apple-system, sans-serif;
   font-synthesis: none;
   overflow: hidden;
+  touch-action: manipulation;
 }
 
 .swirl-bg {
