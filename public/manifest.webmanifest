@@ -1,0 +1,10 @@
+{
+  "name": "Hot Farkle",
+  "short_name": "Hot Farkle",
+  "description": "Roguelike dice game a 3 stage",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111513",
+  "theme_color": "#111513"
+}
