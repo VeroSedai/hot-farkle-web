@@ -2,14 +2,15 @@ class SoundManager {
   private bgm: HTMLAudioElement | null = null;
   private rollAudio: HTMLAudioElement | null = null;
   private selectAudio: HTMLAudioElement | null = null;
-  private muted = false;
-  private unlocked = false;
+  private bgmMuted = false;
+  private sfxMuted = false;
 
   private ensureInit(): void {
     if (typeof Audio === 'undefined') return;
     if (!this.bgm) {
       this.bgm = new Audio('/audio/bgm_main.wav');
       this.bgm.loop = true;
+      this.bgm.autoplay = true;
       this.bgm.volume = 0.25;
     }
     if (!this.rollAudio) {
@@ -24,45 +25,69 @@ class SoundManager {
 
   public unlock(): void {
     this.ensureInit();
-    if (this.unlocked) return;
-    this.unlocked = true;
-    if (!this.muted && this.bgm) {
-      this.bgm.play().catch(() => {
-        // Ignore autoplay restrictions until next gesture
-        this.unlocked = false;
-      });
+    if (!this.bgmMuted && this.bgm && this.bgm.paused) {
+      this.bgm.play().catch(() => {});
     }
   }
 
   public playRoll(): void {
     this.unlock();
-    if (this.muted || !this.rollAudio) return;
+    if (this.sfxMuted || !this.rollAudio) return;
     this.rollAudio.currentTime = 0;
     this.rollAudio.play().catch(() => {});
   }
 
   public playSelect(): void {
     this.unlock();
-    if (this.muted || !this.selectAudio) return;
+    if (this.sfxMuted || !this.selectAudio) return;
     this.selectAudio.currentTime = 0;
     this.selectAudio.play().catch(() => {});
   }
 
-  public toggleMute(): boolean {
+  public toggleBgm(): boolean {
     this.ensureInit();
-    this.muted = !this.muted;
+    this.bgmMuted = !this.bgmMuted;
     if (this.bgm) {
-      if (this.muted) {
+      if (this.bgmMuted) {
         this.bgm.pause();
       } else {
         this.bgm.play().catch(() => {});
       }
     }
-    return this.muted;
+    return this.bgmMuted;
   }
 
-  public isMuted(): boolean {
-    return this.muted;
+  public toggleSfx(): boolean {
+    this.ensureInit();
+    this.sfxMuted = !this.sfxMuted;
+    return this.sfxMuted;
+  }
+
+  public toggleMute(): boolean {
+    const nextMuted = !this.isAllMuted();
+    this.bgmMuted = nextMuted;
+    this.sfxMuted = nextMuted;
+    this.ensureInit();
+    if (this.bgm) {
+      if (this.bgmMuted) {
+        this.bgm.pause();
+      } else {
+        this.bgm.play().catch(() => {});
+      }
+    }
+    return nextMuted;
+  }
+
+  public isBgmMuted(): boolean {
+    return this.bgmMuted;
+  }
+
+  public isSfxMuted(): boolean {
+    return this.sfxMuted;
+  }
+
+  public isAllMuted(): boolean {
+    return this.bgmMuted && this.sfxMuted;
   }
 }
 

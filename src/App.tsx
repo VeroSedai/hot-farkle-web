@@ -7,12 +7,15 @@ import { RulesModal } from './components/RulesModal';
 import { ShopOverlay } from './components/ShopOverlay';
 import { StageClearModal } from './components/StageClearModal';
 import { SwirlBackground } from './components/SwirlBackground';
+import { TutorialOverlay } from './components/TutorialOverlay';
 import { DieState, DieType } from './core/die';
 import { FarkleGameManager } from './core/farkleGameManager';
 import { BOSS_METADATA } from './data/bossType';
 import { CONSUMABLE_METADATA } from './data/consumableType';
 import { GameConfig } from './data/gameConfig';
 import { soundManager } from './utils/audio';
+
+const TUTORIAL_STORAGE_KEY = 'hotfarkle_tutorial_completed';
 
 export const App: React.FC = () => {
   const gmRef = useRef<FarkleGameManager | null>(null);
@@ -28,8 +31,11 @@ export const App: React.FC = () => {
   const [, setTick] = useState(0);
   const [targetingSlot, setTargetingSlot] = useState<number | null>(null);
   const [showRules, setShowRules] = useState(false);
-  const [showStageClear, setShowStageClear] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [shopUnlockedForStage, setShopUnlockedForStage] = useState<number>(0);
+  const [openPopover, setOpenPopover] = useState<'none' | 'quick' | 'audio'>('none');
+  const [tutorialStep, setTutorialStep] = useState<number>(0);
+  const [bgmMuted, setBgmMuted] = useState(false);
+  const [sfxMuted, setSfxMuted] = useState(false);
   const [isRollingAnim, setIsRollingAnim] = useState(false);
   const [feedback, setFeedback] = useState<string>('Seleziona i dadi per fare punti');
   const [shopFeedback, setShopFeedback] = useState<string>('');
@@ -43,15 +49,19 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
+    soundManager.unlock();
+    const unlockOnGesture = () => {
+      soundManager.unlock();
+    };
+    window.addEventListener('pointerdown', unlockOnGesture, { passive: true });
+    window.addEventListener('keydown', unlockOnGesture, { passive: true });
+
     const unsubState = gm.on('stateChanged', forceUpdate);
     const unsubHotDice = gm.on('hotDice', () => {
       setFeedback(`HOT DICE! Moltiplicatore ${gm.multiplier}x!`);
     });
     const unsubGrace = gm.on('graceRoll', () => {
       setFeedback('GRACE ROLL! Primo tiro salvato!');
-    });
-    const unsubShop = gm.on('shopOpened', () => {
-      setShowStageClear(true);
     });
     const unsubFarkle = gm.on('farkle', () => {
       if (gm.lastFarkleUsedClover) {
@@ -68,10 +78,11 @@ export const App: React.FC = () => {
     });
 
     return () => {
+      window.removeEventListener('pointerdown', unlockOnGesture);
+      window.removeEventListener('keydown', unlockOnGesture);
       unsubState();
       unsubHotDice();
       unsubGrace();
-      unsubShop();
       unsubFarkle();
     };
   }, [gm]);
@@ -84,18 +95,47 @@ export const App: React.FC = () => {
     (d) => d.state === DieState.InPool || d.state === DieState.Selected
   );
 
+  const completeTutorial = () => {
+    setTutorialStep(0);
+    try {
+      localStorage.setItem(TUTORIAL_STORAGE_KEY, '1');
+    } catch {
+      // ignore storage errors
+    }
+  };
+
+  const handleNextTutorialStep = () => {
+    soundManager.playSelect();
+    if (tutorialStep >= 4) {
+      completeTutorial();
+    } else {
+      setTutorialStep((s) => s + 1);
+    }
+  };
+
   const handleStartFromHome = () => {
     soundManager.unlock();
     setTargetingSlot(null);
     setShopFeedback('');
+    setShopUnlockedForStage(0);
+    setOpenPopover('none');
     gm.startNewRun();
     setScreen('game');
     triggerRollAnim();
     setFeedback('Seleziona i dadi per fare punti');
+
+    try {
+      if (!localStorage.getItem(TUTORIAL_STORAGE_KEY)) {
+        setTutorialStep(1);
+      }
+    } catch {
+      // ignore storage errors
+    }
   };
 
   const handleDieClick = (dieId: number) => {
     soundManager.unlock();
+    setOpenPopover('none');
     if (targetingSlot !== null) {
       const ok = gm.useTargetedConsumable(targetingSlot, dieId);
       setTargetingSlot(null);
@@ -108,6 +148,9 @@ export const App: React.FC = () => {
 
     soundManager.playSelect();
     gm.toggleSelectDie(dieId);
+    if (tutorialStep === 2 && gm.isSelectionValid && gm.previewSelectionScore > 0) {
+      setTutorialStep(3);
+    }
   };
 
   const handleConfirmAndRoll = () => {
@@ -153,6 +196,7 @@ export const App: React.FC = () => {
   const handleRestart = () => {
     setTargetingSlot(null);
     setShopFeedback('');
+    setShopUnlockedForStage(0);
     gm.startNewRun();
     triggerRollAnim();
     setFeedback('Nuova Run iniziata! Buona fortuna!');
@@ -177,10 +221,14 @@ export const App: React.FC = () => {
 
       {screen === 'home' ? (
         <HomeScreen
-          muted={muted}
+          muted={bgmMuted && sfxMuted}
           onStartGame={handleStartFromHome}
           onOpenRules={() => setShowRules(true)}
-          onToggleMute={() => setMuted(soundManager.toggleMute())}
+          onToggleMute={() => {
+            const allMuted = soundManager.toggleMute();
+            setBgmMuted(allMuted);
+            setSfxMuted(allMuted);
+          }}
         />
       ) : (
         <div className="game-layout">
@@ -206,15 +254,22 @@ export const App: React.FC = () => {
                 <button
                   type="button"
                   className="icon-btn"
-                  onClick={() => setMuted(soundManager.toggleMute())}
-                  aria-label={muted ? 'Attiva audio' : 'Disattiva audio'}
+                  onClick={() => setOpenPopover((p) => (p === 'audio' ? 'none' : 'audio'))}
+                  aria-label="Opzioni audio"
                 >
-                  {muted ? <GameIcons.SoundOff size={17} /> : <GameIcons.SoundOn size={17} />}
+                  {bgmMuted && sfxMuted ? (
+                    <GameIcons.SoundOff size={17} />
+                  ) : (
+                    <GameIcons.SoundOn size={17} />
+                  )}
                 </button>
                 <button
                   type="button"
                   className="icon-btn"
-                  onClick={() => setShowRules(true)}
+                  onClick={() => {
+                    setOpenPopover('none');
+                    setShowRules(true);
+                  }}
                   aria-label="Regole"
                 >
                   <GameIcons.Rules size={17} />
@@ -222,13 +277,72 @@ export const App: React.FC = () => {
                 <button
                   type="button"
                   className="icon-btn"
-                  onClick={() => setScreen('home')}
-                  aria-label="Torna alla Home"
+                  onClick={() => setOpenPopover((p) => (p === 'quick' ? 'none' : 'quick'))}
+                  aria-label="Menu opzioni"
                 >
-                  <GameIcons.Home size={17} />
+                  <GameIcons.Menu size={17} />
                 </button>
               </div>
             </div>
+
+            {openPopover !== 'none' && (
+              <>
+                <div className="popover-backdrop" onClick={() => setOpenPopover('none')} />
+                {openPopover === 'audio' && (
+                  <div className="popover-panel">
+                    <button
+                      type="button"
+                      className={`btn ${!bgmMuted ? 'btn-primary' : 'btn-ghost'} popover-btn`}
+                      onClick={() => setBgmMuted(soundManager.toggleBgm())}
+                    >
+                      MUSICA: {!bgmMuted ? 'ON' : 'OFF'}
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn ${!sfxMuted ? 'btn-primary' : 'btn-ghost'} popover-btn`}
+                      onClick={() => setSfxMuted(soundManager.toggleSfx())}
+                    >
+                      EFFETTI: {!sfxMuted ? 'ON' : 'OFF'}
+                    </button>
+                  </div>
+                )}
+
+                {openPopover === 'quick' && (
+                  <div className="popover-panel">
+                    <button
+                      type="button"
+                      className="btn btn-gold popover-btn"
+                      onClick={() => {
+                        setOpenPopover('none');
+                        handleRestart();
+                      }}
+                    >
+                      NUOVA PARTITA
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-primary popover-btn"
+                      onClick={() => {
+                        setOpenPopover('none');
+                        setTutorialStep(1);
+                      }}
+                    >
+                      RIVEDI TUTORIAL
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-ghost popover-btn"
+                      onClick={() => {
+                        setOpenPopover('none');
+                        setScreen('home');
+                      }}
+                    >
+                      TORNA ALLA HOME
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
 
             {/* BANK PROGRESS & BOSS STRIP (impilati per mobile verticale) */}
             <div className="bank-box">
@@ -394,20 +508,20 @@ export const App: React.FC = () => {
       )}
 
       {/* OVERLAYS */}
-        { screen === 'game' && gm.isInShop && showStageClear && (
-          <StageClearModal
-            clearedStage={gm.currentStage}
-            bankScore={gm.bankScore}
-            stageTarget={gm.currentStageTarget}
-            overkillPoints={gm.lastStageOverkillPoints}
-            totalCoinsEarned={gm.lastStageCoinsEarned}
-            currentCoins={gm.coins}
-            anteBoss={gm.anteBoss}
-            onOpenShop={() => setShowStageClear(false)}
-          />
-        )}
+      {screen === 'game' && gm.isInShop && shopUnlockedForStage !== gm.currentStage && (
+        <StageClearModal
+          clearedStage={gm.currentStage}
+          bankScore={gm.bankScore}
+          stageTarget={gm.currentStageTarget}
+          overkillPoints={gm.lastStageOverkillPoints}
+          totalCoinsEarned={gm.lastStageCoinsEarned}
+          currentCoins={gm.coins}
+          anteBoss={gm.anteBoss}
+          onOpenShop={() => setShopUnlockedForStage(gm.currentStage)}
+        />
+      )}
 
-      {screen === 'game' && gm.isInShop && !showStageClear && (
+      {screen === 'game' && gm.isInShop && shopUnlockedForStage === gm.currentStage && (
         <ShopOverlay
           currentStage={gm.currentStage}
           coins={gm.coins}
@@ -466,6 +580,14 @@ export const App: React.FC = () => {
       )}
 
       {showRules && <RulesModal onClose={() => setShowRules(false)} />}
+
+      {screen === 'game' && tutorialStep >= 1 && tutorialStep <= 4 && (
+        <TutorialOverlay
+          step={tutorialStep}
+          onNext={handleNextTutorialStep}
+          onSkip={completeTutorial}
+        />
+      )}
     </div>
   );
 };

@@ -49,7 +49,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ onClose }) => {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="rules-panel" onClick={(e) => e.stopPropagation()}>
-        <h2 className="rules-main-title">TABELLA COMBINAZIONI E REGOLE</h2>
+        <h2 className="rules-main-title">TABELLA COMBINAZIONI</h2>
         <div className="rules-divider" />
 
         <div className="rules-columns">
@@ -69,26 +69,12 @@ export const RulesModal: React.FC<RulesModalProps> = ({ onClose }) => {
           </div>
         </div>
 
-        <div className="rules-cards-grid">
-          <div className="rules-roguelike-card">
-            <h3 style={{ color: '#f4b41a' }}>HOT DICE</h3>
-            <p>Svuota tutti i dadi:</p>
-            <p>1°: x2 &bull; 2°: x3 &bull; 3°+: x4</p>
-          </div>
-
-          <div className="rules-roguelike-card">
-            <h3 style={{ color: '#38bdf8' }}>CONSUMABILI</h3>
-            <p>2 Slot (1/lancio, Gratis):</p>
-            <p>Spinta &bull; Ghiaccio &bull; Polizza</p>
-            <p>Dado Jolly &bull; Trifoglio</p>
-          </div>
-
-          <div className="rules-roguelike-card">
-            <h3 style={{ color: '#c084fc' }}>DADI SPECIALI</h3>
-            <p>Oro: 1=250, 5=100</p>
-            <p>Truccato: più 1 e 5</p>
-            <p>Molt.: Combo x2</p>
-          </div>
+        <div className="rules-roguelike-card">
+          <h3 style={{ color: '#c084fc' }}>DADI SPECIALI</h3>
+          <p>
+            <strong>ORO:</strong> 1 = 250 pt, 5 = 100 pt &bull; <strong>TRUC:</strong> più 1 e 5 &bull;{' '}
+            <strong>x2:</strong> Raddoppia punti combo
+          </p>
         </div>
 
         <div className="rules-close-wrap">
