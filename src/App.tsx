@@ -44,6 +44,8 @@ export const App: React.FC = () => {
   const [bgmMuted, setBgmMuted] = useState(false);
   const [sfxMuted, setSfxMuted] = useState(false);
   const [isRollingAnim, setIsRollingAnim] = useState(false);
+  const [tableEffect, setTableEffect] = useState<'none' | 'farkle' | 'hotdice'>('none');
+  const tableEffectTimerRef = useRef<number | null>(null);
   const [stats, setStats] = useState<PlayerStats>(() => loadStats());
   const [feedback, setFeedback] = useState<string>(() => t('feedback.selectDice'));
   const [shopFeedback, setShopFeedback] = useState<string>('');
@@ -56,6 +58,17 @@ export const App: React.FC = () => {
     window.setTimeout(() => setIsRollingAnim(false), 280);
   };
 
+  const triggerTableEffect = (kind: 'farkle' | 'hotdice', durationMs: number) => {
+    if (tableEffectTimerRef.current !== null) {
+      window.clearTimeout(tableEffectTimerRef.current);
+    }
+    setTableEffect(kind);
+    tableEffectTimerRef.current = window.setTimeout(() => {
+      setTableEffect('none');
+      tableEffectTimerRef.current = null;
+    }, durationMs);
+  };
+
   useEffect(() => {
     soundManager.unlock();
     const unlockOnGesture = () => {
@@ -66,6 +79,7 @@ export const App: React.FC = () => {
 
     const unsubState = gm.on('stateChanged', forceUpdate);
     const unsubHotDice = gm.on('hotDice', () => {
+      triggerTableEffect('hotdice', 700);
       setFeedback(tRef.current('feedback.hotDice', { mult: gm.multiplier }));
     });
     const unsubGrace = gm.on('graceRoll', () => {
@@ -75,6 +89,7 @@ export const App: React.FC = () => {
       setStats(recordRunEnd(gm.isVictory, gm.bankScore));
     });
     const unsubFarkle = gm.on('farkle', () => {
+      triggerTableEffect('farkle', 550);
       if (gm.lastFarkleUsedClover) {
         setFeedback(tRef.current('feedback.farkleClover'));
       } else if (gm.lastFarkleConsumedShield) {
@@ -260,7 +275,8 @@ export const App: React.FC = () => {
             <div className="hud-top-row">
               <div className="hud-badges">
                 <span className="pill pill-stage">
-                  S{gm.currentStage}/{GameConfig.TotalStages}
+                  S{gm.currentStage}
+                  {gm.isEndlessMode ? ' ∞' : `/${GameConfig.TotalStages}`}
                 </span>
                 <span className="pill pill-turn">
                   T{gm.currentTurn}/{gm.maxTurns}
@@ -395,7 +411,15 @@ export const App: React.FC = () => {
           </header>
 
           {/* CENTER TABLE (stile tavolo originale Unity) */}
-          <main className="table-area">
+          <main
+            className={`table-area ${
+              tableEffect === 'farkle'
+                ? 'table-fx-farkle'
+                : tableEffect === 'hotdice'
+                  ? 'table-fx-hotdice'
+                  : ''
+            }`}
+          >
             {/* NEL PIATTO: 6 slot fissi (dadi bloccati/congelati + slot vuoti) */}
             <div className="nel-piatto-rack">
               <span className="rack-label">{t('table.inPotRack')}</span>
@@ -616,6 +640,15 @@ export const App: React.FC = () => {
           stageTarget={gm.currentStageTarget}
           coins={gm.coins}
           stats={stats}
+          onContinueEndless={
+            gm.isVictory
+              ? () => {
+                  if (gm.enterEndlessMode()) {
+                    setShopUnlockedForStage(gm.currentStage);
+                  }
+                }
+              : undefined
+          }
           onRestart={handleRestart}
         />
       )}

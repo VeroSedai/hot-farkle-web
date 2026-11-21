@@ -1,6 +1,6 @@
 import { BossType } from '../data/bossType';
 import { CONSUMABLE_METADATA, ConsumableType } from '../data/consumableType';
-import { GameConfig } from '../data/gameConfig';
+import { GameConfig, getStageTarget } from '../data/gameConfig';
 import { Die, DieState, DieType, RngFn } from './die';
 import { ScoreEvaluator } from './scoreEvaluator';
 
@@ -59,6 +59,7 @@ export class FarkleGameManager {
   public isSelectionValid = false;
   public isGameOver = false;
   public isVictory = false;
+  public isEndlessMode = false;
   public lastFarkleConsumedShield = false;
   public lastFarkleUsedClover = false;
   public deferFarkleTurnAdvance = false;
@@ -97,10 +98,7 @@ export class FarkleGameManager {
   }
 
   public get currentStageTarget(): number {
-    if (this.currentStage >= 1 && this.currentStage <= GameConfig.StageTargets.length) {
-      return GameConfig.StageTargets[this.currentStage - 1];
-    }
-    return GameConfig.TargetPoints;
+    return getStageTarget(this.currentStage);
   }
 
   public get maxTurns(): number {
@@ -156,7 +154,11 @@ export class FarkleGameManager {
   }
 
   public startNewStage(): void {
-    if (this.isGameOver || this.currentStage < 1 || this.currentStage > GameConfig.TotalStages) {
+    if (
+      this.isGameOver ||
+      this.currentStage < 1 ||
+      (!this.isEndlessMode && this.currentStage > GameConfig.TotalStages)
+    ) {
       this.resetPersistentRunState();
     }
     this.startStageInternal();
@@ -173,6 +175,7 @@ export class FarkleGameManager {
     this.isInShop = false;
     this.isGameOver = false;
     this.isVictory = false;
+    this.isEndlessMode = false;
     this.hasCloverProtection = false;
 
     for (let i = 0; i < this._persistentPoolTypes.length; i++) {
@@ -573,8 +576,22 @@ export class FarkleGameManager {
   public advanceToNextStage(): boolean {
     if (!this.isInShop) return false;
     this.isInShop = false;
-    this.currentStage = Math.min(GameConfig.TotalStages, this.currentStage + 1);
+    this.currentStage = this.isEndlessMode
+      ? this.currentStage + 1
+      : Math.min(GameConfig.TotalStages, this.currentStage + 1);
     this.startStageInternal();
+    return true;
+  }
+
+  public enterEndlessMode(): boolean {
+    if (!this.isGameOver || !this.isVictory || this.isEndlessMode) return false;
+    this.isEndlessMode = true;
+    this.isGameOver = false;
+    this.isVictory = false;
+    this.isInShop = true;
+    this.shopOfferedConsumable = this.rollRandomConsumable();
+    this.emit('stateChanged');
+    this.emit('shopOpened');
     return true;
   }
 
@@ -596,7 +613,7 @@ export class FarkleGameManager {
     this.lastStageCoinsEarned = earnedCoins;
     this.coins += earnedCoins;
 
-    if (this.currentStage < GameConfig.TotalStages) {
+    if (this.currentStage < GameConfig.TotalStages || this.isEndlessMode) {
       this.isInShop = true;
       this.shopOfferedConsumable = this.rollRandomConsumable();
       this.emit('stateChanged');

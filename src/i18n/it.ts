@@ -11,8 +11,8 @@ export const it = {
     play: 'GIOCA',
     rules: 'REGOLE',
     statsWins: 'Vittorie',
-    statsBestPot: 'Best Piatto',
-    statsBestBank: 'Best Banca',
+    statsBestPot: 'Record Piatto',
+    statsBestBank: 'Record Banca',
   },
   hud: {
     shieldsTitle: 'Scudi anti-Farkle',
@@ -41,7 +41,7 @@ export const it = {
     bankBtn: 'INCASSA ({{amount}})',
   },
   feedback: {
-    selectDice: 'Seleziona i dadi per fare punti',
+    selectDice: 'Seleziona i dadi per accumulare punti',
     hotDice: 'HOT DICE! Moltiplicatore {{mult}}x!',
     graceRoll: 'GRACE ROLL! Primo tiro salvato!',
     farkleClover: 'TRIFOGLIO! Farkle annullato, rilancio gratuito!',
@@ -104,6 +104,7 @@ export const it = {
     finalCoins: '{{coins}} Monete finali',
     bestPot: 'Best Piatto: {{pot}}',
     bestBank: 'Best Banca: {{bank}}',
+    continueEndless: 'CONTINUA (ENDLESS)',
     newRun: 'NUOVA RUN',
   },
   rules: {

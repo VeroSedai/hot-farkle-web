@@ -109,4 +109,35 @@ describe('FarkleGameManager', () => {
     expect(gm.coins).toBe(coinsBefore + 1);
     expect(gm.canBuyShopConsumable).toBe(true);
   });
+
+  it('supports endless mode after Stage 3 victory with scaling targets', () => {
+    const gm = new FarkleGameManager(() => 0); // all dice roll 1
+    gm.startNewRun();
+    expect(gm.currentStageTarget).toBe(750);
+
+    // Clear stages 1, 2, 3
+    for (let stage = 1; stage <= 3; stage++) {
+      gm.dice.forEach((d) => {
+        if (d.state === DieState.InPool) {
+          gm.toggleSelectDie(d.id);
+        }
+      });
+      gm.bankPotAndEndTurn();
+      if (stage < 3) {
+        expect(gm.isInShop).toBe(true);
+        gm.advanceToNextStage();
+      }
+    }
+
+    expect(gm.isGameOver).toBe(true);
+    expect(gm.isVictory).toBe(true);
+
+    expect(gm.enterEndlessMode()).toBe(true);
+    expect(gm.isEndlessMode).toBe(true);
+    expect(gm.isInShop).toBe(true);
+
+    expect(gm.advanceToNextStage()).toBe(true);
+    expect(gm.currentStage).toBe(4);
+    expect(gm.currentStageTarget).toBe(3200);
+  });
 });

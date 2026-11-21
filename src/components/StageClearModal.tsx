@@ -1,6 +1,6 @@
 import React from 'react';
 import { BOSS_METADATA, BossType } from '../data/bossType';
-import { GameConfig } from '../data/gameConfig';
+import { GameConfig, getStageTarget } from '../data/gameConfig';
 import { useI18n } from '../i18n/I18nContext';
 import { BossIcon, GameIcons } from './Icons';
 
@@ -29,10 +29,7 @@ export const StageClearModal: React.FC<StageClearModalProps> = ({
   const baseCoins = GameConfig.StageClearBaseCoins;
   const overkillCoins = Math.max(0, totalCoinsEarned - baseCoins);
   const nextStage = clearedStage + 1;
-  const nextTarget =
-    nextStage >= 1 && nextStage <= GameConfig.StageTargets.length
-      ? GameConfig.StageTargets[nextStage - 1]
-      : GameConfig.TargetPoints;
+  const nextTarget = getStageTarget(nextStage);
   const isNextBoss = nextStage === GameConfig.BossStageNumber;
   const bossMeta = BOSS_METADATA[anteBoss];
   const bossName = t(`bosses.${anteBoss}.name`);

@@ -1,8 +1,9 @@
 export const GameConfig = {
-  StageTargets: [1000, 1800, 2800] as const,
+  StageTargets: [750, 1400, 2200] as const,
+  EndlessStageStep: 1000,
   TotalStages: 3,
 
-  TargetPoints: 1000,
+  TargetPoints: 750,
   MaxTurns: 4,
   StartingShields: 2,
   StartingCoins: 2,
@@ -22,7 +23,7 @@ export const GameConfig = {
 
   DefaultDiceCount: 6,
   ReducedHotDiceCount: 5,
-  MaxMultiplier: 4,
+  MaxMultiplier: 8,
 
   BossStageNumber: 3,
   GeloPerenneStartingFrozenDice: 1,
@@ -31,3 +32,14 @@ export const GameConfig = {
   EsattoreSingleFiveCoinReward: 1,
   IceDieFrozenBonusPerDie: 100,
 } as const;
+
+export function getStageTarget(stage: number): number {
+  if (stage >= 1 && stage <= GameConfig.StageTargets.length) {
+    return GameConfig.StageTargets[stage - 1];
+  }
+  if (stage > GameConfig.StageTargets.length) {
+    const lastTarget = GameConfig.StageTargets[GameConfig.StageTargets.length - 1];
+    return lastTarget + (stage - GameConfig.StageTargets.length) * GameConfig.EndlessStageStep;
+  }
+  return GameConfig.TargetPoints;
+}

@@ -103,6 +103,7 @@ export const en: TranslationSchema = {
     finalCoins: '{{coins}} Final coins',
     bestPot: 'Best Pot: {{pot}}',
     bestBank: 'Best Bank: {{bank}}',
+    continueEndless: 'CONTINUE (ENDLESS)',
     newRun: 'NEW RUN',
   },
   rules: {

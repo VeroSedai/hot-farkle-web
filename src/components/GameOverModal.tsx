@@ -10,6 +10,7 @@ interface GameOverModalProps {
   stageTarget: number;
   coins: number;
   stats: PlayerStats;
+  onContinueEndless?: () => void;
   onRestart: () => void;
 }
 
@@ -20,6 +21,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   stageTarget,
   coins,
   stats,
+  onContinueEndless,
   onRestart,
 }) => {
   const { t } = useI18n();
@@ -50,6 +52,11 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
             <span>{t('gameOver.bestBank', { bank: stats.bestBank })}</span>
           </div>
         </div>
+        {isVictory && onContinueEndless && (
+          <button type="button" className="btn btn-primary btn-full" onClick={onContinueEndless}>
+            {t('gameOver.continueEndless')}
+          </button>
+        )}
         <button type="button" className="btn btn-gold btn-full" onClick={onRestart}>
           {t('gameOver.newRun')}
         </button>
