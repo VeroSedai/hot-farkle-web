@@ -1,12 +1,14 @@
 import React from 'react';
-import { ConsumableType } from '../data/consumableType';
-import { ConsumableIcon } from './Icons';
+import { Die, DieState, DieType } from '../core/die';
+import { DieView } from './DieView';
 
 interface TutorialOverlayProps {
   step: number;
   onNext: () => void;
   onSkip: () => void;
 }
+
+const TUTORIAL_DIE_1 = new Die(0, 1, DieState.InPool, DieType.Standard);
 
 const TUTORIAL_TEXTS: Record<number, string> = {
   1: 'Benvenuto! Hai 4 turni per riempire la BANCA e superare lo Stage.',
@@ -24,8 +26,8 @@ export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ step, onNext, 
   return (
     <div className={`tutorial-backdrop ${isStep2 ? 'tutorial-passthrough' : ''}`}>
       <div className={`tutorial-bubble ${isStep2 ? 'tutorial-top' : ''}`}>
-        <div className="tutorial-croupier">
-          <ConsumableIcon type={ConsumableType.DadoJolly} size={38} className="icon-gold" />
+        <div className="tutorial-float-die showcase-die-left">
+          <DieView die={TUTORIAL_DIE_1} compact disabled />
         </div>
 
         <div className="tutorial-content">
