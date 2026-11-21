@@ -1,5 +1,6 @@
 import React from 'react';
 import { Die, DieState, DieType } from '../core/die';
+import { useI18n } from '../i18n/I18nContext';
 import { GameIcons } from './Icons';
 
 interface DieViewProps {
@@ -22,19 +23,6 @@ const PIP_GRID_MAP: Record<number, number[]> = {
   6: [0, 2, 3, 5, 6, 8],
 };
 
-function getTypeBadge(type: DieType): string | null {
-  switch (type) {
-    case DieType.Golden:
-      return 'ORO';
-    case DieType.Loaded:
-      return 'TRUC';
-    case DieType.Multiplier:
-      return 'x2';
-    default:
-      return null;
-  }
-}
-
 export const DieView: React.FC<DieViewProps> = ({
   die,
   compact = false,
@@ -44,9 +32,18 @@ export const DieView: React.FC<DieViewProps> = ({
   rolling = false,
   onClick,
 }) => {
+  const { t } = useI18n();
   const activePips = PIP_GRID_MAP[die.value] ?? [4];
   const isCrimsonAce = die.value === 1 && die.state !== DieState.Locked && die.state !== DieState.Frozen;
-  const badge = getTypeBadge(die.type);
+
+  const badge =
+    die.type === DieType.Golden
+      ? t('die.badgeGolden')
+      : die.type === DieType.Loaded
+        ? t('die.badgeLoaded')
+        : die.type === DieType.Multiplier
+          ? t('die.badgeMultiplier')
+          : null;
 
   const classes = [
     'die-card',
@@ -66,7 +63,7 @@ export const DieView: React.FC<DieViewProps> = ({
       className={classes}
       disabled={disabled || (isTargeting && !isValidTarget)}
       onClick={() => onClick?.(die.id)}
-      aria-label={`Dado ${die.id + 1}, valore ${die.value}, stato ${die.state}`}
+      aria-label={t('die.ariaLabel', { id: die.id + 1, value: die.value, state: die.state })}
     >
       <div className="die-depth" />
       <div className="die-face">

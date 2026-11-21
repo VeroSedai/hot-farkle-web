@@ -1,7 +1,8 @@
 import React from 'react';
 import { DieType } from '../core/die';
-import { CONSUMABLE_METADATA, ConsumableType } from '../data/consumableType';
+import { ConsumableType } from '../data/consumableType';
 import { GameConfig } from '../data/gameConfig';
+import { useI18n } from '../i18n/I18nContext';
 import { ConsumableIcon, GameIcons } from './Icons';
 
 interface ShopOverlayProps {
@@ -39,7 +40,9 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
   onBuyTrisUpgrade,
   onNextStage,
 }) => {
-  const offeredMeta = CONSUMABLE_METADATA[offeredConsumable];
+  const { t } = useI18n();
+  const offeredName = t(`consumables.${offeredConsumable}.name`);
+  const offeredDesc = t(`consumables.${offeredConsumable}.desc`);
   const beltFull = equippedConsumables.length >= GameConfig.MaxConsumableSlots;
   const specialDiceCount = persistentPoolTypes.filter((t) => t !== DieType.Standard).length;
   const nextStage = currentStage + 1;
@@ -48,7 +51,7 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
     <div className="modal-backdrop">
       <div className="shop-panel">
         <div className="shop-header">
-          <h2 className="shop-title">NEGOZIO</h2>
+          <h2 className="shop-title">{t('shop.title')}</h2>
           <div className="coins-pill large">
             <GameIcons.Coins size={20} />
             <span>{coins}</span>
@@ -59,12 +62,15 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
           <div className="shop-status-box">
             <div className="shop-pool-bar">
               <span className="shop-status-label">
-                CINTURA ({equippedConsumables.length}/{GameConfig.MaxConsumableSlots}):
+                {t('shop.belt', {
+                  count: equippedConsumables.length,
+                  max: GameConfig.MaxConsumableSlots,
+                })}
               </span>
               <div className="pool-chips">
                 {equippedConsumables.map((c, idx) => (
                   <span key={`${c}-${idx}`} className="pool-chip chip-consumable">
-                    <ConsumableIcon type={c} size={14} /> {CONSUMABLE_METADATA[c].displayName}
+                    <ConsumableIcon type={c} size={14} /> {t(`consumables.${c}.name`)}
                   </span>
                 ))}
               </div>
@@ -79,8 +85,8 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
             <div className="shop-card-top">
               <GameIcons.Shield size={26} className="icon-sky" />
               <div>
-                <h3>RIPARA SCUDO</h3>
-                <p>+1 Scudo anti-Farkle (Attuali: {remainingShields})</p>
+                <h3>{t('shop.repairShieldTitle')}</h3>
+                <p>{t('shop.repairShieldDesc', { count: remainingShields })}</p>
               </div>
             </div>
             <button
@@ -89,7 +95,7 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
               disabled={coins < GameConfig.ShopCostRepairShield}
               onClick={onBuyShield}
             >
-              COMPRA &bull; {GameConfig.ShopCostRepairShield} <GameIcons.Coins size={16} />
+              {t('shop.buy')} &bull; {GameConfig.ShopCostRepairShield} <GameIcons.Coins size={16} />
             </button>
           </div>
 
@@ -98,10 +104,9 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
               <ConsumableIcon type={offeredConsumable} size={26} className="icon-gold" />
               <div>
                 <h3>
-                  {offeredMeta.displayName} ({equippedConsumables.length}/
-                  {GameConfig.MaxConsumableSlots})
+                  {offeredName} ({equippedConsumables.length}/{GameConfig.MaxConsumableSlots})
                 </h3>
-                <p>{offeredMeta.shortDescription}</p>
+                <p>{offeredDesc}</p>
               </div>
             </div>
             <div className="shop-card-actions">
@@ -112,10 +117,11 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
                 onClick={onBuyConsumable}
               >
                 {beltFull ? (
-                  'CINTURA PIENA'
+                  t('shop.beltFull')
                 ) : (
                   <>
-                    COMPRA &bull; {GameConfig.ShopCostConsumable} <GameIcons.Coins size={16} />
+                    {t('shop.buy')} &bull; {GameConfig.ShopCostConsumable}{' '}
+                    <GameIcons.Coins size={16} />
                   </>
                 )}
               </button>
@@ -124,9 +130,10 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
                 className="btn btn-ghost shop-reroll-btn"
                 disabled={coins < GameConfig.ShopCostReroll}
                 onClick={onRerollConsumable}
-                title="Cambia il consumabile proposto"
+                title={t('shop.rerollTitle')}
               >
-                <GameIcons.Reroll size={16} /> CAMBIA &bull; {GameConfig.ShopCostReroll}
+                <GameIcons.Reroll size={16} /> {t('shop.rerollBtn')} &bull;{' '}
+                {GameConfig.ShopCostReroll}
               </button>
             </div>
           </div>
@@ -135,8 +142,8 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
             <div className="shop-card-top">
               <GameIcons.Dice size={26} className="icon-purple" />
               <div>
-                <h3>DADO SPECIALE ({specialDiceCount}/6)</h3>
-                <p>Trasforma 1 dado in Oro, Truccato o x2</p>
+                <h3>{t('shop.specialDieTitle', { count: specialDiceCount })}</h3>
+                <p>{t('shop.specialDieDesc')}</p>
               </div>
             </div>
             <button
@@ -147,10 +154,11 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
             >
               {hasStandardDie ? (
                 <>
-                  COMPRA &bull; {GameConfig.ShopCostSpecialDie} <GameIcons.Coins size={16} />
+                  {t('shop.buy')} &bull; {GameConfig.ShopCostSpecialDie}{' '}
+                  <GameIcons.Coins size={16} />
                 </>
               ) : (
-                'TUTTI SPECIALI'
+                t('shop.allSpecial')
               )}
             </button>
           </div>
@@ -159,8 +167,8 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
             <div className="shop-card-top">
               <GameIcons.Flame size={26} className="icon-orange" />
               <div>
-                <h3>TRIS +0.5x (x{trisBaseMultiplier.toFixed(1)})</h3>
-                <p>Bonus fisso permanente sui Tris</p>
+                <h3>{t('shop.trisTitle', { mult: trisBaseMultiplier.toFixed(1) })}</h3>
+                <p>{t('shop.trisDesc')}</p>
               </div>
             </div>
             <button
@@ -169,14 +177,14 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
               disabled={coins < GameConfig.ShopCostTrisMultiplierUpgrade}
               onClick={onBuyTrisUpgrade}
             >
-              COMPRA &bull; {GameConfig.ShopCostTrisMultiplierUpgrade}{' '}
+              {t('shop.buy')} &bull; {GameConfig.ShopCostTrisMultiplierUpgrade}{' '}
               <GameIcons.Coins size={16} />
             </button>
           </div>
         </div>
 
         <button type="button" className="btn btn-gold btn-full" onClick={onNextStage}>
-          AVVIA STAGE {nextStage}
+          {t('shop.startStage', { stage: nextStage })}
         </button>
       </div>
     </div>

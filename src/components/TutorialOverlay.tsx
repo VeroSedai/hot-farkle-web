@@ -1,5 +1,6 @@
 import React from 'react';
 import { Die, DieState, DieType } from '../core/die';
+import { useI18n } from '../i18n/I18nContext';
 import { DieView } from './DieView';
 
 interface TutorialOverlayProps {
@@ -10,18 +11,18 @@ interface TutorialOverlayProps {
 
 const TUTORIAL_DIE_1 = new Die(0, 1, DieState.InPool, DieType.Standard);
 
-const TUTORIAL_TEXTS: Record<number, string> = {
-  1: 'Benvenuto! Hai 4 turni per riempire la BANCA e superare lo Stage.',
-  2: 'Tocca i dadi validi per metterli nel Piatto: ogni 1 = 100 pt, ogni 5 = 50 pt, e 3 uguali valgono un Tris!',
-  3: 'INCASSA mette il Piatto al sicuro in Banca. TIENI & TIRA rilancia i dadi rimasti per fare più punti, ma se non esce nulla fai FARKLE e perdi il Piatto!',
-  4: "Gli SCUDI ti proteggono dai Farkle, i CONSUMABILI truccano i dadi, e se blocchi tutti e 6 i dadi scatta l'HOT DICE (x2!). Buona fortuna!",
-};
-
 export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ step, onNext, onSkip }) => {
+  const { t } = useI18n();
+
   if (step < 1 || step > 4) return null;
 
   const isStep2 = step === 2;
   const isLast = step === 4;
+  const stepKey = `tutorial.step${step}` as
+    | 'tutorial.step1'
+    | 'tutorial.step2'
+    | 'tutorial.step3'
+    | 'tutorial.step4';
 
   return (
     <div className={`tutorial-backdrop ${isStep2 ? 'tutorial-passthrough' : ''}`}>
@@ -31,20 +32,20 @@ export const TutorialOverlay: React.FC<TutorialOverlayProps> = ({ step, onNext, 
         </div>
 
         <div className="tutorial-content">
-          <p className="tutorial-body">{TUTORIAL_TEXTS[step]}</p>
+          <p className="tutorial-body">{t(stepKey)}</p>
 
           <div className="tutorial-actions">
             <span className="tutorial-step-count">{step}/4</span>
             <div className="tutorial-btns">
               <button type="button" className="btn btn-ghost tutorial-btn" onClick={onSkip}>
-                SALTA
+                {t('tutorial.skip')}
               </button>
               <button
                 type="button"
                 className={`btn ${isLast ? 'btn-primary' : 'btn-gold'} tutorial-btn`}
                 onClick={onNext}
               >
-                {isLast ? 'GIOCA!' : 'AVANTI >'}
+                {isLast ? t('tutorial.play') : t('tutorial.next')}
               </button>
             </div>
           </div>

@@ -10,14 +10,20 @@ import { SwirlBackground } from './components/SwirlBackground';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { DieState, DieType } from './core/die';
 import { FarkleGameManager } from './core/farkleGameManager';
+import { ScoreEvaluator } from './core/scoreEvaluator';
 import { BOSS_METADATA } from './data/bossType';
 import { CONSUMABLE_METADATA } from './data/consumableType';
 import { GameConfig } from './data/gameConfig';
+import { useI18n } from './i18n/I18nContext';
 import { soundManager } from './utils/audio';
 
 const TUTORIAL_STORAGE_KEY = 'hotfarkle_tutorial_completed';
 
 export const App: React.FC = () => {
+  const { lang, t } = useI18n();
+  const tRef = useRef(t);
+  tRef.current = t;
+
   const gmRef = useRef<FarkleGameManager | null>(null);
   if (!gmRef.current) {
     const gm = new FarkleGameManager();
@@ -37,7 +43,7 @@ export const App: React.FC = () => {
   const [bgmMuted, setBgmMuted] = useState(false);
   const [sfxMuted, setSfxMuted] = useState(false);
   const [isRollingAnim, setIsRollingAnim] = useState(false);
-  const [feedback, setFeedback] = useState<string>('Seleziona i dadi per fare punti');
+  const [feedback, setFeedback] = useState<string>(() => t('feedback.selectDice'));
   const [shopFeedback, setShopFeedback] = useState<string>('');
 
   const forceUpdate = () => setTick((t) => t + 1);
@@ -58,18 +64,18 @@ export const App: React.FC = () => {
 
     const unsubState = gm.on('stateChanged', forceUpdate);
     const unsubHotDice = gm.on('hotDice', () => {
-      setFeedback(`HOT DICE! Moltiplicatore ${gm.multiplier}x!`);
+      setFeedback(tRef.current('feedback.hotDice', { mult: gm.multiplier }));
     });
     const unsubGrace = gm.on('graceRoll', () => {
-      setFeedback('GRACE ROLL! Primo tiro salvato!');
+      setFeedback(tRef.current('feedback.graceRoll'));
     });
     const unsubFarkle = gm.on('farkle', () => {
       if (gm.lastFarkleUsedClover) {
-        setFeedback('TRIFOGLIO! Farkle annullato, rilancio gratuito!');
+        setFeedback(tRef.current('feedback.farkleClover'));
       } else if (gm.lastFarkleConsumedShield) {
-        setFeedback('FARKLE! Scudo consumato, rilancio gratuito!');
+        setFeedback(tRef.current('feedback.farkleShield'));
       } else {
-        setFeedback('FARKLE! Piatto perso!');
+        setFeedback(tRef.current('feedback.farkleLost'));
       }
       window.setTimeout(() => {
         gm.completePendingFarkleTurn();
@@ -122,7 +128,7 @@ export const App: React.FC = () => {
     gm.startNewRun();
     setScreen('game');
     triggerRollAnim();
-    setFeedback('Seleziona i dadi per fare punti');
+    setFeedback(t('feedback.selectDice'));
 
     try {
       if (!localStorage.getItem(TUTORIAL_STORAGE_KEY)) {
@@ -141,7 +147,7 @@ export const App: React.FC = () => {
       setTargetingSlot(null);
       if (ok) {
         soundManager.playSelect();
-        setFeedback('Consumabile applicato!');
+        setFeedback(t('feedback.consumableApplied'));
       }
       return;
     }
@@ -159,7 +165,7 @@ export const App: React.FC = () => {
     if (gm.confirmSelectionAndRoll()) {
       triggerRollAnim();
       if (!gm.isAwaitingFarkleResolution) {
-        setFeedback('Seleziona i dadi per fare punti');
+        setFeedback(t('feedback.selectDice'));
       }
     }
   };
@@ -170,7 +176,7 @@ export const App: React.FC = () => {
     soundManager.playSelect();
     if (gm.bankPotAndEndTurn()) {
       triggerRollAnim();
-      setFeedback('Punti versati in Banca!');
+      setFeedback(t('feedback.banked'));
     }
   };
 
@@ -184,12 +190,13 @@ export const App: React.FC = () => {
 
     const type = gm.equippedConsumables[slotIndex];
     const meta = CONSUMABLE_METADATA[type];
+    const consumableName = t(`consumables.${type}.name`);
     if (meta.requiresDieTarget) {
       setTargetingSlot(slotIndex);
-      setFeedback(`Tocca un dado per usare ${meta.displayName}`);
+      setFeedback(t('feedback.targetPrompt', { name: consumableName }));
     } else if (gm.useImmediateConsumable(slotIndex)) {
       soundManager.playSelect();
-      setFeedback(`${meta.displayName} attivato!`);
+      setFeedback(t('feedback.consumableActivated', { name: consumableName }));
     }
   };
 
@@ -199,12 +206,19 @@ export const App: React.FC = () => {
     setShopUnlockedForStage(0);
     gm.startNewRun();
     triggerRollAnim();
-    setFeedback('Nuova Run iniziata! Buona fortuna!');
+    setFeedback(t('feedback.newRun'));
   };
 
   const bossMeta = BOSS_METADATA[gm.anteBoss];
   const isBossActiveNow = gm.currentStage === GameConfig.BossStageNumber;
   const bankPercent = Math.min(100, Math.round((gm.bankScore / gm.currentStageTarget) * 100));
+  const selectedDice = gm.dice.filter((d) => d.state === DieState.Selected);
+  const selectionDescription = ScoreEvaluator.describeSelection(
+    selectedDice,
+    gm.hotDiceLevel,
+    gm.anteBoss,
+    lang
+  );
   const willTriggerHotDice =
     gm.canConfirmAndRoll &&
     gm.dice.length > 0 &&
@@ -242,10 +256,10 @@ export const App: React.FC = () => {
                 <span className="pill pill-turn">
                   T{gm.currentTurn}/{gm.maxTurns}
                 </span>
-                <span className="pill pill-shields" title="Scudi anti-Farkle">
+                <span className="pill pill-shields" title={t('hud.shieldsTitle')}>
                   <GameIcons.Shield size={17} /> {gm.remainingShields}
                 </span>
-                <span className="pill pill-coins" title="Monete">
+                <span className="pill pill-coins" title={t('hud.coinsTitle')}>
                   <GameIcons.Coins size={17} /> {gm.coins}
                 </span>
               </div>
@@ -255,7 +269,7 @@ export const App: React.FC = () => {
                   type="button"
                   className="icon-btn"
                   onClick={() => setOpenPopover((p) => (p === 'audio' ? 'none' : 'audio'))}
-                  aria-label="Opzioni audio"
+                  aria-label={t('hud.audioOptions')}
                 >
                   {bgmMuted && sfxMuted ? (
                     <GameIcons.SoundOff size={17} />
@@ -270,7 +284,7 @@ export const App: React.FC = () => {
                     setOpenPopover('none');
                     setShowRules(true);
                   }}
-                  aria-label="Regole"
+                  aria-label={t('hud.rules')}
                 >
                   <GameIcons.Rules size={17} />
                 </button>
@@ -278,7 +292,7 @@ export const App: React.FC = () => {
                   type="button"
                   className="icon-btn"
                   onClick={() => setOpenPopover((p) => (p === 'quick' ? 'none' : 'quick'))}
-                  aria-label="Menu opzioni"
+                  aria-label={t('hud.menuOptions')}
                 >
                   <GameIcons.Menu size={17} />
                 </button>
@@ -295,14 +309,14 @@ export const App: React.FC = () => {
                       className={`btn ${!bgmMuted ? 'btn-primary' : 'btn-ghost'} popover-btn`}
                       onClick={() => setBgmMuted(soundManager.toggleBgm())}
                     >
-                      MUSICA: {!bgmMuted ? 'ON' : 'OFF'}
+                      {t('hud.music')}: {!bgmMuted ? t('hud.on') : t('hud.off')}
                     </button>
                     <button
                       type="button"
                       className={`btn ${!sfxMuted ? 'btn-primary' : 'btn-ghost'} popover-btn`}
                       onClick={() => setSfxMuted(soundManager.toggleSfx())}
                     >
-                      EFFETTI: {!sfxMuted ? 'ON' : 'OFF'}
+                      {t('hud.effects')}: {!sfxMuted ? t('hud.on') : t('hud.off')}
                     </button>
                   </div>
                 )}
@@ -317,7 +331,7 @@ export const App: React.FC = () => {
                         handleRestart();
                       }}
                     >
-                      NUOVA PARTITA
+                      {t('hud.newGame')}
                     </button>
                     <button
                       type="button"
@@ -327,7 +341,7 @@ export const App: React.FC = () => {
                         setTutorialStep(1);
                       }}
                     >
-                      RIVEDI TUTORIAL
+                      {t('hud.reviewTutorial')}
                     </button>
                     <button
                       type="button"
@@ -337,7 +351,7 @@ export const App: React.FC = () => {
                         setScreen('home');
                       }}
                     >
-                      TORNA ALLA HOME
+                      {t('hud.backHome')}
                     </button>
                   </div>
                 )}
@@ -347,7 +361,7 @@ export const App: React.FC = () => {
             {/* BANK PROGRESS & BOSS STRIP (impilati per mobile verticale) */}
             <div className="bank-box">
               <div className="bank-labels">
-                <span className="muted-label">BANCA STAGE {gm.currentStage}</span>
+                <span className="muted-label">{t('hud.bankStage', { stage: gm.currentStage })}</span>
                 <span className="bank-numbers">
                   {gm.bankScore} / {gm.currentStageTarget}
                 </span>
@@ -364,9 +378,9 @@ export const App: React.FC = () => {
               >
                 <div className="boss-mini-title" style={{ color: bossMeta.themeColorHex }}>
                   <BossIcon boss={gm.anteBoss} size={14} />
-                  <span>BOSS: {bossMeta.displayName}</span>
+                  <span>{t('hud.bossPrefix', { name: t(`bosses.${gm.anteBoss}.name`) })}</span>
                 </div>
-                <span className="boss-mini-desc">{bossMeta.shortDescription}</span>
+                <span className="boss-mini-desc">{t(`bosses.${gm.anteBoss}.desc`)}</span>
               </div>
             )}
           </header>
@@ -375,7 +389,7 @@ export const App: React.FC = () => {
           <main className="table-area">
             {/* NEL PIATTO: 6 slot fissi (dadi bloccati/congelati + slot vuoti) */}
             <div className="nel-piatto-rack">
-              <span className="rack-label">NEL PIATTO:</span>
+              <span className="rack-label">{t('table.inPotRack')}</span>
               <div className="nel-piatto-slots">
                 {Array.from({ length: GameConfig.DefaultDiceCount }, (_, idx) => {
                   const lockedDie = lockedAndFrozenDice[idx];
@@ -390,7 +404,7 @@ export const App: React.FC = () => {
             {/* PIATTO & MOLTIPLICATORE */}
             <div className="pot-row">
               <div className="pot-main">
-                <span className="pot-caption">PIATTO:</span>
+                <span className="pot-caption">{t('table.potCaption')}</span>
                 <span className="pot-value">{gm.currentPot}</span>
                 {gm.previewSelectionScore > 0 && (
                   <span className="pot-delta">+{gm.previewSelectionScore}</span>
@@ -404,8 +418,8 @@ export const App: React.FC = () => {
 
               <div className="pot-meta">
                 {gm.hasCloverProtection && (
-                  <span className="clover-badge" title="Protezione Trifoglio attiva">
-                    <GameIcons.Clover size={15} /> SALVO
+                  <span className="clover-badge" title={t('table.cloverTitle')}>
+                    <GameIcons.Clover size={15} /> {t('table.cloverBadge')}
                   </span>
                 )}
                 <span className={`mult-badge ${gm.multiplier > 1 ? 'mult-hot' : ''}`}>
@@ -424,16 +438,16 @@ export const App: React.FC = () => {
                     className="btn-cancel-target"
                     onClick={() => {
                       setTargetingSlot(null);
-                      setFeedback('Selezione annullata');
+                      setFeedback(t('feedback.selectionCancelled'));
                     }}
                   >
-                    ANNULLA
+                    {t('table.cancel')}
                   </button>
                 </div>
               ) : (
                 <span>
-                  {gm.previewSelectionDescription
-                    ? `${gm.previewSelectionDescription} (+${gm.previewSelectionScore} pt)`
+                  {selectionDescription
+                    ? `${selectionDescription} (+${gm.previewSelectionScore} ${t('feedback.ptsUnit')})`
                     : feedback}
                 </span>
               )}
@@ -463,7 +477,6 @@ export const App: React.FC = () => {
             {gm.equippedConsumables.length > 0 && (
               <div className="consumable-belt">
                 {gm.equippedConsumables.map((item, idx) => {
-                  const meta = CONSUMABLE_METADATA[item];
                   const usable = gm.canUseConsumable(idx);
                   const isSelectedTarget = targetingSlot === idx;
                   return (
@@ -476,8 +489,8 @@ export const App: React.FC = () => {
                     >
                       <ConsumableIcon type={item} size={22} className="belt-icon" />
                       <div className="belt-text">
-                        <strong>{meta.displayName}</strong>
-                        <small>{meta.shortDescription}</small>
+                        <strong>{t(`consumables.${item}.name`)}</strong>
+                        <small>{t(`consumables.${item}.desc`)}</small>
                       </div>
                     </button>
                   );
@@ -492,7 +505,7 @@ export const App: React.FC = () => {
                 disabled={!gm.canConfirmAndRoll}
                 onClick={handleConfirmAndRoll}
               >
-                {willTriggerHotDice ? 'HOT DICE!' : 'TIENI & TIRA'}
+                {willTriggerHotDice ? t('table.hotDiceBtn') : t('table.keepAndRollBtn')}
               </button>
               <button
                 type="button"
@@ -500,7 +513,7 @@ export const App: React.FC = () => {
                 disabled={!gm.canBank}
                 onClick={handleBank}
               >
-                INCASSA ({gm.totalBankablePot})
+                {t('table.bankBtn', { amount: gm.totalBankablePot })}
               </button>
             </div>
           </footer>
@@ -533,37 +546,43 @@ export const App: React.FC = () => {
           hasStandardDie={gm.hasStandardDieInPersistentPool()}
           feedback={shopFeedback}
           onBuyShield={() => {
-            if (gm.buyRepairShield()) setShopFeedback('Scudo riparato! (+1)');
+            if (gm.buyRepairShield()) setShopFeedback(t('shopFeedback.shieldRepaired'));
           }}
           onBuyConsumable={() => {
             const bought = gm.buyShopConsumable();
-            if (bought) setShopFeedback(`Acquistato: ${CONSUMABLE_METADATA[bought].displayName}`);
+            if (bought) {
+              setShopFeedback(
+                t('shopFeedback.boughtConsumable', { name: t(`consumables.${bought}.name`) })
+              );
+            }
           }}
           onRerollConsumable={() => {
-            if (gm.rerollShopConsumable()) setShopFeedback('Offerta consumabile aggiornata!');
+            if (gm.rerollShopConsumable()) setShopFeedback(t('shopFeedback.rerolled'));
           }}
           onBuySpecialDie={() => {
             const newType = gm.buyRandomSpecialDie();
             if (newType) {
               const label =
                 newType === DieType.Golden
-                  ? 'Dado Oro'
+                  ? t('shopFeedback.dieGolden')
                   : newType === DieType.Loaded
-                    ? 'Dado Truccato'
-                    : 'Dado Moltiplicatore x2';
-              setShopFeedback(`Potenziato 1 dado in: ${label}!`);
+                    ? t('shopFeedback.dieLoaded')
+                    : t('shopFeedback.dieMultiplier');
+              setShopFeedback(t('shopFeedback.upgradedDie', { label }));
             }
           }}
           onBuyTrisUpgrade={() => {
             if (gm.buyTrisMultiplierUpgrade()) {
-              setShopFeedback(`Bonus Tris potenziato a x${gm.trisBaseMultiplier.toFixed(1)}!`);
+              setShopFeedback(
+                t('shopFeedback.trisUpgraded', { mult: gm.trisBaseMultiplier.toFixed(1) })
+              );
             }
           }}
           onNextStage={() => {
             setShopFeedback('');
             gm.advanceToNextStage();
             triggerRollAnim();
-            setFeedback(`Stage ${gm.currentStage} iniziato!`);
+            setFeedback(t('feedback.stageStarted', { stage: gm.currentStage }));
           }}
         />
       )}

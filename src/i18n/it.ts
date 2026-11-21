@@ -1,0 +1,183 @@
+import { BossType } from '../data/bossType';
+import { ConsumableType } from '../data/consumableType';
+
+export type Language = 'it' | 'en';
+
+export const it = {
+  home: {
+    muteOn: 'Attiva audio',
+    muteOff: 'Disattiva audio',
+    langLabel: 'Cambia lingua (IT / EN)',
+    play: 'GIOCA',
+    rules: 'REGOLE',
+  },
+  hud: {
+    shieldsTitle: 'Scudi anti-Farkle',
+    coinsTitle: 'Monete',
+    audioOptions: 'Opzioni audio',
+    rules: 'Regole',
+    menuOptions: 'Menu opzioni',
+    music: 'MUSICA',
+    effects: 'EFFETTI',
+    on: 'ON',
+    off: 'OFF',
+    newGame: 'NUOVA PARTITA',
+    reviewTutorial: 'RIVEDI TUTORIAL',
+    backHome: 'TORNA ALLA HOME',
+    bankStage: 'BANCA STAGE {{stage}}',
+    bossPrefix: 'BOSS: {{name}}',
+  },
+  table: {
+    inPotRack: 'NEL PIATTO:',
+    potCaption: 'PIATTO:',
+    cloverTitle: 'Protezione Trifoglio attiva',
+    cloverBadge: 'SALVO',
+    cancel: 'ANNULLA',
+    hotDiceBtn: 'HOT DICE!',
+    keepAndRollBtn: 'TIENI & TIRA',
+    bankBtn: 'INCASSA ({{amount}})',
+  },
+  feedback: {
+    selectDice: 'Seleziona i dadi per fare punti',
+    hotDice: 'HOT DICE! Moltiplicatore {{mult}}x!',
+    graceRoll: 'GRACE ROLL! Primo tiro salvato!',
+    farkleClover: 'TRIFOGLIO! Farkle annullato, rilancio gratuito!',
+    farkleShield: 'FARKLE! Scudo consumato, rilancio gratuito!',
+    farkleLost: 'FARKLE! Piatto perso!',
+    consumableApplied: 'Consumabile applicato!',
+    banked: 'Punti versati in Banca!',
+    targetPrompt: 'Tocca un dado per usare {{name}}',
+    consumableActivated: '{{name}} attivato!',
+    newRun: 'Nuova Run iniziata! Buona fortuna!',
+    selectionCancelled: 'Selezione annullata',
+    stageStarted: 'Stage {{stage}} iniziato!',
+    ptsUnit: 'pt',
+  },
+  shopFeedback: {
+    shieldRepaired: 'Scudo riparato! (+1)',
+    boughtConsumable: 'Acquistato: {{name}}',
+    rerolled: 'Offerta consumabile aggiornata!',
+    upgradedDie: 'Potenziato 1 dado in: {{label}}!',
+    trisUpgraded: 'Bonus Tris potenziato a x{{mult}}!',
+    dieGolden: 'Dado Oro',
+    dieLoaded: 'Dado Truccato',
+    dieMultiplier: 'Dado Moltiplicatore x2',
+  },
+  shop: {
+    title: 'NEGOZIO',
+    belt: 'CINTURA ({{count}}/{{max}}):',
+    repairShieldTitle: 'RIPARA SCUDO',
+    repairShieldDesc: '+1 Scudo anti-Farkle (Attuali: {{count}})',
+    buy: 'COMPRA',
+    beltFull: 'CINTURA PIENA',
+    rerollTitle: 'Cambia il consumabile proposto',
+    rerollBtn: 'CAMBIA',
+    specialDieTitle: 'DADO SPECIALE ({{count}}/6)',
+    specialDieDesc: 'Trasforma 1 dado in Oro, Truccato o x2',
+    allSpecial: 'TUTTI SPECIALI',
+    trisTitle: 'TRIS +0.5x (x{{mult}})',
+    trisDesc: 'Bonus fisso permanente sui Tris',
+    startStage: 'AVVIA STAGE {{stage}}',
+  },
+  stageClear: {
+    title: 'STAGE {{stage}} SUPERATO!',
+    bankLine: 'Banca:',
+    stageReward: 'Premio Stage completato',
+    overkillBonus: 'Bonus Overkill (+{{points}} pt extra)',
+    overkillHint: "1 moneta ogni {{perCoin}} pt oltre l'obiettivo",
+    totalEarned: 'Totale guadagnato (Saldo: {{coins}})',
+    nextStage: 'PROSSIMO: STAGE {{stage}}',
+    target: 'OBIETTIVO: {{target}} PT',
+    bossStageTitle: 'BOSS STAGE {{stage}}: {{name}}',
+    goToShop: 'VAI AL NEGOZIO',
+  },
+  gameOver: {
+    victoryTitle: 'RUN COMPLETATA!',
+    defeatTitle: 'RUN TERMINATA',
+    victorySub: 'Hai sconfitto anche il Boss dello Stage 3!',
+    defeatSub: 'Fermato allo Stage {{stage}} ({{bank}} / {{target}} pt)',
+    finalCoins: '{{coins}} Monete finali',
+    newRun: 'NUOVA RUN',
+  },
+  rules: {
+    title: 'TABELLA COMBINAZIONI',
+    extraNote: 'Ogni dado extra dopo il tris raddoppia: 4 = x2 • 5 = x4 • 6 = x8',
+    specialDiceTitle: 'DADI SPECIALI',
+    specialGold: 'ORO:',
+    specialGoldDesc: '1 = 250 pt, 5 = 100 pt',
+    specialLoaded: 'TRUC:',
+    specialLoadedDesc: 'più 1 e 5',
+    specialMult: 'x2:',
+    specialMultDesc: 'Raddoppia punti combo',
+    close: 'Chiudi',
+  },
+  tutorial: {
+    step1: 'Benvenuto! Hai 4 turni per riempire la BANCA e superare lo Stage.',
+    step2: 'Tocca i dadi validi per metterli nel Piatto: ogni 1 = 100 pt, ogni 5 = 50 pt, e 3 uguali valgono un Tris!',
+    step3: 'INCASSA mette il Piatto al sicuro in Banca. TIENI & TIRA rilancia i dadi rimasti per fare più punti, ma se non esce nulla fai FARKLE e perdi il Piatto!',
+    step4: "Gli SCUDI ti proteggono dai Farkle, i CONSUMABILI truccano i dadi, e se blocchi tutti e 6 i dadi scatta l'HOT DICE (x2!). Buona fortuna!",
+    skip: 'SALTA',
+    play: 'GIOCA!',
+    next: 'AVANTI >',
+  },
+  die: {
+    badgeGolden: 'ORO',
+    badgeLoaded: 'TRUC',
+    badgeMultiplier: 'x2',
+    ariaLabel: 'Dado {{id}}, valore {{value}}, stato {{state}}',
+  },
+  combos: {
+    fullStraight: 'SCALA 1-6',
+    highStraight: 'SCALA 2-6',
+    lowStraight: 'SCALA 1-5',
+    tris: 'TRIS DI {{face}}',
+    poker: 'POKER DI {{face}}',
+    nOfAKind: '{{count}}x {{face}}',
+  },
+  bosses: {
+    [BossType.None]: {
+      name: 'TAVOLO STANDARD',
+      desc: 'Regole classiche',
+    },
+    [BossType.GeloPerenne]: {
+      name: 'GELO PERENNE',
+      desc: '1 dado parte congelato ogni turno',
+    },
+    [BossType.Fornace]: {
+      name: 'FORNACE',
+      desc: 'Solo 3 turni, ma Hot Dice +2x',
+    },
+    [BossType.Esattore]: {
+      name: 'ESATTORE',
+      desc: 'I 5 singoli valgono 0 pt ma danno +1 Moneta',
+    },
+  },
+  consumables: {
+    [ConsumableType.GettoneSpinta]: {
+      name: 'GETTONE SPINTA',
+      desc: 'Rilancia 1 dado (+150 pt se segna)',
+    },
+    [ConsumableType.GhiaccioSecco]: {
+      name: 'GHIACCIO SECCO',
+      desc: 'Congela 1 dado (+1x Moltiplicatore)',
+    },
+    [ConsumableType.Polizza]: {
+      name: 'POLIZZA',
+      desc: 'Salva 50% Piatto (Reset x1)',
+    },
+    [ConsumableType.DadoJolly]: {
+      name: 'DADO JOLLY',
+      desc: 'Trasforma 1 dado in 1',
+    },
+    [ConsumableType.Trifoglio]: {
+      name: 'TRIFOGLIO',
+      desc: 'Annulla prossimo Farkle',
+    },
+  },
+} as const;
+
+type DeepString<T> = {
+  [K in keyof T]: T[K] extends string ? string : DeepString<T[K]>;
+};
+
+export type TranslationSchema = DeepString<typeof it>;

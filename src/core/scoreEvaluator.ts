@@ -1,5 +1,7 @@
 import { BossType } from '../data/bossType';
 import { GameConfig } from '../data/gameConfig';
+import { translate } from '../i18n/I18nContext';
+import type { Language } from '../i18n/it';
 import { Die, DieType } from './die';
 
 export interface ScoreEvaluationResult {
@@ -174,7 +176,8 @@ export const ScoreEvaluator = {
   describeSelection(
     selectedDice: readonly Die[],
     hotDiceLevel = 0,
-    activeBoss: BossType = BossType.None
+    activeBoss: BossType = BossType.None,
+    lang: Language = 'it'
   ): string {
     if (!selectedDice || selectedDice.length === 0 || selectedDice.length > 6) {
       return '';
@@ -194,16 +197,16 @@ export const ScoreEvaluator = {
     }
 
     if (selectedDice.length === 6 && isFullStraight(counts)) {
-      return 'SCALA 1-6';
+      return translate(lang, 'combos.fullStraight');
     }
 
     const parts: string[] = [];
 
     if (hasRange(counts, 2, 6)) {
-      parts.push('SCALA 2-6');
+      parts.push(translate(lang, 'combos.highStraight'));
       consumeRange(counts, 2, 6);
     } else if (hasRange(counts, 1, 5)) {
-      parts.push('SCALA 1-5');
+      parts.push(translate(lang, 'combos.lowStraight'));
       consumeRange(counts, 1, 5);
     }
 
@@ -212,11 +215,11 @@ export const ScoreEvaluator = {
       if (count <= 0) continue;
 
       if (count === 3) {
-        parts.push(`TRIS DI ${face}`);
+        parts.push(translate(lang, 'combos.tris', { face }));
       } else if (count === 4) {
-        parts.push(`POKER DI ${face}`);
+        parts.push(translate(lang, 'combos.poker', { face }));
       } else if (count >= 5) {
-        parts.push(`${count}x ${face}`);
+        parts.push(translate(lang, 'combos.nOfAKind', { count, face }));
       } else {
         for (let c = 0; c < count; c++) {
           parts.push(face.toString());

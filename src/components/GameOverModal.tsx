@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '../i18n/I18nContext';
 import { GameIcons } from './Icons';
 
 interface GameOverModalProps {
@@ -18,25 +19,31 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   coins,
   onRestart,
 }) => {
+  const { t } = useI18n();
+
   return (
     <div className="modal-backdrop">
       <div className={`gameover-panel ${isVictory ? 'victory' : 'defeat'}`}>
         <div className="gameover-icon">
           {isVictory ? <GameIcons.Trophy size={56} /> : <GameIcons.Skull size={56} />}
         </div>
-        <h2>{isVictory ? 'RUN COMPLETATA!' : 'RUN TERMINATA'}</h2>
+        <h2>{isVictory ? t('gameOver.victoryTitle') : t('gameOver.defeatTitle')}</h2>
         <p className="gameover-sub">
           {isVictory
-            ? 'Hai sconfitto anche il Boss dello Stage 3!'
-            : `Fermato allo Stage ${currentStage} (${bankScore} / ${stageTarget} pt)`}
+            ? t('gameOver.victorySub')
+            : t('gameOver.defeatSub', {
+                stage: currentStage,
+                bank: bankScore,
+                target: stageTarget,
+              })}
         </p>
         <div className="gameover-stats">
           <span>
-            <GameIcons.Coins size={18} /> {coins} Monete finali
+            <GameIcons.Coins size={18} /> {t('gameOver.finalCoins', { coins })}
           </span>
         </div>
         <button type="button" className="btn btn-gold btn-full" onClick={onRestart}>
-          NUOVA RUN
+          {t('gameOver.newRun')}
         </button>
       </div>
     </div>

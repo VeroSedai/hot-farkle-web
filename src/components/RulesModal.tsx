@@ -1,5 +1,6 @@
 import React from 'react';
 import { Die, DieState, DieType } from '../core/die';
+import { useI18n } from '../i18n/I18nContext';
 import { DieView } from './DieView';
 
 interface RulesModalProps {
@@ -46,10 +47,12 @@ const ComboRow: React.FC<ComboRowData> = ({ dice, score }) => (
 );
 
 export const RulesModal: React.FC<RulesModalProps> = ({ onClose }) => {
+  const { t } = useI18n();
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="rules-panel" onClick={(e) => e.stopPropagation()}>
-        <h2 className="rules-main-title">TABELLA COMBINAZIONI</h2>
+        <h2 className="rules-main-title">{t('rules.title')}</h2>
         <div className="rules-divider" />
 
         <div className="rules-columns">
@@ -63,23 +66,22 @@ export const RulesModal: React.FC<RulesModalProps> = ({ onClose }) => {
             {RIGHT_COMBOS.map((row, idx) => (
               <ComboRow key={idx} {...row} />
             ))}
-            <p className="rules-extra-note">
-              Ogni dado extra dopo il tris raddoppia: 4 = x2 &bull; 5 = x4 &bull; 6 = x8
-            </p>
+            <p className="rules-extra-note">{t('rules.extraNote')}</p>
           </div>
         </div>
 
         <div className="rules-roguelike-card">
-          <h3 style={{ color: '#c084fc' }}>DADI SPECIALI</h3>
+          <h3 style={{ color: '#c084fc' }}>{t('rules.specialDiceTitle')}</h3>
           <p>
-            <strong>ORO:</strong> 1 = 250 pt, 5 = 100 pt &bull; <strong>TRUC:</strong> più 1 e 5 &bull;{' '}
-            <strong>x2:</strong> Raddoppia punti combo
+            <strong>{t('rules.specialGold')}</strong> {t('rules.specialGoldDesc')} &bull;{' '}
+            <strong>{t('rules.specialLoaded')}</strong> {t('rules.specialLoadedDesc')} &bull;{' '}
+            <strong>{t('rules.specialMult')}</strong> {t('rules.specialMultDesc')}
           </p>
         </div>
 
         <div className="rules-close-wrap">
           <button type="button" className="btn btn-ghost rules-close-btn" onClick={onClose}>
-            Chiudi
+            {t('rules.close')}
           </button>
         </div>
       </div>

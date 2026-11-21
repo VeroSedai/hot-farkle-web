@@ -1,5 +1,6 @@
 import React from 'react';
 import { Die, DieState, DieType } from '../core/die';
+import { useI18n } from '../i18n/I18nContext';
 import { DieView } from './DieView';
 import { GameIcons } from './Icons';
 
@@ -19,14 +20,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenRules,
   onToggleMute,
 }) => {
+  const { lang, toggleLang, t } = useI18n();
+
   return (
     <div className="home-layout">
       <div className="home-top-bar">
         <button
           type="button"
+          className="icon-btn lang-btn"
+          onClick={toggleLang}
+          aria-label={t('home.langLabel')}
+          title={t('home.langLabel')}
+        >
+          {lang.toUpperCase()}
+        </button>
+        <button
+          type="button"
           className="icon-btn"
           onClick={onToggleMute}
-          aria-label={muted ? 'Attiva audio' : 'Disattiva audio'}
+          aria-label={muted ? t('home.muteOn') : t('home.muteOff')}
         >
           {muted ? <GameIcons.SoundOff size={20} /> : <GameIcons.SoundOn size={20} />}
         </button>
@@ -49,10 +61,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         <div className="home-actions">
           <button type="button" className="btn btn-gold btn-full btn-hero" onClick={onStartGame}>
-            <GameIcons.Play size={22} /> GIOCA
+            <GameIcons.Play size={22} /> {t('home.play')}
           </button>
           <button type="button" className="btn btn-ghost btn-full home-rules-btn" onClick={onOpenRules}>
-            <GameIcons.Rules size={20} /> REGOLE
+            <GameIcons.Rules size={20} /> {t('home.rules')}
           </button>
         </div>
       </div>
