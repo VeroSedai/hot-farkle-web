@@ -351,12 +351,19 @@ body,
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  border: 2px solid var(--panel-border);
-  background: var(--panel-bg);
+  border: 2px solid #3c4f45;
+  background: #26312b;
   color: var(--text-main);
+  box-shadow: 0 3px 0 #111714;
   display: grid;
   place-items: center;
   cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.icon-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #111714;
 }
 
 .bank-box {
@@ -926,11 +933,11 @@ body,
   font-size: 1.05rem;
   letter-spacing: 0.5px;
   cursor: pointer;
-  transition: transform 0.08s ease, opacity 0.15s ease;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.15s ease;
 }
 
 .btn:active:not(:disabled) {
-  transform: translateY(2px);
+  transform: translateY(3px);
 }
 
 .btn:disabled {
@@ -947,28 +954,41 @@ body,
 .btn-gold {
   background: var(--gold);
   color: #1e1b18;
-  border-color: var(--gold-dark);
-  box-shadow: 0 4px 0 var(--gold-dark);
+  border-color: #b47d08;
+  box-shadow: 0 4px 0 #7c5304;
+}
+.btn-gold:active:not(:disabled) {
+  box-shadow: 0 1px 0 #7c5304;
 }
 
 .btn-hot-dice {
   background: #f97316;
   color: #fff;
   border-color: #c2410c;
-  box-shadow: 0 4px 0 #9a3412;
+  box-shadow: 0 4px 0 #7c2d12;
+}
+.btn-hot-dice:active:not(:disabled) {
+  box-shadow: 0 1px 0 #7c2d12;
 }
 
 .btn-primary {
-  background: var(--green);
+  background: #367a45;
   color: var(--text-main);
-  border-color: var(--green-light);
-  box-shadow: 0 4px 0 #223d28;
+  border-color: #23532e;
+  box-shadow: 0 4px 0 #16361d;
+}
+.btn-primary:active:not(:disabled) {
+  box-shadow: 0 1px 0 #16361d;
 }
 
 .btn-ghost {
-  background: #232d27;
+  background: #2d3a34;
   color: var(--text-main);
-  border-color: var(--panel-border);
+  border-color: #1d2622;
+  box-shadow: 0 4px 0 #111714;
+}
+.btn-ghost:active:not(:disabled) {
+  box-shadow: 0 1px 0 #111714;
 }
 
 .btn-full {
