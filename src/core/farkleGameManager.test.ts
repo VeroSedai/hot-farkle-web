@@ -89,4 +89,24 @@ describe('FarkleGameManager', () => {
     expect(gm.dice[0].value).toBe(1);
     expect(gm.equippedConsumables.length).toBe(0);
   });
+
+  it('allows selling an equipped consumable in the shop to free a belt slot', () => {
+    const gm = new FarkleGameManager(() => 0);
+    gm.startNewRun();
+    gm.toggleSelectDie(0);
+    gm.toggleSelectDie(1);
+    gm.toggleSelectDie(2);
+    gm.bankPotAndEndTurn();
+
+    expect(gm.isInShop).toBe(true);
+    gm.equippedConsumables.push(ConsumableType.Polizza, ConsumableType.Trifoglio);
+    expect(gm.canBuyShopConsumable).toBe(false);
+
+    const coinsBefore = gm.coins;
+    const sold = gm.sellShopConsumable(0);
+    expect(sold).toBe(ConsumableType.Polizza);
+    expect(gm.equippedConsumables).toEqual([ConsumableType.Trifoglio]);
+    expect(gm.coins).toBe(coinsBefore + 1);
+    expect(gm.canBuyShopConsumable).toBe(true);
+  });
 });

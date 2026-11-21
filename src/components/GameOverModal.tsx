@@ -1,5 +1,6 @@
 import React from 'react';
 import { useI18n } from '../i18n/I18nContext';
+import type { PlayerStats } from '../utils/stats';
 import { GameIcons } from './Icons';
 
 interface GameOverModalProps {
@@ -8,6 +9,7 @@ interface GameOverModalProps {
   bankScore: number;
   stageTarget: number;
   coins: number;
+  stats: PlayerStats;
   onRestart: () => void;
 }
 
@@ -17,6 +19,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   bankScore,
   stageTarget,
   coins,
+  stats,
   onRestart,
 }) => {
   const { t } = useI18n();
@@ -41,6 +44,11 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           <span>
             <GameIcons.Coins size={18} /> {t('gameOver.finalCoins', { coins })}
           </span>
+          <div className="gameover-records">
+            <span>{t('gameOver.bestPot', { pot: stats.bestPot })}</span>
+            <span>&bull;</span>
+            <span>{t('gameOver.bestBank', { bank: stats.bestBank })}</span>
+          </div>
         </div>
         <button type="button" className="btn btn-gold btn-full" onClick={onRestart}>
           {t('gameOver.newRun')}

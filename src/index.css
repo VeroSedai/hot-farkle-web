@@ -184,6 +184,40 @@ body,
   max-width: 300px;
 }
 
+.home-stats-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(16, 24, 20, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.home-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.home-stat-val {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.home-stat-lbl {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+}
+
 .btn-hero {
   width: 100%;
   min-height: 54px;
@@ -1184,6 +1218,29 @@ body,
     color: var(--gold);
   }
 
+  .chip-sellable {
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.1s ease, background 0.12s ease;
+  }
+
+  .chip-sellable:hover {
+    background: #2b2419;
+  }
+
+  .chip-sellable:active {
+    transform: translateY(1px);
+  }
+
+  .chip-sell-badge {
+    margin-left: 2px;
+    padding: 0 4px;
+    border-radius: 4px;
+    background: rgba(244, 180, 26, 0.18);
+    color: #fde68a;
+    font-weight: 800;
+  }
+
   .shop-card-tag {
     font-size: 0.72rem;
     letter-spacing: 0.8px;
@@ -1525,7 +1582,17 @@ body,
 
   .gameover-stats {
     display: flex;
-    gap: 12px;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
     font-size: 1.1rem;
     color: var(--gold);
+  }
+
+  .gameover-records {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: #9ca3af;
   }

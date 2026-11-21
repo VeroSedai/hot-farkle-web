@@ -17,6 +17,7 @@ interface ShopOverlayProps {
   feedback: string;
   onBuyShield: () => void;
   onBuyConsumable: () => void;
+  onSellConsumable: (slotIndex: number) => void;
   onRerollConsumable: () => void;
   onBuySpecialDie: () => void;
   onBuyTrisUpgrade: () => void;
@@ -35,6 +36,7 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
   feedback,
   onBuyShield,
   onBuyConsumable,
+  onSellConsumable,
   onRerollConsumable,
   onBuySpecialDie,
   onBuyTrisUpgrade,
@@ -69,9 +71,20 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
               </span>
               <div className="pool-chips">
                 {equippedConsumables.map((c, idx) => (
-                  <span key={`${c}-${idx}`} className="pool-chip chip-consumable">
+                  <button
+                    key={`${c}-${idx}`}
+                    type="button"
+                    className="pool-chip chip-consumable chip-sellable"
+                    onClick={() => onSellConsumable(idx)}
+                    title={t('shop.sellConsumableTitle', {
+                      coins: GameConfig.ShopConsumableSellValue,
+                    })}
+                  >
                     <ConsumableIcon type={c} size={14} /> {t(`consumables.${c}.name`)}
-                  </span>
+                    <span className="chip-sell-badge">
+                      +{GameConfig.ShopConsumableSellValue} &times;
+                    </span>
+                  </button>
                 ))}
               </div>
             </div>

@@ -509,6 +509,16 @@ export class FarkleGameManager {
     return purchased;
   }
 
+  public sellShopConsumable(slotIndex: number): ConsumableType | null {
+    if (!this.isInShop || slotIndex < 0 || slotIndex >= this.equippedConsumables.length) {
+      return null;
+    }
+    const [sold] = this.equippedConsumables.splice(slotIndex, 1);
+    this.coins += GameConfig.ShopConsumableSellValue;
+    this.emit('stateChanged');
+    return sold;
+  }
+
   public rerollShopConsumable(cost: number = GameConfig.ShopCostReroll): boolean {
     if (!this.isInShop || this.coins < cost) return false;
     this.coins -= cost;

@@ -16,6 +16,7 @@ import { CONSUMABLE_METADATA } from './data/consumableType';
 import { GameConfig } from './data/gameConfig';
 import { useI18n } from './i18n/I18nContext';
 import { soundManager } from './utils/audio';
+import { loadStats, PlayerStats, recordBankedPot, recordRunEnd } from './utils/stats';
 
 const TUTORIAL_STORAGE_KEY = 'hotfarkle_tutorial_completed';
 
@@ -43,6 +44,7 @@ export const App: React.FC = () => {
   const [bgmMuted, setBgmMuted] = useState(false);
   const [sfxMuted, setSfxMuted] = useState(false);
   const [isRollingAnim, setIsRollingAnim] = useState(false);
+  const [stats, setStats] = useState<PlayerStats>(() => loadStats());
   const [feedback, setFeedback] = useState<string>(() => t('feedback.selectDice'));
   const [shopFeedback, setShopFeedback] = useState<string>('');
 
@@ -69,6 +71,9 @@ export const App: React.FC = () => {
     const unsubGrace = gm.on('graceRoll', () => {
       setFeedback(tRef.current('feedback.graceRoll'));
     });
+    const unsubGameOver = gm.on('gameOver', () => {
+      setStats(recordRunEnd(gm.isVictory, gm.bankScore));
+    });
     const unsubFarkle = gm.on('farkle', () => {
       if (gm.lastFarkleUsedClover) {
         setFeedback(tRef.current('feedback.farkleClover'));
@@ -89,6 +94,7 @@ export const App: React.FC = () => {
       unsubState();
       unsubHotDice();
       unsubGrace();
+      unsubGameOver();
       unsubFarkle();
     };
   }, [gm]);
@@ -174,7 +180,9 @@ export const App: React.FC = () => {
     if (!gm.canBank) return;
     setTargetingSlot(null);
     soundManager.playSelect();
+    const potToBank = gm.totalBankablePot;
     if (gm.bankPotAndEndTurn()) {
+      setStats(recordBankedPot(potToBank, gm.bankScore));
       triggerRollAnim();
       setFeedback(t('feedback.banked'));
     }
@@ -236,6 +244,7 @@ export const App: React.FC = () => {
       {screen === 'home' ? (
         <HomeScreen
           muted={bgmMuted && sfxMuted}
+          stats={stats}
           onStartGame={handleStartFromHome}
           onOpenRules={() => setShowRules(true)}
           onToggleMute={() => {
@@ -556,6 +565,18 @@ export const App: React.FC = () => {
               );
             }
           }}
+          onSellConsumable={(slotIndex) => {
+            const sold = gm.sellShopConsumable(slotIndex);
+            if (sold) {
+              soundManager.playSelect();
+              setShopFeedback(
+                t('shopFeedback.soldConsumable', {
+                  name: t(`consumables.${sold}.name`),
+                  coins: GameConfig.ShopConsumableSellValue,
+                })
+              );
+            }
+          }}
           onRerollConsumable={() => {
             if (gm.rerollShopConsumable()) setShopFeedback(t('shopFeedback.rerolled'));
           }}
@@ -594,6 +615,7 @@ export const App: React.FC = () => {
           bankScore={gm.bankScore}
           stageTarget={gm.currentStageTarget}
           coins={gm.coins}
+          stats={stats}
           onRestart={handleRestart}
         />
       )}

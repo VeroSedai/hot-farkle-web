@@ -15,6 +15,7 @@ export const GameConfig = {
 
   ShopCostRepairShield: 2,
   ShopCostConsumable: 2,
+  ShopConsumableSellValue: 1,
   ShopCostSpecialDie: 3,
   ShopCostTrisMultiplierUpgrade: 4,
   ShopCostReroll: 1,

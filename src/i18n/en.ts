@@ -9,6 +9,9 @@ export const en: TranslationSchema = {
     langLabel: 'Switch language (IT / EN)',
     play: 'PLAY',
     rules: 'RULES',
+    statsWins: 'Wins',
+    statsBestPot: 'Best Pot',
+    statsBestBank: 'Best Bank',
   },
   hud: {
     shieldsTitle: 'Anti-Farkle Shields',
@@ -55,6 +58,7 @@ export const en: TranslationSchema = {
   shopFeedback: {
     shieldRepaired: 'Shield repaired! (+1)',
     boughtConsumable: 'Purchased: {{name}}',
+    soldConsumable: 'Sold: {{name}} (+{{coins}})',
     rerolled: 'Consumable offer refreshed!',
     upgradedDie: 'Upgraded 1 die to: {{label}}!',
     trisUpgraded: 'Three-of-a-Kind bonus upgraded to x{{mult}}!',
@@ -65,6 +69,7 @@ export const en: TranslationSchema = {
   shop: {
     title: 'SHOP',
     belt: 'BELT ({{count}}/{{max}}):',
+    sellConsumableTitle: 'Sell for +{{coins}} Coin',
     repairShieldTitle: 'REPAIR SHIELD',
     repairShieldDesc: '+1 Anti-Farkle Shield (Current: {{count}})',
     buy: 'BUY',
@@ -96,6 +101,8 @@ export const en: TranslationSchema = {
     victorySub: 'You even defeated the Stage 3 Boss!',
     defeatSub: 'Stopped at Stage {{stage}} ({{bank}} / {{target}} pts)',
     finalCoins: '{{coins}} Final coins',
+    bestPot: 'Best Pot: {{pot}}',
+    bestBank: 'Best Bank: {{bank}}',
     newRun: 'NEW RUN',
   },
   rules: {

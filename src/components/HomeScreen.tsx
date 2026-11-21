@@ -1,11 +1,13 @@
 import React from 'react';
 import { Die, DieState, DieType } from '../core/die';
 import { useI18n } from '../i18n/I18nContext';
+import type { PlayerStats } from '../utils/stats';
 import { DieView } from './DieView';
 import { GameIcons } from './Icons';
 
 interface HomeScreenProps {
   muted: boolean;
+  stats: PlayerStats;
   onStartGame: () => void;
   onOpenRules: () => void;
   onToggleMute: () => void;
@@ -16,11 +18,13 @@ const SHOWCASE_DIE_2 = new Die(1, 5, DieState.InPool, DieType.Golden);
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   muted,
+  stats,
   onStartGame,
   onOpenRules,
   onToggleMute,
 }) => {
   const { lang, toggleLang, t } = useI18n();
+  const hasStats = stats.runsPlayed > 0 || stats.bestPot > 0;
 
   return (
     <div className="home-layout">
@@ -67,6 +71,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <GameIcons.Rules size={20} /> {t('home.rules')}
           </button>
         </div>
+
+        {hasStats && (
+          <div className="home-stats-strip">
+            <div className="home-stat-item">
+              <span className="home-stat-val">
+                {stats.runsWon}/{stats.runsPlayed}
+              </span>
+              <span className="home-stat-lbl">{t('home.statsWins')}</span>
+            </div>
+            <div className="home-stat-item">
+              <span className="home-stat-val">{stats.bestPot}</span>
+              <span className="home-stat-lbl">{t('home.statsBestPot')}</span>
+            </div>
+            <div className="home-stat-item">
+              <span className="home-stat-val">{stats.bestBank}</span>
+              <span className="home-stat-lbl">{t('home.statsBestBank')}</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

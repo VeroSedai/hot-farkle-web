@@ -10,6 +10,9 @@ export const it = {
     langLabel: 'Cambia lingua (IT / EN)',
     play: 'GIOCA',
     rules: 'REGOLE',
+    statsWins: 'Vittorie',
+    statsBestPot: 'Best Piatto',
+    statsBestBank: 'Best Banca',
   },
   hud: {
     shieldsTitle: 'Scudi anti-Farkle',
@@ -56,6 +59,7 @@ export const it = {
   shopFeedback: {
     shieldRepaired: 'Scudo riparato! (+1)',
     boughtConsumable: 'Acquistato: {{name}}',
+    soldConsumable: 'Venduto: {{name}} (+{{coins}})',
     rerolled: 'Offerta consumabile aggiornata!',
     upgradedDie: 'Potenziato 1 dado in: {{label}}!',
     trisUpgraded: 'Bonus Tris potenziato a x{{mult}}!',
@@ -66,6 +70,7 @@ export const it = {
   shop: {
     title: 'NEGOZIO',
     belt: 'CINTURA ({{count}}/{{max}}):',
+    sellConsumableTitle: 'Vendi per +{{coins}} Moneta',
     repairShieldTitle: 'RIPARA SCUDO',
     repairShieldDesc: '+1 Scudo anti-Farkle (Attuali: {{count}})',
     buy: 'COMPRA',
@@ -97,6 +102,8 @@ export const it = {
     victorySub: 'Hai sconfitto anche il Boss dello Stage 3!',
     defeatSub: 'Fermato allo Stage {{stage}} ({{bank}} / {{target}} pt)',
     finalCoins: '{{coins}} Monete finali',
+    bestPot: 'Best Piatto: {{pot}}',
+    bestBank: 'Best Banca: {{bank}}',
     newRun: 'NUOVA RUN',
   },
   rules: {
