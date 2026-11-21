@@ -73,7 +73,7 @@ body,
   padding: 10px 6px max(22px, env(safe-area-inset-bottom)) 6px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
   .game-layout {
     max-width: 720px;
   }
@@ -684,7 +684,7 @@ body,
   padding: 6px 0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (orientation: landscape) {
   .dice-pool-grid {
     grid-template-columns: repeat(6, 86px);
   }
@@ -1683,5 +1683,51 @@ body,
   .dice-pool-grid {
     grid-template-columns: repeat(3, 98px);
     gap: 18px;
+  }
+}
+
+/* PORTRAIT WITH DESKTOP VIEWPORT (e.g. Chrome "Desktop site" on phone) */
+@media (min-width: 768px) and (orientation: portrait) {
+  html {
+    font-size: 34px;
+  }
+
+  .game-layout,
+  .home-layout {
+    max-width: 920px;
+  }
+
+  .dice-pool-grid {
+    grid-template-columns: repeat(3, 180px);
+    gap: 28px;
+  }
+
+  .die-card {
+    width: 180px;
+    height: 188px;
+  }
+
+  .die-pip {
+    width: 26px;
+    height: 26px;
+  }
+
+  .die-pip.crimson {
+    width: 34px;
+    height: 34px;
+  }
+
+  .die-card.die-compact {
+    width: 72px;
+    height: 76px;
+  }
+
+  .nel-piatto-empty-slot {
+    width: 64px;
+    height: 68px;
+  }
+
+  .btn-action {
+    min-height: 100px;
   }
 }
