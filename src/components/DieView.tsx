@@ -1,5 +1,5 @@
 import React from 'react';
-import { Die, DieState, DieType } from '../core/die';
+import { Die, DieState } from '../core/die';
 import { useI18n } from '../i18n/I18nContext';
 import { GameIcons } from './Icons';
 
@@ -36,15 +36,6 @@ export const DieView: React.FC<DieViewProps> = ({
   const activePips = PIP_GRID_MAP[die.value] ?? [4];
   const isCrimsonAce = die.value === 1 && die.state !== DieState.Locked && die.state !== DieState.Frozen;
 
-  const badge =
-    die.type === DieType.Golden
-      ? t('die.badgeGolden')
-      : die.type === DieType.Loaded
-        ? t('die.badgeLoaded')
-        : die.type === DieType.Multiplier
-          ? t('die.badgeMultiplier')
-          : null;
-
   const classes = [
     'die-card',
     `die-state-${die.state.toLowerCase()}`,
@@ -80,7 +71,6 @@ export const DieView: React.FC<DieViewProps> = ({
             );
           })}
         </div>
-        {badge && !compact && <span className="die-badge">{badge}</span>}
       </div>
 
       {die.state === DieState.Frozen && (

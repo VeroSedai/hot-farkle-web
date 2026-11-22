@@ -47,10 +47,23 @@ export const App: React.FC = () => {
   const [tableEffect, setTableEffect] = useState<'none' | 'farkle' | 'hotdice'>('none');
   const tableEffectTimerRef = useRef<number | null>(null);
   const [stats, setStats] = useState<PlayerStats>(() => loadStats());
-  const [feedback, setFeedback] = useState<string>(() => t('feedback.selectDice'));
+  const [tableToast, setTableToast] = useState<string>('');
+  const tableToastTimerRef = useRef<number | null>(null);
+  const [targetPrompt, setTargetPrompt] = useState<string>('');
   const [shopFeedback, setShopFeedback] = useState<string>('');
 
   const forceUpdate = () => setTick((t) => t + 1);
+
+  const showTableToast = (msg: string, durationMs = 1700) => {
+    if (tableToastTimerRef.current !== null) {
+      window.clearTimeout(tableToastTimerRef.current);
+    }
+    setTableToast(msg);
+    tableToastTimerRef.current = window.setTimeout(() => {
+      setTableToast('');
+      tableToastTimerRef.current = null;
+    }, durationMs);
+  };
 
   const triggerRollAnim = () => {
     soundManager.playRoll();
@@ -80,10 +93,9 @@ export const App: React.FC = () => {
     const unsubState = gm.on('stateChanged', forceUpdate);
     const unsubHotDice = gm.on('hotDice', () => {
       triggerTableEffect('hotdice', 700);
-      setFeedback(tRef.current('feedback.hotDice', { mult: gm.multiplier }));
     });
     const unsubGrace = gm.on('graceRoll', () => {
-      setFeedback(tRef.current('feedback.graceRoll'));
+      showTableToast(tRef.current('feedback.graceRoll'), 2000);
     });
     const unsubGameOver = gm.on('gameOver', () => {
       setStats(recordRunEnd(gm.isVictory, gm.bankScore));
@@ -91,11 +103,9 @@ export const App: React.FC = () => {
     const unsubFarkle = gm.on('farkle', () => {
       triggerTableEffect('farkle', 550);
       if (gm.lastFarkleUsedClover) {
-        setFeedback(tRef.current('feedback.farkleClover'));
+        showTableToast(tRef.current('feedback.farkleClover'), 1800);
       } else if (gm.lastFarkleConsumedShield) {
-        setFeedback(tRef.current('feedback.farkleShield'));
-      } else {
-        setFeedback(tRef.current('feedback.farkleLost'));
+        showTableToast(tRef.current('feedback.farkleShield'), 1800);
       }
       window.setTimeout(() => {
         gm.completePendingFarkleTurn();
@@ -145,13 +155,14 @@ export const App: React.FC = () => {
   const handleStartFromHome = () => {
     soundManager.unlock();
     setTargetingSlot(null);
+    setTargetPrompt('');
+    setTableToast('');
     setShopFeedback('');
     setShopUnlockedForStage(0);
     setOpenPopover('none');
     gm.startNewRun();
     setScreen('game');
     triggerRollAnim();
-    setFeedback(t('feedback.selectDice'));
 
     try {
       if (!localStorage.getItem(TUTORIAL_STORAGE_KEY)) {
@@ -169,13 +180,14 @@ export const App: React.FC = () => {
       const usedType = gm.equippedConsumables[targetingSlot];
       const ok = gm.useTargetedConsumable(targetingSlot, dieId);
       setTargetingSlot(null);
+      setTargetPrompt('');
       if (ok) {
         if (usedType === 'GettoneSpinta') {
           soundManager.playRoll(true);
         } else {
           soundManager.playSelect(true, 2);
         }
-        setFeedback(t('feedback.consumableApplied'));
+        showTableToast(t('feedback.consumableApplied'), 1400);
       }
       return;
     }
@@ -194,17 +206,16 @@ export const App: React.FC = () => {
   const handleConfirmAndRoll = () => {
     if (!gm.canConfirmAndRoll) return;
     setTargetingSlot(null);
+    setTargetPrompt('');
     if (gm.confirmSelectionAndRoll()) {
       triggerRollAnim();
-      if (!gm.isAwaitingFarkleResolution) {
-        setFeedback(t('feedback.selectDice'));
-      }
     }
   };
 
   const handleBank = () => {
     if (!gm.canBank) return;
     setTargetingSlot(null);
+    setTargetPrompt('');
     const potToBank = gm.totalBankablePot;
     if (gm.bankPotAndEndTurn()) {
       setStats(recordBankedPot(potToBank, gm.bankScore));
@@ -213,7 +224,6 @@ export const App: React.FC = () => {
       } else {
         soundManager.playSelect(true, 3);
       }
-      setFeedback(t('feedback.banked'));
     }
   };
 
@@ -221,6 +231,7 @@ export const App: React.FC = () => {
     soundManager.unlock();
     if (targetingSlot === slotIndex) {
       setTargetingSlot(null);
+      setTargetPrompt('');
       return;
     }
     if (!gm.canUseConsumable(slotIndex)) return;
@@ -230,20 +241,21 @@ export const App: React.FC = () => {
     const consumableName = t(`consumables.${type}.name`);
     if (meta.requiresDieTarget) {
       setTargetingSlot(slotIndex);
-      setFeedback(t('feedback.targetPrompt', { name: consumableName }));
+      setTargetPrompt(t('feedback.targetPrompt', { name: consumableName }));
     } else if (gm.useImmediateConsumable(slotIndex)) {
       soundManager.playSelect();
-      setFeedback(t('feedback.consumableActivated', { name: consumableName }));
+      showTableToast(t('feedback.consumableActivated', { name: consumableName }), 1500);
     }
   };
 
   const handleRestart = () => {
     setTargetingSlot(null);
+    setTargetPrompt('');
+    setTableToast('');
     setShopFeedback('');
     setShopUnlockedForStage(0);
     gm.startNewRun();
     triggerRollAnim();
-    setFeedback(t('feedback.newRun'));
   };
 
   const bossMeta = BOSS_METADATA[gm.anteBoss];
@@ -263,6 +275,8 @@ export const App: React.FC = () => {
     gm.currentBoss,
     lang
   );
+  const isSpecialCombo =
+    Boolean(selectionDescription) && !/^[15](\s*\+\s*[15])*$/.test(selectionDescription);
   const willTriggerHotDice =
     gm.canConfirmAndRoll &&
     gm.dice.length > 0 &&
@@ -450,92 +464,94 @@ export const App: React.FC = () => {
                   : ''
             }`}
           >
-            {/* NEL PIATTO: 6 slot fissi (dadi bloccati/congelati + slot vuoti) */}
-            <div className="nel-piatto-rack">
-              <span className="rack-label">{t('table.inPotRack')}</span>
-              <div className="nel-piatto-slots">
-                {Array.from({ length: GameConfig.DefaultDiceCount }, (_, idx) => {
-                  const lockedDie = lockedAndFrozenDice[idx];
-                  if (lockedDie) {
-                    return <DieView key={lockedDie.id} die={lockedDie} compact disabled />;
-                  }
-                  return <div key={`empty-${idx}`} className="nel-piatto-empty-slot" />;
-                })}
-              </div>
-            </div>
-
-            {/* PIATTO & MOLTIPLICATORE */}
-            <div className="pot-row">
-              <div className="pot-main">
-                <span className="pot-caption">{t('table.potCaption')}</span>
-                <span className="pot-value">{gm.currentPot}</span>
-                {gm.previewSelectionScore > 0 && (
-                  <span className="pot-delta">+{gm.previewSelectionScore}</span>
-                )}
-                {gm.previewSelectionCoins > 0 && (
-                  <span className="pot-coins-delta">
-                    +{gm.previewSelectionCoins} <GameIcons.Coins size={14} />
+            {/* VASSOIO DEL PIATTO: Punteggio + Moltiplicatore + 6 alloggiamenti dadi bloccati */}
+            <div className="pot-tray">
+              <div className="pot-row">
+                <div className="pot-main">
+                  <span className="pot-caption">{t('table.potCaption')}</span>
+                  <span className={`pot-value ${gm.currentPot > 0 ? 'pot-value-active' : ''}`}>
+                    {gm.currentPot}
                   </span>
-                )}
-              </div>
-
-              <div className="pot-meta">
-                {gm.hasCloverProtection && (
-                  <span className="clover-badge" title={t('table.cloverTitle')}>
-                    <GameIcons.Clover size={15} /> {t('table.cloverBadge')}
-                  </span>
-                )}
-                <span className={`mult-badge ${gm.multiplier > 1 ? 'mult-hot' : ''}`}>
-                  x{gm.multiplier}
-                </span>
-              </div>
-            </div>
-
-            {/* FEEDBACK FLOATING */}
-            <div className={`feedback-text ${gm.isAwaitingFarkleResolution ? 'is-farkle' : ''}`}>
-              {targetingSlot !== null ? (
-                <div className="targeting-banner">
-                  <span>{feedback}</span>
-                  <button
-                    type="button"
-                    className="btn-cancel-target"
-                    onClick={() => {
-                      setTargetingSlot(null);
-                      setFeedback(t('feedback.selectionCancelled'));
-                    }}
-                  >
-                    {t('table.cancel')}
-                  </button>
+                  {gm.previewSelectionScore > 0 && (
+                    <span className="pot-delta">+{gm.previewSelectionScore}</span>
+                  )}
+                  {gm.previewSelectionCoins > 0 && (
+                    <span className="pot-coins-delta">
+                      +{gm.previewSelectionCoins} <GameIcons.Coins size={14} />
+                    </span>
+                  )}
                 </div>
-              ) : (
-                <span>
-                  {selectionDescription
-                    ? `${selectionDescription} (+${gm.previewSelectionScore} ${t('feedback.ptsUnit')})`
-                    : feedback}
-                </span>
-              )}
+
+                <div className="pot-meta">
+                  {gm.hasCloverProtection && (
+                    <span className="clover-badge" title={t('table.cloverTitle')}>
+                      <GameIcons.Clover size={15} /> {t('table.cloverBadge')}
+                    </span>
+                  )}
+                  <span className={`mult-badge ${gm.multiplier > 1 ? 'mult-hot' : ''}`}>
+                    x{gm.multiplier}
+                  </span>
+                </div>
+              </div>
+
+              <div className="nel-piatto-well" aria-label={t('table.inPotRack')}>
+                <div className="nel-piatto-slots">
+                  {Array.from({ length: GameConfig.DefaultDiceCount }, (_, idx) => {
+                    const lockedDie = lockedAndFrozenDice[idx];
+                    if (lockedDie) {
+                      return <DieView key={lockedDie.id} die={lockedDie} compact disabled />;
+                    }
+                    return <div key={`empty-${idx}`} className="nel-piatto-empty-slot" />;
+                  })}
+                </div>
+              </div>
             </div>
 
-            {/* ACTIVE DICE POOL (3x2 mobile-first, tint rosso su Farkle) */}
-            <div
-              className={`dice-pool-grid ${gm.isAwaitingFarkleResolution ? 'is-farkle-dice' : ''} ${
-                tutorialStep === 2 ? 'tutorial-highlight-dice' : ''
-              }`}
-            >
-              {activeDice.map((die) => (
-                <DieView
-                  key={die.id}
-                  die={die}
-                  rolling={isRollingAnim}
-                  isTargeting={targetingSlot !== null}
-                  isValidTarget={
-                    targetingSlot !== null &&
-                    gm.canTargetDieWithConsumable(gm.equippedConsumables[targetingSlot], die)
-                  }
-                  disabled={gm.isAwaitingFarkleResolution}
-                  onClick={handleDieClick}
-                />
-              ))}
+            {/* CENTER STAGE: callout contestuale (solo targeting / combo / eventi) + DICE POOL */}
+            <div className="table-stage">
+              <div className="table-callout-slot">
+                {targetingSlot !== null ? (
+                  <div className="targeting-banner">
+                    <span>{targetPrompt}</span>
+                    <button
+                      type="button"
+                      className="btn-cancel-target"
+                      onClick={() => {
+                        setTargetingSlot(null);
+                        setTargetPrompt('');
+                      }}
+                    >
+                      {t('table.cancel')}
+                    </button>
+                  </div>
+                ) : isSpecialCombo ? (
+                  <span className="combo-callout-pill">{selectionDescription}</span>
+                ) : tableToast ? (
+                  <span className="event-toast-pill">{tableToast}</span>
+                ) : null}
+              </div>
+
+              {/* ACTIVE DICE POOL (3x2 mobile-first, tint rosso su Farkle) */}
+              <div
+                className={`dice-pool-grid ${gm.isAwaitingFarkleResolution ? 'is-farkle-dice' : ''} ${
+                  tutorialStep === 2 ? 'tutorial-highlight-dice' : ''
+                }`}
+              >
+                {activeDice.map((die) => (
+                  <DieView
+                    key={die.id}
+                    die={die}
+                    rolling={isRollingAnim}
+                    isTargeting={targetingSlot !== null}
+                    isValidTarget={
+                      targetingSlot !== null &&
+                      gm.canTargetDieWithConsumable(gm.equippedConsumables[targetingSlot], die)
+                    }
+                    disabled={gm.isAwaitingFarkleResolution}
+                    onClick={handleDieClick}
+                  />
+                ))}
+              </div>
             </div>
 
             {tableEffect !== 'none' && (
@@ -673,7 +689,6 @@ export const App: React.FC = () => {
             setShopFeedback('');
             gm.advanceToNextStage();
             triggerRollAnim();
-            setFeedback(t('feedback.stageStarted', { stage: gm.currentStage }));
           }}
         />
       )}
