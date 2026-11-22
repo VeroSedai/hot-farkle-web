@@ -13,11 +13,15 @@ const FRAGMENT_SHADER = `
   precision mediump float;
   varying vec2 v_uv;
   uniform float u_time;
+  uniform float u_heat;
+  uniform vec3 u_tint;
+  uniform float u_tintMix;
 
   void main() {
     vec2 uv = v_uv - vec2(0.5, 0.5);
     float dist = length(uv);
-    float t = u_time * 0.25;
+    float speed = 0.25 + u_heat * 0.14;
+    float t = u_time * speed;
 
     float angle = 2.4 * (0.45 - dist) + t * 0.25;
     float s = sin(angle);
@@ -40,18 +44,46 @@ const FRAGMENT_SHADER = `
     vec3 c2 = vec3(0.1451, 0.2000, 0.1725);
     vec3 c3 = vec3(0.0667, 0.0824, 0.0745);
 
+    // Subtle boss atmosphere tint
+    c2 = mix(c2, u_tint * 0.34, u_tintMix);
+    c1 = mix(c1, u_tint * 0.20, u_tintMix * 0.7);
+
+    // Warm ember glow on Hot Dice / high multiplier
+    vec3 heatCol = vec3(0.32, 0.16, 0.06);
+    c2 = mix(c2, heatCol, u_heat * 0.65);
+    c1 = mix(c1, heatCol * 0.6, u_heat * 0.4);
+
     vec3 col = mix(c3, c1, smoothstep(0.15, 0.58, blend_val));
     col = mix(col, c2, smoothstep(0.52, 0.92, blend_val));
 
-    float vignette = smoothstep(0.85, 0.15, dist);
-    col = mix(c3, col, mix(0.45, 1.0, vignette));
+    float vignette = smoothstep(0.88, 0.14, dist);
+    col = mix(c3 * 0.85, col, mix(0.42, 1.0, vignette));
 
     gl_FragColor = vec4(col, 1.0);
   }
 `;
 
-export const SwirlBackground: React.FC = () => {
+function hexToRgbNorm(hex?: string): [number, number, number] {
+  if (!hex) return [0.1451, 0.2, 0.1725];
+  const clean = hex.replace('#', '');
+  if (clean.length !== 6) return [0.1451, 0.2, 0.1725];
+  const n = parseInt(clean, 16);
+  if (Number.isNaN(n)) return [0.1451, 0.2, 0.1725];
+  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+}
+
+interface SwirlBackgroundProps {
+  heat?: number;
+  accentHex?: string;
+}
+
+export const SwirlBackground: React.FC<SwirlBackgroundProps> = ({ heat = 0, accentHex }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const targetRef = useRef({ heat: 0, tint: [0.1451, 0.2, 0.1725] as [number, number, number], tintMix: 0 });
+
+  targetRef.current.heat = Math.max(0, Math.min(1, heat));
+  targetRef.current.tint = hexToRgbNorm(accentHex);
+  targetRef.current.tintMix = accentHex ? 0.55 : 0;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -88,6 +120,9 @@ export const SwirlBackground: React.FC = () => {
     gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
     const timeLoc = gl.getUniformLocation(prog, 'u_time');
+    const heatLoc = gl.getUniformLocation(prog, 'u_heat');
+    const tintLoc = gl.getUniformLocation(prog, 'u_tint');
+    const tintMixLoc = gl.getUniformLocation(prog, 'u_tintMix');
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -100,8 +135,22 @@ export const SwirlBackground: React.FC = () => {
 
     let rafId = 0;
     const start = performance.now();
+    let curHeat = 0;
+    let curTintMix = 0;
+    const curTint: [number, number, number] = [0.1451, 0.2, 0.1725];
+
     const render = (now: number) => {
+      const target = targetRef.current;
+      curHeat += (target.heat - curHeat) * 0.04;
+      curTintMix += (target.tintMix - curTintMix) * 0.04;
+      curTint[0] += (target.tint[0] - curTint[0]) * 0.04;
+      curTint[1] += (target.tint[1] - curTint[1]) * 0.04;
+      curTint[2] += (target.tint[2] - curTint[2]) * 0.04;
+
       gl.uniform1f(timeLoc, (now - start) * 0.001);
+      gl.uniform1f(heatLoc, curHeat);
+      gl.uniform3f(tintLoc, curTint[0], curTint[1], curTint[2]);
+      gl.uniform1f(tintMixLoc, curTintMix);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       rafId = requestAnimationFrame(render);
     };

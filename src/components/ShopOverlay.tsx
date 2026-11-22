@@ -97,7 +97,7 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
         {feedback && <div className="shop-feedback">{feedback}</div>}
 
         <div className="shop-grid">
-          <div className="shop-card">
+          <div className="shop-card shop-card-sky">
             <div className="shop-card-top">
               <GameIcons.Shield size={26} className="icon-sky" />
               <div>
@@ -127,7 +127,7 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
             </button>
           </div>
 
-          <div className="shop-card">
+          <div className="shop-card shop-card-gold">
             <div className="shop-card-top">
               <ConsumableIcon type={offeredConsumable} size={26} className="icon-gold" />
               <div>
@@ -166,7 +166,7 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
             </div>
           </div>
 
-          <div className="shop-card">
+          <div className="shop-card shop-card-purple">
             <div className="shop-card-top">
               <GameIcons.Dice size={26} className="icon-purple" />
               <div>
@@ -191,7 +191,7 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
             </button>
           </div>
 
-          <div className="shop-card">
+          <div className="shop-card shop-card-orange">
             <div className="shop-card-top">
               <GameIcons.Flame size={26} className="icon-orange" />
               <div>

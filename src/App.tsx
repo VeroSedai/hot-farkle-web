@@ -55,7 +55,7 @@ export const App: React.FC = () => {
   const triggerRollAnim = () => {
     soundManager.playRoll();
     setIsRollingAnim(true);
-    window.setTimeout(() => setIsRollingAnim(false), 280);
+    window.setTimeout(() => setIsRollingAnim(false), 480);
   };
 
   const triggerTableEffect = (kind: 'farkle' | 'hotdice', durationMs: number) => {
@@ -249,6 +249,13 @@ export const App: React.FC = () => {
   const bossMeta = BOSS_METADATA[gm.anteBoss];
   const isBossActiveNow = gm.currentBoss !== 'None';
   const bankPercent = Math.min(100, Math.round((gm.bankScore / gm.currentStageTarget) * 100));
+  const previewBankScore = gm.bankScore + gm.totalBankablePot;
+  const bankPreviewPercent = Math.min(100, Math.round((previewBankScore / gm.currentStageTarget) * 100));
+  const willClearStageOnBank = gm.totalBankablePot > 0 && previewBankScore >= gm.currentStageTarget;
+  const swirlHeat =
+    screen === 'game'
+      ? Math.min(1, (gm.multiplier - 1) * 0.35 + (tableEffect === 'hotdice' ? 0.65 : 0))
+      : 0;
   const selectedDice = gm.dice.filter((d) => d.state === DieState.Selected);
   const selectionDescription = ScoreEvaluator.describeSelection(
     selectedDice,
@@ -268,7 +275,10 @@ export const App: React.FC = () => {
 
   return (
     <div className="app-shell">
-      <SwirlBackground />
+      <SwirlBackground
+        heat={swirlHeat}
+        accentHex={screen === 'game' && isBossActiveNow ? bossMeta.themeColorHex : undefined}
+      />
 
       {screen === 'home' ? (
         <HomeScreen
@@ -406,6 +416,12 @@ export const App: React.FC = () => {
                 </span>
               </div>
               <div className="bank-bar-track">
+                {gm.totalBankablePot > 0 && (
+                  <div
+                    className={`bank-bar-preview ${willClearStageOnBank ? 'bank-bar-preview-clear' : ''}`}
+                    style={{ width: `${bankPreviewPercent}%` }}
+                  />
+                )}
                 <div className="bank-bar-fill" style={{ width: `${bankPercent}%` }} />
               </div>
             </div>
@@ -521,6 +537,17 @@ export const App: React.FC = () => {
                 />
               ))}
             </div>
+
+            {tableEffect !== 'none' && (
+              <div
+                className={`table-stamp ${
+                  tableEffect === 'farkle' ? 'table-stamp-farkle' : 'table-stamp-hotdice'
+                }`}
+                aria-hidden="true"
+              >
+                {tableEffect === 'farkle' ? 'FARKLE!' : `HOT DICE! x${gm.multiplier}`}
+              </div>
+            )}
           </main>
 
           {/* CONSUMABLES BELT (solo se possiedi consumabili) + BOTTOM ACTIONS */}

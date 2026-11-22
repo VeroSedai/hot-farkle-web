@@ -39,7 +39,9 @@ export const StageClearModal: React.FC<StageClearModalProps> = ({
     <div className="modal-backdrop">
       <div className="stageclear-panel">
         <div className="stageclear-header">
-          <GameIcons.Trophy size={42} className="icon-gold" />
+          <div className="stageclear-trophy-wrap">
+            <GameIcons.Trophy size={44} className="icon-gold" />
+          </div>
           <h2 className="shop-title">{t('stageClear.title', { stage: clearedStage })}</h2>
           <p className="stageclear-score">
             {t('stageClear.bankLine')} <span>{bankScore}</span> / {stageTarget} {t('feedback.ptsUnit')}
