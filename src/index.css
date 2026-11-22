@@ -96,6 +96,15 @@ body,
   gap: 8px;
 }
 
+@media (min-width: 768px) {
+  .home-top-bar {
+    position: fixed;
+    top: 18px;
+    right: 22px;
+    z-index: 5;
+  }
+}
+
 .lang-btn {
   width: auto;
   min-width: 38px;
@@ -282,10 +291,28 @@ body,
 }
 
 .tutorial-backdrop.tutorial-passthrough {
-  background: rgba(0, 0, 0, 0.25);
+  background: transparent;
   pointer-events: none;
-  align-items: flex-start;
-  padding-top: 90px;
+  align-items: flex-end;
+  padding-bottom: max(18px, env(safe-area-inset-bottom));
+}
+
+.tutorial-highlight-dice {
+  position: relative;
+  border-radius: 16px;
+  box-shadow: 0 0 0 2px rgba(244, 180, 26, 0.75), 0 0 24px rgba(244, 180, 26, 0.25);
+  background: rgba(244, 180, 26, 0.06);
+  animation: tutorialDicePulse 1.4s ease-in-out infinite;
+}
+
+@keyframes tutorialDicePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px rgba(244, 180, 26, 0.65), 0 0 18px rgba(244, 180, 26, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(244, 180, 26, 0.95), 0 0 30px rgba(244, 180, 26, 0.36);
+  }
 }
 
 .tutorial-bubble {
@@ -690,18 +717,25 @@ body,
   cursor: pointer;
 }
 
-/* DICE POOL - Mobile-first 3x2, Desktop 6x1 */
+/* DICE POOL - Mobile-first 3x2 centered, Desktop 6x1 centered */
 .dice-pool-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(74px, 88px));
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: 14px;
-  padding: 6px 0;
+  padding: 10px 6px;
+  width: 100%;
+  max-width: 306px;
+  margin: 0 auto;
 }
 
 @media (min-width: 768px) and (orientation: landscape) {
   .dice-pool-grid {
-    grid-template-columns: repeat(6, 86px);
+    flex-wrap: nowrap;
+    max-width: none;
+    gap: 16px;
+    padding: 12px 8px;
   }
 }
 
@@ -802,7 +836,26 @@ body,
   padding: 0 4px;
   border-radius: 4px;
   background: #1e1b18;
+  border: 1px solid #2b231d;
   color: #fff;
+}
+
+.die-type-golden .die-badge {
+  background: #92400e;
+  border-color: #f4b41a;
+  color: #fef08a;
+}
+
+.die-type-loaded .die-badge {
+  background: #7c2d12;
+  border-color: #fb923c;
+  color: #ffedd5;
+}
+
+.die-type-multiplier .die-badge {
+  background: #4c1d95;
+  border-color: #c084fc;
+  color: #f3e8ff;
 }
 
 .die-corner-icon {
@@ -1045,8 +1098,9 @@ body,
 }
 
 .btn:disabled {
-  opacity: 0.65;
-  filter: saturate(0.45);
+  opacity: 0.38;
+  filter: saturate(0.2) brightness(0.75);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
   cursor: not-allowed;
 }
 
@@ -1105,7 +1159,9 @@ body,
   position: fixed;
   inset: 0;
   z-index: 20;
-  background: rgba(8, 11, 10, 0.82);
+  background: rgba(8, 11, 10, 0.88);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   display: grid;
   place-items: center;
   padding: 14px;
@@ -1438,6 +1494,7 @@ body,
     font-size: 0.9rem;
     color: var(--text-muted);
     line-height: 1.25;
+    text-wrap: balance;
   }
 
   .shop-card-actions {
@@ -1524,13 +1581,27 @@ body,
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 4px 6px;
+    border-radius: 8px;
+  }
+
+  .rules-combo-row:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.025);
   }
 
   .rules-combo-dice {
     display: flex;
     align-items: center;
     gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .rules-combo-leader {
     flex: 1;
+    min-width: 12px;
+    height: 1px;
+    border-bottom: 2px dotted rgba(196, 211, 202, 0.24);
+    transform: translateY(2px);
   }
 
   .rules-combo-dice .die-card.die-compact {
@@ -1574,6 +1645,8 @@ body,
     text-align: center;
     font-size: 0.78rem;
     color: var(--text-muted);
+    text-wrap: balance;
+    line-height: 1.3;
   }
 
   .rules-cards-grid {
@@ -1592,10 +1665,96 @@ body,
     background: #111513;
     border: 2px solid var(--panel-border);
     border-radius: 10px;
-    padding: 10px;
+    padding: 10px 12px;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 8px;
+  }
+
+  .rules-special-heading {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #c084fc;
+    letter-spacing: 0.04em;
+  }
+
+  .rules-special-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  @media (min-width: 580px) {
+    .rules-special-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+  }
+
+  .rules-special-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .rules-special-item .die-card.die-compact {
+    width: 30px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  .rules-special-item .die-compact .die-face {
+    padding: 3px;
+    border-radius: 6px;
+  }
+
+  .rules-special-item .die-compact .die-depth {
+    border-radius: 6px;
+  }
+
+  .rules-special-item .die-compact .die-pip {
+    width: 4px;
+    height: 4px;
+  }
+
+  .rules-special-item .die-compact .die-pip.crimson {
+    width: 6px;
+    height: 6px;
+  }
+
+  .rules-special-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  .rules-special-text strong {
+    font-size: 0.85rem;
+    font-weight: normal;
+    line-height: 1.1;
+  }
+
+  .rules-special-text span {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    line-height: 1.2;
+  }
+
+  .rules-special-item.special-gold strong {
+    color: #fde047;
+  }
+
+  .rules-special-item.special-loaded strong {
+    color: #fdba74;
+  }
+
+  .rules-special-item.special-mult strong {
+    color: #d8b4fe;
   }
 
   .rules-roguelike-card h3 {
@@ -1696,7 +1855,7 @@ body,
 
 @media (min-width: 400px) and (max-width: 767px) and (min-height: 760px) {
   .dice-pool-grid {
-    grid-template-columns: repeat(3, 98px);
+    max-width: 344px;
     gap: 18px;
   }
 }
@@ -1713,7 +1872,7 @@ body,
   }
 
   .dice-pool-grid {
-    grid-template-columns: repeat(3, 180px);
+    max-width: 620px;
     gap: 28px;
   }
 

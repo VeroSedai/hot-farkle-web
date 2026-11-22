@@ -501,7 +501,11 @@ export const App: React.FC = () => {
             </div>
 
             {/* ACTIVE DICE POOL (3x2 mobile-first, tint rosso su Farkle) */}
-            <div className={`dice-pool-grid ${gm.isAwaitingFarkleResolution ? 'is-farkle-dice' : ''}`}>
+            <div
+              className={`dice-pool-grid ${gm.isAwaitingFarkleResolution ? 'is-farkle-dice' : ''} ${
+                tutorialStep === 2 ? 'tutorial-highlight-dice' : ''
+              }`}
+            >
               {activeDice.map((die) => (
                 <DieView
                   key={die.id}
