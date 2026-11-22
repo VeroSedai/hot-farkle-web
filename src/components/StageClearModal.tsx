@@ -50,14 +50,15 @@ export const StageClearModal: React.FC<StageClearModalProps> = ({
 
         <div className="stageclear-breakdown">
           <div className="breakdown-row">
-            <span>{t('stageClear.stageReward')}</span>
+            <span className="breakdown-label">{t('stageClear.stageReward')}</span>
+            <span className="breakdown-leader" aria-hidden="true" />
             <span className="breakdown-val">
               +{baseCoins} <GameIcons.Coins size={15} />
             </span>
           </div>
 
           <div className="breakdown-row">
-            <div>
+            <div className="breakdown-label-group">
               <span>{t('stageClear.overkillBonus', { points: overkillPoints })}</span>
               <small className="breakdown-hint">
                 {t('stageClear.overkillHint', {
@@ -66,6 +67,7 @@ export const StageClearModal: React.FC<StageClearModalProps> = ({
                 })}
               </small>
             </div>
+            <span className="breakdown-leader" aria-hidden="true" />
             <span className="breakdown-val">
               +{overkillCoins} <GameIcons.Coins size={15} />
             </span>
@@ -75,7 +77,7 @@ export const StageClearModal: React.FC<StageClearModalProps> = ({
 
           <div className="breakdown-row breakdown-total">
             <span>{t('stageClear.totalEarned', { coins: currentCoins })}</span>
-            <span className="breakdown-val">
+            <span className="breakdown-val breakdown-val-total">
               +{totalCoinsEarned} <GameIcons.Coins size={17} />
             </span>
           </div>
@@ -88,28 +90,36 @@ export const StageClearModal: React.FC<StageClearModalProps> = ({
           </div>
 
           {isNextBoss && (
-            <div className="shop-next-boss" style={{ borderColor: bossMeta.themeColorHex }}>
-              <span
-                style={{
-                  color: bossMeta.themeColorHex,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                }}
-              >
-                <BossIcon boss={anteBoss} size={16} />{' '}
-                {t('stageClear.bossStageTitle', {
-                  stage: nextStage,
-                  name: bossName,
-                })}
-              </span>
-              <small>{bossDesc}</small>
+            <div
+              className="shop-next-boss"
+              style={{ borderColor: bossMeta.themeColorHex }}
+            >
+              <div className="boss-alert-row">
+                <span
+                  className="boss-alert-icon"
+                  style={{
+                    color: bossMeta.themeColorHex,
+                    borderColor: bossMeta.themeColorHex,
+                  }}
+                >
+                  <BossIcon boss={anteBoss} size={18} />
+                </span>
+                <div className="boss-alert-copy">
+                  <strong style={{ color: bossMeta.themeColorHex }}>
+                    {t('stageClear.bossStageTitle', {
+                      stage: nextStage,
+                      name: bossName,
+                    })}
+                  </strong>
+                  <small>{bossDesc}</small>
+                </div>
+              </div>
             </div>
           )}
         </div>
 
-        <button type="button" className="btn btn-gold btn-full" onClick={onOpenShop}>
-          {t('stageClear.goToShop')}
+        <button type="button" className="btn btn-gold btn-full shop-next-btn" onClick={onOpenShop}>
+          <GameIcons.Play size={18} /> {t('stageClear.goToShop')}
         </button>
       </div>
     </div>

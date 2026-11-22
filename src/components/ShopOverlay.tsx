@@ -56,51 +56,105 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
     <div className="modal-backdrop">
       <div className="shop-panel">
         <div className="shop-header">
-          <h2 className="shop-title">{t('shop.title')}</h2>
+          <div className="shop-title-group">
+            <h2 className="shop-title">{t('shop.title')}</h2>
+            <span className="shop-stage-pill">
+              S{currentStage} &rarr; S{nextStage}
+            </span>
+          </div>
           <div className="coins-pill large">
             <GameIcons.Coins size={20} />
             <span>{coins}</span>
           </div>
         </div>
 
-        {equippedConsumables.length > 0 && (
-          <div className="shop-status-box">
-            <div className="shop-pool-bar">
-              <span className="shop-status-label">
-                {t('shop.belt', {
-                  count: equippedConsumables.length,
-                  max: GameConfig.MaxConsumableSlots,
-                })}
-              </span>
-              <div className="pool-chips">
-                {equippedConsumables.map((c, idx) => (
-                  <button
-                    key={`${c}-${idx}`}
-                    type="button"
-                    className="pool-chip chip-consumable chip-sellable"
-                    onClick={() => onSellConsumable(idx)}
-                    title={t('shop.sellConsumableTitle', {
-                      coins: GameConfig.ShopConsumableSellValue,
-                    })}
+        {/* LOADOUT BAR: 6 dice composition + fixed consumable belt slots */}
+        <div className="shop-loadout-bar">
+          <div className="shop-loadout-section">
+            <span className="shop-status-label">
+              <GameIcons.Dice size={13} /> {specialDiceCount}/6
+            </span>
+            <div className="shop-dice-strip">
+              {persistentPoolTypes.map((dieType, idx) => {
+                const typeClass =
+                  dieType === DieType.Golden
+                    ? 'mini-die-gold'
+                    : dieType === DieType.Loaded
+                      ? 'mini-die-loaded'
+                      : dieType === DieType.Multiplier
+                        ? 'mini-die-mult'
+                        : 'mini-die-std';
+                const label =
+                  dieType === DieType.Golden
+                    ? t('shopFeedback.dieGolden')
+                    : dieType === DieType.Loaded
+                      ? t('shopFeedback.dieLoaded')
+                      : dieType === DieType.Multiplier
+                        ? t('shopFeedback.dieMultiplier')
+                        : 'Standard';
+                return (
+                  <span
+                    key={idx}
+                    className={`shop-mini-die ${typeClass}`}
+                    title={label}
+                    aria-label={label}
                   >
-                    <ConsumableIcon type={c} size={14} /> {t(`consumables.${c}.name`)}
-                    <span className="chip-sell-badge">
-                      +{GameConfig.ShopConsumableSellValue} &times;
-                    </span>
-                  </button>
-                ))}
-              </div>
+                    <span className="shop-mini-pip" />
+                  </span>
+                );
+              })}
             </div>
           </div>
-        )}
+
+          <div className="shop-loadout-divider" aria-hidden="true" />
+
+          <div className="shop-loadout-section shop-belt-section">
+            <span className="shop-status-label">
+              {t('shop.belt', {
+                count: equippedConsumables.length,
+                max: GameConfig.MaxConsumableSlots,
+              })}
+            </span>
+            <div className="pool-chips">
+              {Array.from({ length: GameConfig.MaxConsumableSlots }, (_, idx) => {
+                const c = equippedConsumables[idx];
+                if (c) {
+                  return (
+                    <button
+                      key={`${c}-${idx}`}
+                      type="button"
+                      className="pool-chip chip-consumable chip-sellable"
+                      onClick={() => onSellConsumable(idx)}
+                      title={t('shop.sellConsumableTitle', {
+                        coins: GameConfig.ShopConsumableSellValue,
+                      })}
+                    >
+                      <ConsumableIcon type={c} size={13} /> {t(`consumables.${c}.name`)}
+                      <span className="chip-sell-badge">
+                        +{GameConfig.ShopConsumableSellValue} &times;
+                      </span>
+                    </button>
+                  );
+                }
+                return (
+                  <span key={`empty-belt-${idx}`} className="pool-chip chip-belt-empty">
+                    &mdash;
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        </div>
 
         {feedback && <div className="shop-feedback">{feedback}</div>}
 
         <div className="shop-grid">
           <div className="shop-card shop-card-sky">
             <div className="shop-card-top">
-              <GameIcons.Shield size={26} className="icon-sky" />
-              <div>
+              <div className="shop-icon-medallion medallion-sky">
+                <GameIcons.Shield size={24} className="icon-sky" />
+              </div>
+              <div className="shop-card-copy">
                 <h3>{t('shop.repairShieldTitle')}</h3>
                 <p>
                   {t('shop.repairShieldDesc', {
@@ -112,7 +166,7 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
             </div>
             <button
               type="button"
-              className="btn btn-primary shop-buy-btn"
+              className={`btn ${shieldsFull ? 'btn-shop-maxed' : 'btn-primary'} shop-buy-btn`}
               disabled={shieldsFull || coins < GameConfig.ShopCostRepairShield}
               onClick={onBuyShield}
             >
@@ -120,8 +174,10 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
                 t('shop.shieldMaxed')
               ) : (
                 <>
-                  {t('shop.buy')} &bull; {GameConfig.ShopCostRepairShield}{' '}
-                  <GameIcons.Coins size={16} />
+                  <span>{t('shop.buy')}</span>
+                  <span className="shop-price-pill">
+                    {GameConfig.ShopCostRepairShield} <GameIcons.Coins size={13} />
+                  </span>
                 </>
               )}
             </button>
@@ -129,8 +185,10 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
 
           <div className="shop-card shop-card-gold">
             <div className="shop-card-top">
-              <ConsumableIcon type={offeredConsumable} size={26} className="icon-gold" />
-              <div>
+              <div className="shop-icon-medallion medallion-gold">
+                <ConsumableIcon type={offeredConsumable} size={24} className="icon-gold" />
+              </div>
+              <div className="shop-card-copy">
                 <h3>
                   {offeredName} ({equippedConsumables.length}/{GameConfig.MaxConsumableSlots})
                 </h3>
@@ -140,7 +198,7 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
             <div className="shop-card-actions">
               <button
                 type="button"
-                className="btn btn-primary shop-buy-btn"
+                className={`btn ${beltFull ? 'btn-shop-maxed' : 'btn-primary'} shop-buy-btn`}
                 disabled={beltFull || coins < GameConfig.ShopCostConsumable}
                 onClick={onBuyConsumable}
               >
@@ -148,8 +206,10 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
                   t('shop.beltFull')
                 ) : (
                   <>
-                    {t('shop.buy')} &bull; {GameConfig.ShopCostConsumable}{' '}
-                    <GameIcons.Coins size={16} />
+                    <span>{t('shop.buy')}</span>
+                    <span className="shop-price-pill">
+                      {GameConfig.ShopCostConsumable} <GameIcons.Coins size={13} />
+                    </span>
                   </>
                 )}
               </button>
@@ -160,30 +220,36 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
                 onClick={onRerollConsumable}
                 title={t('shop.rerollTitle')}
               >
-                <GameIcons.Reroll size={16} /> {t('shop.rerollBtn')} &bull;{' '}
-                {GameConfig.ShopCostReroll}
+                <GameIcons.Reroll size={15} />
+                <span className="shop-price-pill shop-price-pill-muted">
+                  {GameConfig.ShopCostReroll} <GameIcons.Coins size={12} />
+                </span>
               </button>
             </div>
           </div>
 
           <div className="shop-card shop-card-purple">
             <div className="shop-card-top">
-              <GameIcons.Dice size={26} className="icon-purple" />
-              <div>
+              <div className="shop-icon-medallion medallion-purple">
+                <GameIcons.Dice size={24} className="icon-purple" />
+              </div>
+              <div className="shop-card-copy">
                 <h3>{t('shop.specialDieTitle', { count: specialDiceCount })}</h3>
                 <p>{t('shop.specialDieDesc')}</p>
               </div>
             </div>
             <button
               type="button"
-              className="btn btn-primary shop-buy-btn"
+              className={`btn ${!hasStandardDie ? 'btn-shop-maxed' : 'btn-primary'} shop-buy-btn`}
               disabled={!hasStandardDie || coins < GameConfig.ShopCostSpecialDie}
               onClick={onBuySpecialDie}
             >
               {hasStandardDie ? (
                 <>
-                  {t('shop.buy')} &bull; {GameConfig.ShopCostSpecialDie}{' '}
-                  <GameIcons.Coins size={16} />
+                  <span>{t('shop.buy')}</span>
+                  <span className="shop-price-pill">
+                    {GameConfig.ShopCostSpecialDie} <GameIcons.Coins size={13} />
+                  </span>
                 </>
               ) : (
                 t('shop.allSpecial')
@@ -193,8 +259,10 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
 
           <div className="shop-card shop-card-orange">
             <div className="shop-card-top">
-              <GameIcons.Flame size={26} className="icon-orange" />
-              <div>
+              <div className="shop-icon-medallion medallion-orange">
+                <GameIcons.Flame size={24} className="icon-orange" />
+              </div>
+              <div className="shop-card-copy">
                 <h3>{t('shop.trisTitle', { mult: trisBaseMultiplier.toFixed(1) })}</h3>
                 <p>{t('shop.trisDesc')}</p>
               </div>
@@ -205,14 +273,16 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
               disabled={coins < trisUpgradeCost}
               onClick={onBuyTrisUpgrade}
             >
-              {t('shop.buy')} &bull; {trisUpgradeCost}{' '}
-              <GameIcons.Coins size={16} />
+              <span>{t('shop.buy')}</span>
+              <span className="shop-price-pill">
+                {trisUpgradeCost} <GameIcons.Coins size={13} />
+              </span>
             </button>
           </div>
         </div>
 
-        <button type="button" className="btn btn-gold btn-full" onClick={onNextStage}>
-          {t('shop.startStage', { stage: nextStage })}
+        <button type="button" className="btn btn-gold btn-full shop-next-btn" onClick={onNextStage}>
+          <GameIcons.Play size={18} /> {t('shop.startStage', { stage: nextStage })}
         </button>
       </div>
     </div>
