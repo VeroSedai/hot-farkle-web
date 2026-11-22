@@ -10,6 +10,7 @@ interface ShopOverlayProps {
   coins: number;
   remainingShields: number;
   trisBaseMultiplier: number;
+  trisUpgradeCost: number;
   equippedConsumables: readonly ConsumableType[];
   offeredConsumable: ConsumableType;
   persistentPoolTypes: readonly DieType[];
@@ -29,6 +30,7 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
   coins,
   remainingShields,
   trisBaseMultiplier,
+  trisUpgradeCost,
   equippedConsumables,
   offeredConsumable,
   persistentPoolTypes,
@@ -46,6 +48,7 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
   const offeredName = t(`consumables.${offeredConsumable}.name`);
   const offeredDesc = t(`consumables.${offeredConsumable}.desc`);
   const beltFull = equippedConsumables.length >= GameConfig.MaxConsumableSlots;
+  const shieldsFull = remainingShields >= GameConfig.MaxShields;
   const specialDiceCount = persistentPoolTypes.filter((t) => t !== DieType.Standard).length;
   const nextStage = currentStage + 1;
 
@@ -99,16 +102,28 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
               <GameIcons.Shield size={26} className="icon-sky" />
               <div>
                 <h3>{t('shop.repairShieldTitle')}</h3>
-                <p>{t('shop.repairShieldDesc', { count: remainingShields })}</p>
+                <p>
+                  {t('shop.repairShieldDesc', {
+                    count: remainingShields,
+                    max: GameConfig.MaxShields,
+                  })}
+                </p>
               </div>
             </div>
             <button
               type="button"
               className="btn btn-primary shop-buy-btn"
-              disabled={coins < GameConfig.ShopCostRepairShield}
+              disabled={shieldsFull || coins < GameConfig.ShopCostRepairShield}
               onClick={onBuyShield}
             >
-              {t('shop.buy')} &bull; {GameConfig.ShopCostRepairShield} <GameIcons.Coins size={16} />
+              {shieldsFull ? (
+                t('shop.shieldMaxed')
+              ) : (
+                <>
+                  {t('shop.buy')} &bull; {GameConfig.ShopCostRepairShield}{' '}
+                  <GameIcons.Coins size={16} />
+                </>
+              )}
             </button>
           </div>
 
@@ -187,10 +202,10 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
             <button
               type="button"
               className="btn btn-primary shop-buy-btn"
-              disabled={coins < GameConfig.ShopCostTrisMultiplierUpgrade}
+              disabled={coins < trisUpgradeCost}
               onClick={onBuyTrisUpgrade}
             >
-              {t('shop.buy')} &bull; {GameConfig.ShopCostTrisMultiplierUpgrade}{' '}
+              {t('shop.buy')} &bull; {trisUpgradeCost}{' '}
               <GameIcons.Coins size={16} />
             </button>
           </div>

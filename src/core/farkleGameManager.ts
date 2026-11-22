@@ -1,6 +1,6 @@
 import { BossType } from '../data/bossType';
 import { CONSUMABLE_METADATA, ConsumableType } from '../data/consumableType';
-import { GameConfig, getStageTarget } from '../data/gameConfig';
+import { GameConfig, getStageTarget, isBossStage } from '../data/gameConfig';
 import { Die, DieState, DieType, RngFn } from './die';
 import { ScoreEvaluator } from './scoreEvaluator';
 
@@ -36,6 +36,7 @@ export class FarkleGameManager {
   public anteBoss: BossType = BossType.GeloPerenne;
   public coins: number = GameConfig.StartingCoins;
   public trisBaseMultiplier = 1.0;
+  public trisUpgradesBought = 0;
   public lastStageCoinsEarned = 0;
   public lastStageOverkillPoints = 0;
   public isInShop = false;
@@ -94,7 +95,7 @@ export class FarkleGameManager {
   }
 
   public get currentBoss(): BossType {
-    return this.currentStage === GameConfig.BossStageNumber ? this.anteBoss : BossType.None;
+    return isBossStage(this.currentStage) ? this.anteBoss : BossType.None;
   }
 
   public get currentStageTarget(): number {
@@ -170,6 +171,7 @@ export class FarkleGameManager {
     this.coins = GameConfig.StartingCoins;
     this.remainingShields = GameConfig.StartingShields;
     this.trisBaseMultiplier = 1.0;
+    this.trisUpgradesBought = 0;
     this.lastStageCoinsEarned = 0;
     this.lastStageOverkillPoints = 0;
     this.isInShop = false;
@@ -486,8 +488,16 @@ export class FarkleGameManager {
   // NEGOZIO INTER-STAGE
   // =========================================================================
 
+  public get canBuyRepairShield(): boolean {
+    return (
+      this.isInShop &&
+      this.coins >= GameConfig.ShopCostRepairShield &&
+      this.remainingShields < GameConfig.MaxShields
+    );
+  }
+
   public buyRepairShield(): boolean {
-    if (!this.isInShop || this.coins < GameConfig.ShopCostRepairShield) return false;
+    if (!this.canBuyRepairShield) return false;
     this.coins -= GameConfig.ShopCostRepairShield;
     this.remainingShields++;
     this.emit('stateChanged');
@@ -565,20 +575,39 @@ export class FarkleGameManager {
     return newSpecialType;
   }
 
+  public get trisUpgradeCost(): number {
+    return (
+      GameConfig.ShopCostTrisMultiplierUpgrade +
+      this.trisUpgradesBought * GameConfig.ShopCostTrisMultiplierStep
+    );
+  }
+
   public buyTrisMultiplierUpgrade(): boolean {
-    if (!this.isInShop || this.coins < GameConfig.ShopCostTrisMultiplierUpgrade) return false;
-    this.coins -= GameConfig.ShopCostTrisMultiplierUpgrade;
+    const cost = this.trisUpgradeCost;
+    if (!this.isInShop || this.coins < cost) return false;
+    this.coins -= cost;
+    this.trisUpgradesBought++;
     this.trisBaseMultiplier += 0.5;
     this.emit('stateChanged');
     return true;
   }
 
+  private rollNextAnteBoss(previous: BossType): BossType {
+    const candidates = BOSS_CANDIDATES.filter((b) => b !== previous);
+    if (candidates.length === 0) return previous;
+    return candidates[Math.floor(this._rng() * candidates.length)];
+  }
+
   public advanceToNextStage(): boolean {
     if (!this.isInShop) return false;
+    const justClearedBoss = isBossStage(this.currentStage);
     this.isInShop = false;
     this.currentStage = this.isEndlessMode
       ? this.currentStage + 1
       : Math.min(GameConfig.TotalStages, this.currentStage + 1);
+    if (justClearedBoss) {
+      this.anteBoss = this.rollNextAnteBoss(this.anteBoss);
+    }
     this.startStageInternal();
     return true;
   }
@@ -606,7 +635,8 @@ export class FarkleGameManager {
     this.isSelectionValid = false;
 
     const overkill = Math.max(0, this.bankScore - this.currentStageTarget);
-    const bonusCoins = Math.floor(overkill / GameConfig.OverkillPointsPerCoin);
+    const rawBonusCoins = Math.floor(overkill / GameConfig.OverkillPointsPerCoin);
+    const bonusCoins = Math.min(GameConfig.MaxOverkillBonusCoins, rawBonusCoins);
     const earnedCoins = GameConfig.StageClearBaseCoins + bonusCoins;
 
     this.lastStageOverkillPoints = overkill;

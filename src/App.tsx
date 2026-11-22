@@ -247,13 +247,13 @@ export const App: React.FC = () => {
   };
 
   const bossMeta = BOSS_METADATA[gm.anteBoss];
-  const isBossActiveNow = gm.currentStage === GameConfig.BossStageNumber;
+  const isBossActiveNow = gm.currentBoss !== 'None';
   const bankPercent = Math.min(100, Math.round((gm.bankScore / gm.currentStageTarget) * 100));
   const selectedDice = gm.dice.filter((d) => d.state === DieState.Selected);
   const selectionDescription = ScoreEvaluator.describeSelection(
     selectedDice,
     gm.hotDiceLevel,
-    gm.anteBoss,
+    gm.currentBoss,
     lang
   );
   const willTriggerHotDice =
@@ -296,7 +296,7 @@ export const App: React.FC = () => {
                   T{gm.currentTurn}/{gm.maxTurns}
                 </span>
                 <span className="pill pill-shields" title={t('hud.shieldsTitle')}>
-                  <GameIcons.Shield size={17} /> {gm.remainingShields}
+                  <GameIcons.Shield size={17} /> {gm.remainingShields}/{GameConfig.MaxShields}
                 </span>
                 <span className="pill pill-coins" title={t('hud.coinsTitle')}>
                   <GameIcons.Coins size={17} /> {gm.coins}
@@ -587,6 +587,7 @@ export const App: React.FC = () => {
           coins={gm.coins}
           remainingShields={gm.remainingShields}
           trisBaseMultiplier={gm.trisBaseMultiplier}
+          trisUpgradeCost={gm.trisUpgradeCost}
           equippedConsumables={gm.equippedConsumables}
           offeredConsumable={gm.shopOfferedConsumable}
           persistentPoolTypes={gm.persistentPoolTypes}

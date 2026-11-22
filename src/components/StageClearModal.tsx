@@ -1,6 +1,6 @@
 import React from 'react';
 import { BOSS_METADATA, BossType } from '../data/bossType';
-import { GameConfig, getStageTarget } from '../data/gameConfig';
+import { GameConfig, getStageTarget, isBossStage } from '../data/gameConfig';
 import { useI18n } from '../i18n/I18nContext';
 import { BossIcon, GameIcons } from './Icons';
 
@@ -30,7 +30,7 @@ export const StageClearModal: React.FC<StageClearModalProps> = ({
   const overkillCoins = Math.max(0, totalCoinsEarned - baseCoins);
   const nextStage = clearedStage + 1;
   const nextTarget = getStageTarget(nextStage);
-  const isNextBoss = nextStage === GameConfig.BossStageNumber;
+  const isNextBoss = isBossStage(nextStage);
   const bossMeta = BOSS_METADATA[anteBoss];
   const bossName = t(`bosses.${anteBoss}.name`);
   const bossDesc = t(`bosses.${anteBoss}.desc`);
@@ -58,7 +58,10 @@ export const StageClearModal: React.FC<StageClearModalProps> = ({
             <div>
               <span>{t('stageClear.overkillBonus', { points: overkillPoints })}</span>
               <small className="breakdown-hint">
-                {t('stageClear.overkillHint', { perCoin: GameConfig.OverkillPointsPerCoin })}
+                {t('stageClear.overkillHint', {
+                  perCoin: GameConfig.OverkillPointsPerCoin,
+                  maxCoins: GameConfig.MaxOverkillBonusCoins,
+                })}
               </small>
             </div>
             <span className="breakdown-val">
@@ -94,7 +97,7 @@ export const StageClearModal: React.FC<StageClearModalProps> = ({
               >
                 <BossIcon boss={anteBoss} size={16} />{' '}
                 {t('stageClear.bossStageTitle', {
-                  stage: GameConfig.BossStageNumber,
+                  stage: nextStage,
                   name: bossName,
                 })}
               </span>
