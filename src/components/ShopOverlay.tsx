@@ -1,18 +1,24 @@
 import React from 'react';
 import { DieType } from '../core/die';
+import { BOSS_METADATA, BossType } from '../data/bossType';
 import { ConsumableType } from '../data/consumableType';
-import { GameConfig } from '../data/gameConfig';
+import { GameConfig, isBossStage } from '../data/gameConfig';
+import { RelicType } from '../data/relicType';
 import { useI18n } from '../i18n/I18nContext';
-import { ConsumableIcon, GameIcons } from './Icons';
+import { BossIcon, ConsumableIcon, GameIcons, RelicIcon } from './Icons';
 
 interface ShopOverlayProps {
   currentStage: number;
+  anteBoss: BossType;
   coins: number;
   remainingShields: number;
   trisBaseMultiplier: number;
   trisUpgradeCost: number;
   equippedConsumables: readonly ConsumableType[];
+  equippedRelics: readonly RelicType[];
   offeredConsumable: ConsumableType;
+  offeredSpecialDie: DieType;
+  offeredRelic: RelicType;
   persistentPoolTypes: readonly DieType[];
   hasStandardDie: boolean;
   feedback: string;
@@ -21,18 +27,26 @@ interface ShopOverlayProps {
   onSellConsumable: (slotIndex: number) => void;
   onRerollConsumable: () => void;
   onBuySpecialDie: () => void;
+  onRerollSpecialDie: () => void;
+  onBuyRelic: () => void;
+  onSellRelic: (slotIndex: number) => void;
+  onRerollRelic: () => void;
   onBuyTrisUpgrade: () => void;
   onNextStage: () => void;
 }
 
 export const ShopOverlay: React.FC<ShopOverlayProps> = ({
   currentStage,
+  anteBoss,
   coins,
   remainingShields,
   trisBaseMultiplier,
   trisUpgradeCost,
   equippedConsumables,
+  equippedRelics,
   offeredConsumable,
+  offeredSpecialDie,
+  offeredRelic,
   persistentPoolTypes,
   hasStandardDie,
   feedback,
@@ -41,6 +55,10 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
   onSellConsumable,
   onRerollConsumable,
   onBuySpecialDie,
+  onRerollSpecialDie,
+  onBuyRelic,
+  onSellRelic,
+  onRerollRelic,
   onBuyTrisUpgrade,
   onNextStage,
 }) => {
@@ -48,9 +66,13 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
   const offeredName = t(`consumables.${offeredConsumable}.name`);
   const offeredDesc = t(`consumables.${offeredConsumable}.desc`);
   const beltFull = equippedConsumables.length >= GameConfig.MaxConsumableSlots;
+  const relicsFull = equippedRelics.length >= GameConfig.MaxRelicSlots;
+  const alreadyHasOfferedRelic = equippedRelics.includes(offeredRelic);
   const shieldsFull = remainingShields >= GameConfig.MaxShields;
   const specialDiceCount = persistentPoolTypes.filter((t) => t !== DieType.Standard).length;
   const nextStage = currentStage + 1;
+  const nextIsBoss = isBossStage(nextStage);
+  const bossMeta = BOSS_METADATA[anteBoss];
 
   return (
     <div className="modal-backdrop">
@@ -68,6 +90,23 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
           </div>
         </div>
 
+        {nextIsBoss && anteBoss !== BossType.None && (
+          <div
+            className="shop-boss-preview"
+            style={{ '--boss-color': bossMeta.themeColorHex } as React.CSSProperties}
+          >
+            <span className="shop-boss-preview-icon">
+              <BossIcon boss={anteBoss} size={18} />
+            </span>
+            <div className="shop-boss-preview-text">
+              <strong>
+                {t('shop.nextBoss', { stage: nextStage })}: {t(`bosses.${anteBoss}.name`)}
+              </strong>
+              <span>{t(`bosses.${anteBoss}.desc`)}</span>
+            </div>
+          </div>
+        )}
+
         {/* LOADOUT BAR: 6 dice composition + fixed consumable belt slots */}
         <div className="shop-loadout-bar">
           <div className="shop-loadout-section">
@@ -83,7 +122,11 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
                       ? 'mini-die-loaded'
                       : dieType === DieType.Multiplier
                         ? 'mini-die-mult'
-                        : 'mini-die-std';
+                        : dieType === DieType.Merchant
+                          ? 'mini-die-merchant'
+                          : dieType === DieType.Volatile
+                            ? 'mini-die-volatile'
+                            : 'mini-die-std';
                 const label =
                   dieType === DieType.Golden
                     ? t('shopFeedback.dieGolden')
@@ -91,7 +134,11 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
                       ? t('shopFeedback.dieLoaded')
                       : dieType === DieType.Multiplier
                         ? t('shopFeedback.dieMultiplier')
-                        : 'Standard';
+                        : dieType === DieType.Merchant
+                          ? t('shopFeedback.dieMerchant')
+                          : dieType === DieType.Volatile
+                            ? t('shopFeedback.dieVolatile')
+                            : 'Standard';
                 return (
                   <span
                     key={idx}
@@ -138,6 +185,44 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
                 }
                 return (
                   <span key={`empty-belt-${idx}`} className="pool-chip chip-belt-empty">
+                    &mdash;
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+          <div className="shop-loadout-divider" aria-hidden="true" />
+
+          <div className="shop-loadout-section shop-belt-section">
+            <span className="shop-status-label">
+              {t('shop.relics', {
+                count: equippedRelics.length,
+                max: GameConfig.MaxRelicSlots,
+              })}
+            </span>
+            <div className="pool-chips">
+              {Array.from({ length: GameConfig.MaxRelicSlots }, (_, idx) => {
+                const r = equippedRelics[idx];
+                if (r) {
+                  return (
+                    <button
+                      key={`${r}-${idx}`}
+                      type="button"
+                      className="pool-chip chip-relic chip-sellable"
+                      onClick={() => onSellRelic(idx)}
+                      title={t('shop.sellRelicTitle', {
+                        coins: GameConfig.ShopRelicSellValue,
+                      })}
+                    >
+                      <RelicIcon relic={r} size={13} /> {t(`relics.${r}.name`)}
+                      <span className="chip-sell-badge">
+                        +{GameConfig.ShopRelicSellValue} &times;
+                      </span>
+                    </button>
+                  );
+                }
+                return (
+                  <span key={`empty-relic-${idx}`} className="pool-chip chip-belt-empty">
                     &mdash;
                   </span>
                 );
@@ -234,27 +319,90 @@ export const ShopOverlay: React.FC<ShopOverlayProps> = ({
                 <GameIcons.Dice size={24} className="icon-purple" />
               </div>
               <div className="shop-card-copy">
-                <h3>{t('shop.specialDieTitle', { count: specialDiceCount })}</h3>
-                <p>{t('shop.specialDieDesc')}</p>
+                <h3>
+                  {t(`specialDice.${offeredSpecialDie}.name`)} ({specialDiceCount}/6)
+                </h3>
+                <p>{t(`specialDice.${offeredSpecialDie}.desc`)}</p>
               </div>
             </div>
-            <button
-              type="button"
-              className={`btn ${!hasStandardDie ? 'btn-shop-maxed' : 'btn-primary'} shop-buy-btn`}
-              disabled={!hasStandardDie || coins < GameConfig.ShopCostSpecialDie}
-              onClick={onBuySpecialDie}
-            >
-              {hasStandardDie ? (
-                <>
-                  <span>{t('shop.buy')}</span>
-                  <span className="shop-price-pill">
-                    {GameConfig.ShopCostSpecialDie} <GameIcons.Coins size={13} />
-                  </span>
-                </>
-              ) : (
-                t('shop.allSpecial')
-              )}
-            </button>
+            <div className="shop-card-actions">
+              <button
+                type="button"
+                className={`btn ${!hasStandardDie ? 'btn-shop-maxed' : 'btn-primary'} shop-buy-btn`}
+                disabled={!hasStandardDie || coins < GameConfig.ShopCostSpecialDie}
+                onClick={onBuySpecialDie}
+              >
+                {hasStandardDie ? (
+                  <>
+                    <span>{t('shop.buy')}</span>
+                    <span className="shop-price-pill">
+                      {GameConfig.ShopCostSpecialDie} <GameIcons.Coins size={13} />
+                    </span>
+                  </>
+                ) : (
+                  t('shop.allSpecial')
+                )}
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost shop-reroll-btn"
+                disabled={!hasStandardDie || coins < GameConfig.ShopCostReroll}
+                onClick={onRerollSpecialDie}
+                title={t('shop.rerollSpecialTitle')}
+              >
+                <GameIcons.Reroll size={15} />
+                <span className="shop-price-pill shop-price-pill-muted">
+                  {GameConfig.ShopCostReroll} <GameIcons.Coins size={12} />
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div className="shop-card shop-card-emerald">
+            <div className="shop-card-top">
+              <div className="shop-icon-medallion medallion-emerald">
+                <RelicIcon relic={offeredRelic} size={24} className="icon-emerald" />
+              </div>
+              <div className="shop-card-copy">
+                <h3>
+                  {t(`relics.${offeredRelic}.name`)} ({equippedRelics.length}/{GameConfig.MaxRelicSlots})
+                </h3>
+                <p>{t(`relics.${offeredRelic}.desc`)}</p>
+              </div>
+            </div>
+            <div className="shop-card-actions">
+              <button
+                type="button"
+                className={`btn ${relicsFull || alreadyHasOfferedRelic ? 'btn-shop-maxed' : 'btn-primary'} shop-buy-btn`}
+                disabled={relicsFull || alreadyHasOfferedRelic || coins < GameConfig.ShopCostRelic}
+                onClick={onBuyRelic}
+              >
+                {relicsFull ? (
+                  t('shop.relicsFull')
+                ) : alreadyHasOfferedRelic ? (
+                  t('shop.relicOwned')
+                ) : (
+                  <>
+                    <span>{t('shop.buy')}</span>
+                    <span className="shop-price-pill">
+                      {GameConfig.ShopCostRelic} <GameIcons.Coins size={13} />
+                    </span>
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost shop-reroll-btn"
+                disabled={relicsFull || coins < GameConfig.ShopCostReroll}
+                onClick={onRerollRelic}
+                title={t('shop.rerollRelicTitle')}
+              >
+                <GameIcons.Reroll size={15} />
+                <span className="shop-price-pill shop-price-pill-muted">
+                  {GameConfig.ShopCostReroll} <GameIcons.Coins size={12} />
+                </span>
+              </button>
+            </div>
           </div>
 
           <div className="shop-card shop-card-orange">

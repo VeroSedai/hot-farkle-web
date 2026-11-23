@@ -1,5 +1,5 @@
 import React from 'react';
-import { Die, DieState } from '../core/die';
+import { Die, DieState, DieType } from '../core/die';
 import { useI18n } from '../i18n/I18nContext';
 import { GameIcons } from './Icons';
 
@@ -76,6 +76,34 @@ export const DieView: React.FC<DieViewProps> = ({
       {die.state === DieState.Frozen && (
         <span className="die-corner-icon die-corner-frozen">
           <GameIcons.Snowflake size={compact ? 11 : 15} />
+        </span>
+      )}
+
+      {die.state !== DieState.Frozen && die.type === DieType.Golden && (
+        <span className="die-corner-icon die-corner-golden">
+          <GameIcons.Crown size={compact ? 11 : 14} />
+        </span>
+      )}
+
+      {die.state !== DieState.Frozen && die.type === DieType.Loaded && (
+        <span className="die-corner-icon die-corner-loaded">
+          <GameIcons.Magnet size={compact ? 11 : 14} />
+        </span>
+      )}
+
+      {die.state !== DieState.Frozen && die.type === DieType.Multiplier && (
+        <span className="die-corner-icon die-corner-multiplier">×2</span>
+      )}
+
+      {die.state !== DieState.Frozen && die.type === DieType.Merchant && (
+        <span className="die-corner-icon die-corner-merchant">
+          <GameIcons.Coins size={compact ? 11 : 14} />
+        </span>
+      )}
+
+      {die.state !== DieState.Frozen && die.type === DieType.Volatile && (
+        <span className="die-corner-icon die-corner-volatile">
+          <GameIcons.Flame size={compact ? 11 : 14} />
         </span>
       )}
     </button>

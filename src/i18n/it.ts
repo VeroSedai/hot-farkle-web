@@ -61,22 +61,34 @@ export const it = {
     boughtConsumable: 'Acquistato: {{name}}',
     soldConsumable: 'Venduto: {{name}} (+{{coins}})',
     rerolled: 'Offerta consumabile aggiornata!',
+    rerolledSpecialDie: 'Offerta dado speciale aggiornata!',
+    boughtRelic: 'Reliquia equipaggiata: {{name}}',
+    soldRelic: 'Reliquia venduta: {{name}} (+{{coins}})',
+    rerolledRelic: 'Offerta reliquia aggiornata!',
     upgradedDie: 'Potenziato 1 dado in: {{label}}!',
     trisUpgraded: 'Bonus Tris potenziato a x{{mult}}!',
     dieGolden: 'Dado Oro',
     dieLoaded: 'Dado Truccato',
     dieMultiplier: 'Dado Moltiplicatore x2',
+    dieMerchant: 'Dado Mercante',
+    dieVolatile: 'Dado Ardente',
   },
   shop: {
     title: 'NEGOZIO',
     belt: 'CINTURA ({{count}}/{{max}}):',
+    relics: 'RELIQUIE ({{count}}/{{max}}):',
     sellConsumableTitle: 'Vendi per +{{coins}} Moneta',
+    sellRelicTitle: 'Vendi per +{{coins}} Monete',
     repairShieldTitle: 'RIPARA SCUDO',
     repairShieldDesc: '+1 Scudo anti-Farkle (Attuali: {{count}}/{{max}})',
     shieldMaxed: 'SCUDI MAX',
     buy: 'COMPRA',
     beltFull: 'CINTURA PIENA',
     rerollTitle: 'Cambia il consumabile proposto',
+    rerollSpecialTitle: 'Cambia il dado speciale proposto',
+    rerollRelicTitle: 'Cambia la reliquia proposta',
+    relicsFull: 'SLOT RELIQUIE PIENI',
+    relicOwned: 'GIÀ POSSEDUTA',
     rerollBtn: 'CAMBIA',
     specialDieTitle: 'DADO SPECIALE ({{count}}/6)',
     specialDieDesc: 'Trasforma 1 dado in Oro, Truccato o x2',
@@ -84,6 +96,7 @@ export const it = {
     trisTitle: 'TRIS +0.5x (x{{mult}})',
     trisDesc: 'Bonus fisso permanente sui Tris',
     startStage: 'AVVIA STAGE {{stage}}',
+    nextBoss: 'PROSSIMO BOSS (S{{stage}})',
   },
   stageClear: {
     title: 'STAGE {{stage}} SUPERATO!',
@@ -118,6 +131,11 @@ export const it = {
     specialLoadedDesc: 'più 1 e 5',
     specialMult: 'x2:',
     specialMultDesc: 'Raddoppia punti combo',
+    specialMerchant: 'MERC:',
+    specialMerchantDesc: '+1 Moneta se bloccato',
+    specialVolatile: 'ARD:',
+    specialVolatileDesc: '+250 pt al 1° lancio; esplode al 3°+',
+    relicsNote: 'RELIQUIE: equipaggia fino a 2 bonus passivi nel Negozio (es. 3 Coppie con Monocolo del Baro).',
     close: 'Chiudi',
   },
   tutorial: {
@@ -137,6 +155,7 @@ export const it = {
   },
   combos: {
     fullStraight: 'SCALA 1-6',
+    threePairs: '3 COPPIE',
     highStraight: 'SCALA 2-6',
     lowStraight: 'SCALA 1-5',
     tris: 'TRIS DI {{face}}',
@@ -159,6 +178,62 @@ export const it = {
     [BossType.Esattore]: {
       name: 'ESATTORE',
       desc: 'I 5 singoli valgono 0 pt ma danno +1 Moneta',
+    },
+    [BossType.Usuraio]: {
+      name: 'USURAIO',
+      desc: 'Bank solo con Piatto ≥ 450 pt',
+    },
+    [BossType.Purista]: {
+      name: 'PURISTA',
+      desc: 'Tris dimezzati, Scale +50% pt',
+    },
+  },
+  relics: {
+    DenteOro: {
+      name: "DENTE D'ORO",
+      desc: '+10% punti su ogni Bank per ogni Moneta in tasca',
+    },
+    GuantoGhiaccio: {
+      name: 'GUANTO DI GHIACCIO',
+      desc: 'Ogni dado Frozen aggiunge +1x al moltiplicatore',
+    },
+    FiammaResidua: {
+      name: 'FIAMMA RESIDUA',
+      desc: 'Hot Dice scende solo di -1x tra i turni',
+    },
+    MonocoloBaro: {
+      name: 'MONOCOLO DEL BARO',
+      desc: 'Sblocca le 3 Coppie (600 pt) come combo valida',
+    },
+    MicciaLunga: {
+      name: 'MICCIA LUNGA',
+      desc: 'Dado Ardente: bonus anche al 2° lancio, esplode al 4°',
+    },
+  },
+  specialDice: {
+    Standard: {
+      name: 'DADO STANDARD',
+      desc: 'Dado classico a 6 facce',
+    },
+    Golden: {
+      name: 'DADO ORO',
+      desc: 'Gli 1 valgono 250 pt, i 5 valgono 100 pt',
+    },
+    Loaded: {
+      name: 'DADO TRUCCATO',
+      desc: 'Facce truccate: 1, 1, 5, 5, 3, 6',
+    },
+    Multiplier: {
+      name: 'DADO x2',
+      desc: 'Raddoppia i punti della selezione',
+    },
+    Merchant: {
+      name: 'DADO MERCANTE',
+      desc: '+1 Moneta ogni volta che viene bloccato',
+    },
+    Volatile: {
+      name: 'DADO ARDENTE',
+      desc: '+250 pt al 1° lancio; esplode al 3°+ lancio',
     },
   },
   consumables: {

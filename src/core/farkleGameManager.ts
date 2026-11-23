@@ -1,6 +1,7 @@
 import { BossType } from '../data/bossType';
 import { CONSUMABLE_METADATA, ConsumableType } from '../data/consumableType';
 import { GameConfig, getStageTarget, isBossStage } from '../data/gameConfig';
+import { ALL_RELIC_TYPES, RelicType } from '../data/relicType';
 import { Die, DieState, DieType, RngFn } from './die';
 import { ScoreEvaluator } from './scoreEvaluator';
 
@@ -8,6 +9,8 @@ const SPECIAL_DIE_CANDIDATES: readonly DieType[] = [
   DieType.Golden,
   DieType.Loaded,
   DieType.Multiplier,
+  DieType.Merchant,
+  DieType.Volatile,
 ];
 
 const ALL_CONSUMABLE_TYPES: readonly ConsumableType[] = [
@@ -18,10 +21,12 @@ const ALL_CONSUMABLE_TYPES: readonly ConsumableType[] = [
   ConsumableType.Trifoglio,
 ];
 
-const BOSS_CANDIDATES: readonly BossType[] = [
+export const BOSS_CANDIDATES: readonly BossType[] = [
   BossType.GeloPerenne,
   BossType.Fornace,
   BossType.Esattore,
+  BossType.Usuraio,
+  BossType.Purista,
 ];
 
 export type GameEventType = 'stateChanged' | 'farkle' | 'graceRoll' | 'hotDice' | 'shopOpened' | 'gameOver';
@@ -42,7 +47,11 @@ export class FarkleGameManager {
   public isInShop = false;
 
   public equippedConsumables: ConsumableType[] = [];
+  public equippedRelics: RelicType[] = [];
   public shopOfferedConsumable: ConsumableType = ConsumableType.GettoneSpinta;
+  public shopOfferedSpecialDie: DieType = DieType.Golden;
+  public shopOfferedRelic: RelicType = RelicType.DenteOro;
+  public rollCountInTurn = 0;
 
   public bankScore = 0;
   public currentPot = 0;
@@ -106,8 +115,15 @@ export class FarkleGameManager {
     return this.currentBoss === BossType.Fornace ? GameConfig.FornaceMaxTurns : GameConfig.MaxTurns;
   }
 
+  public hasRelic(relic: RelicType): boolean {
+    return this.equippedRelics.includes(relic);
+  }
+
   public get multiplier(): number {
-    return Math.min(GameConfig.MaxMultiplier, 1 + this.hotDiceLevel);
+    const frozenBonus = this.hasRelic(RelicType.GuantoGhiaccio)
+      ? this.getDiceByState(DieState.Frozen).length
+      : 0;
+    return Math.min(GameConfig.MaxMultiplier, 1 + this.hotDiceLevel + frozenBonus);
   }
 
   public get isPendingFarkleSaved(): boolean {
@@ -131,14 +147,32 @@ export class FarkleGameManager {
 
     const selectedCount = this.getDiceByState(DieState.Selected).length;
     if (selectedCount > 0) {
-      return this.isSelectionValid && (this.previewSelectionScore > 0 || this.previewSelectionCoins > 0);
+      if (!this.isSelectionValid || (this.previewSelectionScore <= 0 && this.previewSelectionCoins <= 0)) {
+        return false;
+      }
+      if (this.currentBoss === BossType.Usuraio && this.totalBankablePot < GameConfig.UsuraioMinBankPot) {
+        return false;
+      }
+      return true;
     }
 
-    return this.currentPot > 0;
+    if (this.currentPot <= 0) {
+      return false;
+    }
+
+    if (this.currentBoss === BossType.Usuraio && this.currentPot < GameConfig.UsuraioMinBankPot) {
+      return false;
+    }
+
+    return true;
   }
 
   public get totalBankablePot(): number {
-    return this.currentPot + (this.isSelectionValid ? this.previewSelectionScore : 0);
+    const rawPot = this.currentPot + (this.isSelectionValid ? this.previewSelectionScore : 0);
+    if (rawPot > 0 && this.hasRelic(RelicType.DenteOro) && this.coins > 0) {
+      return Math.round(rawPot * (1 + this.coins * GameConfig.DenteOroPercentPerCoin));
+    }
+    return rawPot;
   }
 
   public get dice(): readonly Die[] {
@@ -152,6 +186,28 @@ export class FarkleGameManager {
   public startNewRun(): void {
     this.resetPersistentRunState();
     this.startStageInternal();
+  }
+
+  public startBossTest(boss: BossType, stage: number = GameConfig.BossStageNumber): void {
+    this.resetPersistentRunState();
+    this.currentStage = stage;
+    this.anteBoss = boss;
+    this.coins = 10;
+    this.startStageInternal();
+  }
+
+  public openDevShopPreview(): void {
+    this.resetPersistentRunState();
+    this.currentStage = 2;
+    this.coins = 20;
+    this.remainingShields = 2;
+    this.isInShop = true;
+    this.shopOfferedConsumable = this.rollRandomConsumable();
+    this.shopOfferedSpecialDie = this.rollRandomSpecialDie();
+    this.shopOfferedRelic = this.rollRandomRelic();
+    this.shopOfferedSpecialDie = this.rollRandomSpecialDie();
+    this.emit('stateChanged');
+    this.emit('shopOpened');
   }
 
   public startNewStage(): void {
@@ -185,7 +241,17 @@ export class FarkleGameManager {
     }
 
     this.equippedConsumables = [];
+    this.equippedRelics = [];
     this.shopOfferedConsumable = this.rollRandomConsumable();
+    this.shopOfferedSpecialDie = this.rollRandomSpecialDie();
+    this.shopOfferedRelic = this.rollRandomRelic();
+    this.shopOfferedRelic = this.rollRandomRelic();
+  }
+
+  private rollRandomRelic(): RelicType {
+    const unequipped = ALL_RELIC_TYPES.filter((r) => !this.equippedRelics.includes(r));
+    const pool = unequipped.length > 0 ? unequipped : ALL_RELIC_TYPES;
+    return pool[Math.floor(this._rng() * pool.length)];
   }
 
   private rollRandomConsumable(): ConsumableType {
@@ -210,6 +276,7 @@ export class FarkleGameManager {
     this.isVictory = false;
     this.isAwaitingFarkleResolution = false;
     this._isFirstRollOfTurn = true;
+    this.rollCountInTurn = 0;
 
     this.resetDicePool(GameConfig.DefaultDiceCount);
     this.applyBossTurnStartEffects();
@@ -227,6 +294,8 @@ export class FarkleGameManager {
 
     const inPoolDice = this.getDiceByState(DieState.InPool);
     if (inPoolDice.length === 0) return;
+
+    this.rollCountInTurn++;
 
     const expectedStartingInPool = Math.max(
       1,
@@ -255,7 +324,15 @@ export class FarkleGameManager {
     this.previewSelectionDescription = '';
     this.isSelectionValid = false;
 
-    if (!this.hasScoringCombinationInPool()) {
+    const volatileExplodeRoll = this.hasRelic(RelicType.MicciaLunga)
+      ? GameConfig.VolatileExplodeRoll + 1
+      : GameConfig.VolatileExplodeRoll;
+
+    if (
+      (this.rollCountInTurn >= volatileExplodeRoll &&
+        inPoolDice.some((d) => d.type === DieType.Volatile)) ||
+      !this.hasScoringCombinationInPool()
+    ) {
       this.handleFarkle(inPoolDice);
       return;
     }
@@ -324,6 +401,9 @@ export class FarkleGameManager {
       if (!this.isSelectionValid || (this.previewSelectionScore <= 0 && this.previewSelectionCoins <= 0)) {
         return false;
       }
+      if (this.currentBoss === BossType.Usuraio && this.totalBankablePot < GameConfig.UsuraioMinBankPot) {
+        return false;
+      }
 
       this.currentPot += this.previewSelectionScore;
       this.coins += this.previewSelectionCoins;
@@ -333,13 +413,20 @@ export class FarkleGameManager {
       }
     } else if (this.currentPot <= 0) {
       return false;
+    } else if (this.currentBoss === BossType.Usuraio && this.currentPot < GameConfig.UsuraioMinBankPot) {
+      return false;
     }
 
     if (this.currentPot <= 0 && !bankedSelectionWithCoins) {
       return false;
     }
 
-    this.bankScore += this.currentPot;
+    const bankedAmount =
+      this.currentPot > 0 && this.hasRelic(RelicType.DenteOro) && this.coins > 0
+        ? Math.round(this.currentPot * (1 + this.coins * GameConfig.DenteOroPercentPerCoin))
+        : this.currentPot;
+
+    this.bankScore += bankedAmount;
     this.currentPot = 0;
     this.previewSelectionScore = 0;
     this.previewSelectionCoins = 0;
@@ -518,6 +605,8 @@ export class FarkleGameManager {
     this.coins -= GameConfig.ShopCostConsumable;
     this.equippedConsumables.push(purchased);
     this.shopOfferedConsumable = this.rollRandomConsumable();
+    this.shopOfferedSpecialDie = this.rollRandomSpecialDie();
+    this.shopOfferedRelic = this.rollRandomRelic();
     this.emit('stateChanged');
     return purchased;
   }
@@ -547,8 +636,70 @@ export class FarkleGameManager {
     return true;
   }
 
+  public get canBuyShopRelic(): boolean {
+    return (
+      this.isInShop &&
+      this.equippedRelics.length < GameConfig.MaxRelicSlots &&
+      this.coins >= GameConfig.ShopCostRelic &&
+      !this.hasRelic(this.shopOfferedRelic)
+    );
+  }
+
+  public buyShopRelic(): RelicType | null {
+    if (!this.canBuyShopRelic) return null;
+    const purchased = this.shopOfferedRelic;
+    this.coins -= GameConfig.ShopCostRelic;
+    this.equippedRelics.push(purchased);
+    this.shopOfferedRelic = this.rollRandomRelic();
+    this.emit('stateChanged');
+    return purchased;
+  }
+
+  public sellShopRelic(slotIndex: number): RelicType | null {
+    if (!this.isInShop || slotIndex < 0 || slotIndex >= this.equippedRelics.length) {
+      return null;
+    }
+    const [sold] = this.equippedRelics.splice(slotIndex, 1);
+    this.coins += GameConfig.ShopRelicSellValue;
+    this.emit('stateChanged');
+    return sold;
+  }
+
+  public rerollShopRelic(cost: number = GameConfig.ShopCostReroll): boolean {
+    if (!this.isInShop || this.coins < cost || this.equippedRelics.length >= GameConfig.MaxRelicSlots) {
+      return false;
+    }
+    this.coins -= cost;
+    const candidates = ALL_RELIC_TYPES.filter(
+      (r) => r !== this.shopOfferedRelic && !this.equippedRelics.includes(r)
+    );
+    if (candidates.length > 0) {
+      this.shopOfferedRelic = candidates[Math.floor(this._rng() * candidates.length)];
+    } else {
+      this.shopOfferedRelic = this.rollRandomRelic();
+    }
+    this.emit('stateChanged');
+    return true;
+  }
+
   public hasStandardDieInPersistentPool(): boolean {
     return this._persistentPoolTypes.some((t) => t === DieType.Standard);
+  }
+
+  private rollRandomSpecialDie(): DieType {
+    return SPECIAL_DIE_CANDIDATES[Math.floor(this._rng() * SPECIAL_DIE_CANDIDATES.length)];
+  }
+
+  public rerollShopSpecialDie(cost: number = GameConfig.ShopCostReroll): boolean {
+    if (!this.isInShop || this.coins < cost || !this.hasStandardDieInPersistentPool()) return false;
+    this.coins -= cost;
+    const candidates = SPECIAL_DIE_CANDIDATES.filter((d) => d !== this.shopOfferedSpecialDie);
+    this.shopOfferedSpecialDie =
+      candidates.length > 0
+        ? candidates[Math.floor(this._rng() * candidates.length)]
+        : this.rollRandomSpecialDie();
+    this.emit('stateChanged');
+    return true;
   }
 
   public buyRandomSpecialDie(): DieType | null {
@@ -564,13 +715,14 @@ export class FarkleGameManager {
 
     this.coins -= GameConfig.ShopCostSpecialDie;
     const chosenSlot = standardIndices[Math.floor(this._rng() * standardIndices.length)];
-    const newSpecialType = SPECIAL_DIE_CANDIDATES[Math.floor(this._rng() * SPECIAL_DIE_CANDIDATES.length)];
+    const newSpecialType = this.shopOfferedSpecialDie;
     this._persistentPoolTypes[chosenSlot] = newSpecialType;
 
     if (chosenSlot < this._dice.length) {
       this._dice[chosenSlot].type = newSpecialType;
     }
 
+    this.shopOfferedSpecialDie = this.rollRandomSpecialDie();
     this.emit('stateChanged');
     return newSpecialType;
   }
@@ -619,6 +771,8 @@ export class FarkleGameManager {
     this.isVictory = false;
     this.isInShop = true;
     this.shopOfferedConsumable = this.rollRandomConsumable();
+    this.shopOfferedSpecialDie = this.rollRandomSpecialDie();
+    this.shopOfferedRelic = this.rollRandomRelic();
     this.emit('stateChanged');
     this.emit('shopOpened');
     return true;
@@ -646,6 +800,8 @@ export class FarkleGameManager {
     if (this.currentStage < GameConfig.TotalStages || this.isEndlessMode) {
       this.isInShop = true;
       this.shopOfferedConsumable = this.rollRandomConsumable();
+    this.shopOfferedSpecialDie = this.rollRandomSpecialDie();
+    this.shopOfferedRelic = this.rollRandomRelic();
       this.emit('stateChanged');
       this.emit('shopOpened');
       return;
@@ -660,6 +816,7 @@ export class FarkleGameManager {
   private triggerHotDice(): void {
     const step = this.currentBoss === BossType.Fornace ? GameConfig.FornaceHotDiceLevelStep : 1;
     this.hotDiceLevel += step;
+    this.rollCountInTurn = 0;
     this.resetDicePool(GameConfig.DefaultDiceCount);
     this.mustRollAfterHotDice = false;
     this.emit('hotDice');
@@ -744,7 +901,9 @@ export class FarkleGameManager {
   }
 
   private endTurnAndAdvance(): void {
-    this.hotDiceLevel = 0;
+    this.hotDiceLevel = this.hasRelic(RelicType.FiammaResidua)
+      ? Math.max(0, this.hotDiceLevel - 1)
+      : 0;
     this.mustRollAfterHotDice = false;
     this.actionUsedThisRoll = false;
     this.hasCloverProtection = false;
@@ -768,6 +927,7 @@ export class FarkleGameManager {
 
     this.currentTurn++;
     this._isFirstRollOfTurn = true;
+    this.rollCountInTurn = 0;
     this.resetDicePool(GameConfig.DefaultDiceCount);
     this.applyBossTurnStartEffects();
     this.rollAvailableDice();
@@ -795,17 +955,24 @@ export class FarkleGameManager {
       return;
     }
 
+    const allowThreePairs = this.hasRelic(RelicType.MonocoloBaro);
+    const volatileBonusEligible =
+      this.rollCountInTurn === 1 ||
+      (this.hasRelic(RelicType.MicciaLunga) && this.rollCountInTurn === 2);
+
     const result = ScoreEvaluator.evaluate(
       selectedDice,
       this.hotDiceLevel,
       this.trisBaseMultiplier,
-      this.currentBoss
+      this.currentBoss,
+      volatileBonusEligible,
+      allowThreePairs
     );
     this.isSelectionValid = result.isValidSelection;
     this.previewSelectionScore = result.isValidSelection ? result.score * this.multiplier : 0;
     this.previewSelectionCoins = result.isValidSelection ? result.bonusCoins : 0;
     this.previewSelectionDescription = result.isValidSelection
-      ? ScoreEvaluator.describeSelection(selectedDice, this.hotDiceLevel, this.currentBoss)
+      ? ScoreEvaluator.describeSelection(selectedDice, this.hotDiceLevel, this.currentBoss, 'it', allowThreePairs)
       : '';
   }
 
@@ -813,7 +980,10 @@ export class FarkleGameManager {
     const inPoolValues = this._dice
       .filter((d) => d.state === DieState.InPool)
       .map((d) => d.value);
-    return ScoreEvaluator.hasAnyScoringCombination(inPoolValues);
+    return ScoreEvaluator.hasAnyScoringCombination(
+      inPoolValues,
+      this.hasRelic(RelicType.MonocoloBaro)
+    );
   }
 
   private areAllDiceLockedOrFrozen(): boolean {

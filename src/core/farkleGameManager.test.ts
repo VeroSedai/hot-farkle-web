@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BossType } from '../data/bossType';
 import { ConsumableType } from '../data/consumableType';
 import { GameConfig, getStageTarget, isBossStage } from '../data/gameConfig';
+import { RelicType } from '../data/relicType';
 import { Die, DieState, DieType } from './die';
 import { FarkleGameManager } from './farkleGameManager';
 import { ScoreEvaluator } from './scoreEvaluator';
@@ -396,5 +397,247 @@ describe('FarkleGameManager', () => {
     expect(maxStageReached).toBeLessThan(25);
     // 4. Big dopamine pots still happen in Endless
     expect(maxPotEverBanked).toBeGreaterThan(5000);
+  });
+
+  it('halves tris and boosts straights by +50% under Purista boss', () => {
+    const trisDice = [new Die(0, 4), new Die(1, 4), new Die(2, 4)];
+    const trisRes = ScoreEvaluator.evaluate(trisDice, 0, 1.0, BossType.Purista);
+    expect(trisRes.isValidSelection).toBe(true);
+    expect(trisRes.score).toBe(200);
+
+    const fullStraight = [
+      new Die(0, 1),
+      new Die(1, 2),
+      new Die(2, 3),
+      new Die(3, 4),
+      new Die(4, 5),
+      new Die(5, 6),
+    ];
+    const straightRes = ScoreEvaluator.evaluate(fullStraight, 0, 1.0, BossType.Purista);
+    expect(straightRes.isValidSelection).toBe(true);
+    expect(straightRes.score).toBe(2250);
+  });
+
+  it('requires at least UsuraioMinBankPot (450) to bank under Usuraio boss', () => {
+    const gm = new FarkleGameManager(() => 0.1);
+    gm.startNewRun();
+    gm.currentStage = 3;
+    gm.anteBoss = BossType.Usuraio;
+    expect(gm.currentBoss).toBe(BossType.Usuraio);
+
+    // 100 pts (< 450) cannot be banked
+    gm.dice[0].value = 1;
+    gm.dice[0].state = DieState.InPool;
+    gm.dice[1].value = 2;
+    gm.dice[1].state = DieState.InPool;
+    gm.toggleSelectDie(0);
+    expect(gm.totalBankablePot).toBe(100);
+    expect(gm.canBank).toBe(false);
+    expect(gm.bankPotAndEndTurn()).toBe(false);
+
+    // 500 pts (>= 450) can be banked
+    gm.currentPot = 400;
+    expect(gm.totalBankablePot).toBe(500);
+    expect(gm.canBank).toBe(true);
+    expect(gm.bankPotAndEndTurn()).toBe(true);
+    expect(gm.bankScore).toBe(500);
+  });
+
+  it('starts directly at Stage 3 against the requested boss in startBossTest', () => {
+    const gm = new FarkleGameManager(() => 0.1);
+    gm.startBossTest(BossType.Purista);
+    expect(gm.currentStage).toBe(GameConfig.BossStageNumber);
+    expect(gm.currentBoss).toBe(BossType.Purista);
+    expect(gm.coins).toBe(10);
+    expect(gm.isGameOver).toBe(false);
+  });
+
+  it('grants +1 coin for Merchant die and +250 first-roll bonus for Volatile die', () => {
+    const merchant = new Die(0, 1, DieState.Selected, DieType.Merchant);
+    const merchantRes = ScoreEvaluator.evaluate([merchant], 0, 1.0, BossType.None, false);
+    expect(merchantRes.isValidSelection).toBe(true);
+    expect(merchantRes.score).toBe(100);
+    expect(merchantRes.bonusCoins).toBe(1);
+
+    const volatile = new Die(1, 5, DieState.Selected, DieType.Volatile);
+    const firstRollRes = ScoreEvaluator.evaluate([volatile], 0, 1.0, BossType.None, true);
+    expect(firstRollRes.isValidSelection).toBe(true);
+    expect(firstRollRes.score).toBe(50 + GameConfig.VolatileFirstRollBonus);
+
+    const laterRollRes = ScoreEvaluator.evaluate([volatile], 0, 1.0, BossType.None, false);
+    expect(laterRollRes.score).toBe(50);
+  });
+
+  it('explodes Volatile die on 3rd+ roll in turn and supports shop special die reroll & dev preview', () => {
+    const gm = new FarkleGameManager(() => 0.0);
+    gm.openDevShopPreview();
+    expect(gm.isInShop).toBe(true);
+    expect(gm.currentStage).toBe(2);
+    expect(gm.coins).toBe(20);
+
+    const firstOffered = gm.shopOfferedSpecialDie;
+    expect(gm.rerollShopSpecialDie()).toBe(true);
+    expect(gm.shopOfferedSpecialDie).not.toBe(firstOffered);
+
+    // Volatile explosion test on 3rd roll
+    gm.startNewRun();
+    gm.dice[0].type = DieType.Volatile;
+    gm.dice[0].state = DieState.InPool;
+    gm.rollCountInTurn = 2;
+    gm.rollAvailableDice(); // 3rd roll with Volatile in pool -> Farkle
+    expect(gm.isAwaitingFarkleResolution || gm.remainingShields < GameConfig.StartingShields).toBe(true);
+  });
+
+  it('supports buying, selling, rerolling and effects of all 5 Relics', () => {
+    const gm = new FarkleGameManager(() => 0.2);
+    gm.openDevShopPreview();
+    gm.shopOfferedRelic = RelicType.DenteOro;
+    expect(gm.buyShopRelic()).toBe(RelicType.DenteOro);
+    expect(gm.equippedRelics).toEqual([RelicType.DenteOro]);
+
+    // Reroll & sell relic
+    expect(gm.rerollShopRelic()).toBe(true);
+    expect(gm.sellShopRelic(0)).toBe(RelicType.DenteOro);
+    expect(gm.equippedRelics).toHaveLength(0);
+
+    // DenteOro: +10% bank per coin
+    gm.startNewRun();
+    gm.equippedRelics = [RelicType.DenteOro];
+    gm.coins = 5; // +50%
+    gm.currentPot = 200;
+    expect(gm.totalBankablePot).toBe(300);
+    gm.bankPotAndEndTurn();
+    expect(gm.bankScore).toBe(300);
+
+    // GuantoGhiaccio: +1x per frozen die
+    gm.startNewRun();
+    gm.equippedRelics = [RelicType.GuantoGhiaccio];
+    gm.dice[0].state = DieState.Frozen;
+    gm.dice[1].state = DieState.Frozen;
+    expect(gm.multiplier).toBe(3);
+
+    // FiammaResidua: hotDiceLevel drops by 1 between turns
+    gm.startNewRun();
+    gm.equippedRelics = [RelicType.FiammaResidua];
+    gm.hotDiceLevel = 3;
+    gm.currentPot = 100;
+    gm.bankPotAndEndTurn();
+    expect(gm.hotDiceLevel).toBe(2);
+
+    // MonocoloBaro: Three Pairs = 600 pts
+    const threePairs = [
+      new Die(0, 2),
+      new Die(1, 2),
+      new Die(2, 3),
+      new Die(3, 3),
+      new Die(4, 6),
+      new Die(5, 6),
+    ];
+    expect(ScoreEvaluator.evaluate(threePairs, 0, 1.0, BossType.None, false, false).isValidSelection).toBe(false);
+    const monoRes = ScoreEvaluator.evaluate(threePairs, 0, 1.0, BossType.None, false, true);
+    expect(monoRes.isValidSelection).toBe(true);
+    expect(monoRes.score).toBe(600);
+  });
+
+  it('prevents infinite immortality when actively buying Relics and hoarding coins with DenteOro', () => {
+    function createRng(seed: number) {
+      let a = seed;
+      return () => {
+        let t = (a += 0x6d2b79f5);
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    const TOTAL_RUNS = 300;
+    let maxStageReached = 0;
+    let stage3Clears = 0;
+    const finalStages: number[] = [];
+
+    for (let run = 0; run < TOTAL_RUNS; run++) {
+      const gm = new FarkleGameManager(createRng(5000 + run));
+      gm.startNewRun();
+
+      let safetySteps = 0;
+      while (!gm.isGameOver && safetySteps < 5000) {
+        safetySteps++;
+
+        if (gm.isInShop) {
+          while (gm.buyRepairShield()) {
+            // repair shields first
+          }
+          while (gm.buyShopRelic() !== null) {
+            // buy up to 2 relics
+          }
+          // If we don't have DenteOro, spend remaining coins on special dice & tris
+          if (!gm.hasRelic(RelicType.DenteOro)) {
+            while (gm.hasStandardDieInPersistentPool() && gm.buyRandomSpecialDie() !== null) {
+              // buy special dice
+            }
+            while (gm.buyTrisMultiplierUpgrade()) {
+              // upgrade tris
+            }
+          }
+          gm.advanceToNextStage();
+          continue;
+        }
+
+        const inPool = gm.dice.filter((d) => d.state === DieState.InPool);
+        const counts = new Array<number>(7).fill(0);
+        for (const d of inPool) counts[d.value]++;
+
+        let picked = 0;
+        const isThreePairs =
+          gm.hasRelic(RelicType.MonocoloBaro) &&
+          inPool.length === 6 &&
+          counts.filter((c) => c === 2).length === 3;
+
+        if (isThreePairs) {
+          inPool.forEach((d) => gm.toggleSelectDie(d.id));
+          picked = 6;
+        } else {
+          for (const d of inPool) {
+            if (counts[d.value] >= 3 || d.value === 1 || d.value === 5) {
+              gm.toggleSelectDie(d.id);
+              picked++;
+            }
+          }
+        }
+
+        if (picked === 0 || !gm.isSelectionValid) {
+          if (gm.canBank) gm.bankPotAndEndTurn();
+          continue;
+        }
+
+        const remaining = gm.dice.filter((d) => d.state === DieState.InPool).length;
+        if ((remaining === 0 || gm.remainingShields >= 2) && gm.canConfirmAndRoll) {
+          gm.confirmSelectionAndRoll();
+        } else if (gm.canBank) {
+          gm.bankPotAndEndTurn();
+        } else if (gm.canConfirmAndRoll) {
+          gm.confirmSelectionAndRoll();
+        }
+
+        if (gm.isGameOver && gm.isVictory && !gm.isEndlessMode) {
+          stage3Clears++;
+          gm.enterEndlessMode();
+        }
+      }
+
+      expect(gm.isGameOver).toBe(true);
+      maxStageReached = Math.max(maxStageReached, gm.currentStage);
+      finalStages.push(gm.currentStage);
+    }
+
+    const avgStage = (finalStages.reduce((a, b) => a + b, 0) / TOTAL_RUNS).toFixed(2);
+    console.info(
+      `[Relics Monte Carlo] Runs: ${TOTAL_RUNS} | Stage 3 WinRate: ${(
+        (stage3Clears / TOTAL_RUNS) *
+        100
+      ).toFixed(1)}% | Avg Max Stage: ${avgStage} | Peak Stage: ${maxStageReached}`
+    );
+
+    expect(maxStageReached).toBeLessThan(25);
   });
 });

@@ -1,14 +1,19 @@
 import React from 'react';
 import { Die, DieState, DieType } from '../core/die';
+import { BOSS_CANDIDATES } from '../core/farkleGameManager';
+import { BOSS_METADATA, BossType } from '../data/bossType';
 import { useI18n } from '../i18n/I18nContext';
 import type { PlayerStats } from '../utils/stats';
 import { DieView } from './DieView';
-import { GameIcons } from './Icons';
+import { BossIcon, GameIcons } from './Icons';
 
 interface HomeScreenProps {
   muted: boolean;
   stats: PlayerStats;
+  isDevMode?: boolean;
   onStartGame: () => void;
+  onStartBossTest?: (boss: BossType) => void;
+  onOpenDevShop?: () => void;
   onOpenRules: () => void;
   onToggleMute: () => void;
 }
@@ -19,7 +24,10 @@ const SHOWCASE_DIE_2 = new Die(1, 5, DieState.InPool, DieType.Golden);
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   muted,
   stats,
+  isDevMode = false,
   onStartGame,
+  onStartBossTest,
+  onOpenDevShop,
   onOpenRules,
   onToggleMute,
 }) => {
@@ -87,6 +95,39 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <div className="home-stat-item">
               <span className="home-stat-val">{stats.bestBank}</span>
               <span className="home-stat-lbl">{t('home.statsBestBank')}</span>
+            </div>
+          </div>
+        )}
+        {isDevMode && onStartBossTest && (
+          <div className="dev-boss-panel">
+            <div className="dev-boss-header">
+              <span className="dev-boss-label">DEV · BOSS TEST (STAGE 3)</span>
+              {onOpenDevShop && (
+                <button
+                  type="button"
+                  className="dev-boss-btn dev-shop-btn"
+                  style={{ '--boss-color': '#ffbe0b' } as React.CSSProperties}
+                  onClick={onOpenDevShop}
+                >
+                  <GameIcons.Coins size={14} />
+                  <span>SHOP PREVIEW</span>
+                </button>
+              )}
+            </div>
+            <div className="dev-boss-grid">
+              {BOSS_CANDIDATES.map((boss) => (
+                <button
+                  key={boss}
+                  type="button"
+                  className="dev-boss-btn"
+                  style={{ '--boss-color': BOSS_METADATA[boss].themeColorHex } as React.CSSProperties}
+                  onClick={() => onStartBossTest(boss)}
+                  title={t(`bosses.${boss}.desc`)}
+                >
+                  <BossIcon boss={boss} size={14} />
+                  <span>{t(`bosses.${boss}.name`)}</span>
+                </button>
+              ))}
             </div>
           </div>
         )}

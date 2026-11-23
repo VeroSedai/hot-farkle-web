@@ -10,6 +10,8 @@ export enum DieType {
   Golden = 'Golden',         // 1 vale 250 pt (invece di 100), 5 vale 100 pt (invece di 50)
   Loaded = 'Loaded',         // Facce truccate: 1, 1, 5, 5, 3, 6
   Multiplier = 'Multiplier', // Se bloccato in una selezione valida, raddoppia i punti
+  Merchant = 'Merchant',     // Se bloccato in una selezione valida, genera +1 Moneta
+  Volatile = 'Volatile',     // +250 pt se bloccato al 1° lancio del turno; esplode al 3°+ lancio
 }
 
 export type RngFn = () => number;

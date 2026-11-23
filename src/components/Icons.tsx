@@ -5,13 +5,18 @@ import {
   LuBookOpen,
   LuClover,
   LuCoins,
+  LuCrown,
   LuDices,
+  LuEye,
   LuFlame,
   LuHouse,
+  LuLandmark,
   LuLock,
+  LuMagnet,
   LuMenu,
   LuPlay,
   LuRefreshCw,
+  LuScale,
   LuShield,
   LuShieldCheck,
   LuSkull,
@@ -23,6 +28,7 @@ import {
 } from 'react-icons/lu';
 import { BossType } from '../data/bossType';
 import { ConsumableType } from '../data/consumableType';
+import { RelicType } from '../data/relicType';
 
 interface IconProps {
   className?: string;
@@ -48,6 +54,25 @@ export const ConsumableIcon: React.FC<{ type: ConsumableType; size?: number; cla
   }
 };
 
+export const RelicIcon: React.FC<{ relic: RelicType; size?: number; className?: string }> = ({
+  relic,
+  size = 22,
+  className,
+}) => {
+  switch (relic) {
+    case RelicType.DenteOro:
+      return <LuCoins size={size} className={className} />;
+    case RelicType.GuantoGhiaccio:
+      return <LuSnowflake size={size} className={className} />;
+    case RelicType.FiammaResidua:
+      return <LuFlame size={size} className={className} />;
+    case RelicType.MonocoloBaro:
+      return <LuEye size={size} className={className} />;
+    case RelicType.MicciaLunga:
+      return <LuZap size={size} className={className} />;
+  }
+};
+
 export const BossIcon: React.FC<{ boss: BossType; size?: number; className?: string }> = ({
   boss,
   size = 20,
@@ -60,6 +85,10 @@ export const BossIcon: React.FC<{ boss: BossType; size?: number; className?: str
       return <LuFlame size={size} className={className} />;
     case BossType.Esattore:
       return <LuCoins size={size} className={className} />;
+    case BossType.Usuraio:
+      return <LuLandmark size={size} className={className} />;
+    case BossType.Purista:
+      return <LuScale size={size} className={className} />;
     default:
       return <LuDices size={size} className={className} />;
   }
@@ -68,6 +97,8 @@ export const BossIcon: React.FC<{ boss: BossType; size?: number; className?: str
 export const GameIcons = {
   Shield: (p: IconProps) => <LuShield {...p} />,
   Coins: (p: IconProps) => <LuCoins {...p} />,
+  Crown: (p: IconProps) => <LuCrown {...p} />,
+  Magnet: (p: IconProps) => <LuMagnet {...p} />,
   Dice: (p: IconProps) => <LuDices {...p} />,
   DiceFire: (p: IconProps) => <GiDiceFire {...p} />,
   Flame: (p: IconProps) => <LuFlame {...p} />,

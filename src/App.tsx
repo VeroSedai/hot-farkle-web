@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DieView } from './components/DieView';
 import { GameOverModal } from './components/GameOverModal';
 import { HomeScreen } from './components/HomeScreen';
-import { BossIcon, ConsumableIcon, GameIcons } from './components/Icons';
+import { BossIcon, ConsumableIcon, GameIcons, RelicIcon } from './components/Icons';
 import { RulesModal } from './components/RulesModal';
 import { ShopOverlay } from './components/ShopOverlay';
 import { StageClearModal } from './components/StageClearModal';
 import { SwirlBackground } from './components/SwirlBackground';
 import { TutorialOverlay } from './components/TutorialOverlay';
 import { DieState, DieType } from './core/die';
-import { FarkleGameManager } from './core/farkleGameManager';
+import { BOSS_CANDIDATES, FarkleGameManager } from './core/farkleGameManager';
 import { ScoreEvaluator } from './core/scoreEvaluator';
 import { BOSS_METADATA, BossType } from './data/bossType';
 import { CONSUMABLE_METADATA, ConsumableType } from './data/consumableType';
@@ -48,6 +48,8 @@ export const App: React.FC = () => {
     gmRef.current = gm;
   }
   const gm = gmRef.current;
+
+  const isDevMode = Boolean((import.meta as unknown as { env?: { DEV?: boolean } }).env?.DEV);
 
   const [screen, setScreen] = useState<'home' | 'game'>('home');
   const [, setTick] = useState(0);
@@ -302,6 +304,29 @@ export const App: React.FC = () => {
         d.state === DieState.Frozen
     );
 
+  const handleStartBossTest = (boss: BossType) => {
+    setTargetingSlot(null);
+    setTargetPrompt('');
+    setShopFeedback('');
+    setShopUnlockedForStage(0);
+    setOpenPopover('none');
+    setTutorialStep(0);
+    gm.startBossTest(boss);
+    setScreen('game');
+    triggerRollAnim();
+  };
+
+  const handleOpenDevShop = () => {
+    setTargetingSlot(null);
+    setTargetPrompt('');
+    setShopFeedback('');
+    setOpenPopover('none');
+    setTutorialStep(0);
+    gm.openDevShopPreview();
+    setShopUnlockedForStage(gm.currentStage);
+    setScreen('game');
+  };
+
   return (
     <div className="app-shell">
       <SwirlBackground
@@ -314,7 +339,10 @@ export const App: React.FC = () => {
         <HomeScreen
           muted={bgmMuted && sfxMuted}
           stats={stats}
+          isDevMode={isDevMode}
           onStartGame={handleStartFromHome}
+          onStartBossTest={handleStartBossTest}
+          onOpenDevShop={handleOpenDevShop}
           onOpenRules={() => setShowRules(true)}
           onToggleMute={() => {
             const allMuted = soundManager.toggleMute();
@@ -434,6 +462,36 @@ export const App: React.FC = () => {
                       >
                         {t('hud.backHome')}
                       </button>
+                      {isDevMode && (
+                        <div className="dev-boss-panel dev-boss-panel-popover">
+                          <span className="dev-boss-label">DEV · BOSS TEST</span>
+                          <div className="dev-boss-grid">
+                            {BOSS_CANDIDATES.map((boss) => (
+                              <button
+                                key={boss}
+                                type="button"
+                                className="dev-boss-btn"
+                                style={
+                                  { '--boss-color': BOSS_METADATA[boss].themeColorHex } as React.CSSProperties
+                                }
+                                onClick={() => handleStartBossTest(boss)}
+                              >
+                                <BossIcon boss={boss} size={13} />
+                                <span>{t(`bosses.${boss}.name`)}</span>
+                              </button>
+                            ))}
+                            <button
+                              type="button"
+                              className="dev-boss-btn"
+                              style={{ '--boss-color': '#ffbe0b' } as React.CSSProperties}
+                              onClick={handleOpenDevShop}
+                            >
+                              <GameIcons.Coins size={13} />
+                              <span>SHOP PREVIEW</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </>
@@ -499,8 +557,29 @@ export const App: React.FC = () => {
               )}
             </header>
 
-            {/* DESKTOP SIDEBAR: CONSUMABLES */}
+            {/* DESKTOP SIDEBAR: CONSUMABLES & RELICS */}
             <div className="desktop-sidebar-panels">
+              {gm.equippedRelics.length > 0 && (
+                <section className="sidebar-card sidebar-relics-card">
+                  <div className="sidebar-card-header">
+                    <span>
+                      {lang === 'it' ? 'RELIQUIE' : 'RELICS'} ({gm.equippedRelics.length}/
+                      {GameConfig.MaxRelicSlots})
+                    </span>
+                  </div>
+                  <div className="sidebar-relics-list">
+                    {gm.equippedRelics.map((relic) => (
+                      <div key={relic} className="relic-hud-chip" title={t(`relics.${relic}.desc`)}>
+                        <RelicIcon relic={relic} size={14} />
+                        <div className="relic-hud-copy">
+                          <strong>{t(`relics.${relic}.name`)}</strong>
+                          <span>{t(`relics.${relic}.desc`)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
               <section className="sidebar-card sidebar-items-card">
                 <div className="sidebar-card-header">
                   <span>
@@ -728,12 +807,16 @@ export const App: React.FC = () => {
       {screen === 'game' && gm.isInShop && shopUnlockedForStage === gm.currentStage && (
         <ShopOverlay
           currentStage={gm.currentStage}
+          anteBoss={gm.anteBoss}
           coins={gm.coins}
           remainingShields={gm.remainingShields}
           trisBaseMultiplier={gm.trisBaseMultiplier}
           trisUpgradeCost={gm.trisUpgradeCost}
           equippedConsumables={gm.equippedConsumables}
+          equippedRelics={gm.equippedRelics}
           offeredConsumable={gm.shopOfferedConsumable}
+          offeredSpecialDie={gm.shopOfferedSpecialDie}
+          offeredRelic={gm.shopOfferedRelic}
           persistentPoolTypes={gm.persistentPoolTypes}
           hasStandardDie={gm.hasStandardDieInPersistentPool()}
           feedback={shopFeedback}
@@ -771,9 +854,39 @@ export const App: React.FC = () => {
                   ? t('shopFeedback.dieGolden')
                   : newType === DieType.Loaded
                     ? t('shopFeedback.dieLoaded')
-                    : t('shopFeedback.dieMultiplier');
+                    : newType === DieType.Multiplier
+                      ? t('shopFeedback.dieMultiplier')
+                      : newType === DieType.Merchant
+                        ? t('shopFeedback.dieMerchant')
+                        : t('shopFeedback.dieVolatile');
               setShopFeedback(t('shopFeedback.upgradedDie', { label }));
             }
+          }}
+          onRerollSpecialDie={() => {
+            if (gm.rerollShopSpecialDie()) setShopFeedback(t('shopFeedback.rerolledSpecialDie'));
+          }}
+          onBuyRelic={() => {
+            const bought = gm.buyShopRelic();
+            if (bought) {
+              setShopFeedback(
+                t('shopFeedback.boughtRelic', { name: t(`relics.${bought}.name`) })
+              );
+            }
+          }}
+          onSellRelic={(slotIndex) => {
+            const sold = gm.sellShopRelic(slotIndex);
+            if (sold) {
+              soundManager.playSelect();
+              setShopFeedback(
+                t('shopFeedback.soldRelic', {
+                  name: t(`relics.${sold}.name`),
+                  coins: GameConfig.ShopRelicSellValue,
+                })
+              );
+            }
+          }}
+          onRerollRelic={() => {
+            if (gm.rerollShopRelic()) setShopFeedback(t('shopFeedback.rerolledRelic'));
           }}
           onBuyTrisUpgrade={() => {
             if (gm.buyTrisMultiplierUpgrade()) {

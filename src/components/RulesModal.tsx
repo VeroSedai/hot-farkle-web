@@ -48,6 +48,18 @@ const SPECIAL_DICE_PREVIEW = [
     descKey: 'rules.specialMultDesc' as const,
     accentClass: 'special-mult',
   },
+  {
+    die: new Die(3, 1, DieState.InPool, DieType.Merchant),
+    nameKey: 'rules.specialMerchant' as const,
+    descKey: 'rules.specialMerchantDesc' as const,
+    accentClass: 'special-merchant',
+  },
+  {
+    die: new Die(4, 5, DieState.InPool, DieType.Volatile),
+    nameKey: 'rules.specialVolatile' as const,
+    descKey: 'rules.specialVolatileDesc' as const,
+    accentClass: 'special-volatile',
+  },
 ];
 
 const ComboRow: React.FC<ComboRowData> = ({ dice, score }) => (
@@ -105,6 +117,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ onClose }) => {
               </div>
             ))}
           </div>
+          <p className="rules-extra-note rules-relics-note">{t('rules.relicsNote')}</p>
         </div>
 
         <div className="rules-close-wrap">

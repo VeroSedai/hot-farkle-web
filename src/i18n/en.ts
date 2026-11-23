@@ -60,22 +60,34 @@ export const en: TranslationSchema = {
     boughtConsumable: 'Purchased: {{name}}',
     soldConsumable: 'Sold: {{name}} (+{{coins}})',
     rerolled: 'Consumable offer refreshed!',
+    rerolledSpecialDie: 'Special die offer refreshed!',
+    boughtRelic: 'Relic equipped: {{name}}',
+    soldRelic: 'Sold relic: {{name}} (+{{coins}})',
+    rerolledRelic: 'Relic offer refreshed!',
     upgradedDie: 'Upgraded 1 die to: {{label}}!',
     trisUpgraded: 'Three-of-a-Kind bonus upgraded to x{{mult}}!',
     dieGolden: 'Golden Die',
     dieLoaded: 'Loaded Die',
     dieMultiplier: 'Multiplier x2 Die',
+    dieMerchant: 'Merchant Die',
+    dieVolatile: 'Volatile Die',
   },
   shop: {
     title: 'SHOP',
     belt: 'BELT ({{count}}/{{max}}):',
+    relics: 'RELICS ({{count}}/{{max}}):',
     sellConsumableTitle: 'Sell for +{{coins}} Coin',
+    sellRelicTitle: 'Sell for +{{coins}} Coins',
     repairShieldTitle: 'REPAIR SHIELD',
     repairShieldDesc: '+1 Anti-Farkle Shield (Current: {{count}}/{{max}})',
     shieldMaxed: 'SHIELDS FULL',
     buy: 'BUY',
     beltFull: 'BELT FULL',
     rerollTitle: 'Reroll the offered consumable',
+    rerollSpecialTitle: 'Reroll the offered special die',
+    rerollRelicTitle: 'Reroll the offered relic',
+    relicsFull: 'RELIC SLOTS FULL',
+    relicOwned: 'ALREADY OWNED',
     rerollBtn: 'REROLL',
     specialDieTitle: 'SPECIAL DIE ({{count}}/6)',
     specialDieDesc: 'Upgrade 1 die to Gold, Loaded or x2',
@@ -83,6 +95,7 @@ export const en: TranslationSchema = {
     trisTitle: 'TRIPS +0.5x (x{{mult}})',
     trisDesc: 'Permanent flat bonus on 3-of-a-kind',
     startStage: 'START STAGE {{stage}}',
+    nextBoss: 'NEXT BOSS (S{{stage}})',
   },
   stageClear: {
     title: 'STAGE {{stage}} CLEARED!',
@@ -117,6 +130,11 @@ export const en: TranslationSchema = {
     specialLoadedDesc: 'more 1s and 5s',
     specialMult: 'x2:',
     specialMultDesc: 'Doubles combo points',
+    specialMerchant: 'MERCH:',
+    specialMerchantDesc: '+1 Coin when locked',
+    specialVolatile: 'VOL:',
+    specialVolatileDesc: '+250 pts 1st roll; explodes on 3rd+',
+    relicsNote: "RELICS: equip up to 2 passive bonuses in the Shop (e.g. Three Pairs with Cheater's Monocle).",
     close: 'Close',
   },
   tutorial: {
@@ -136,6 +154,7 @@ export const en: TranslationSchema = {
   },
   combos: {
     fullStraight: 'STRAIGHT 1-6',
+    threePairs: 'THREE PAIRS',
     highStraight: 'STRAIGHT 2-6',
     lowStraight: 'STRAIGHT 1-5',
     tris: 'TRIPLE {{face}}s',
@@ -158,6 +177,62 @@ export const en: TranslationSchema = {
     [BossType.Esattore]: {
       name: 'TAX COLLECTOR',
       desc: 'Single 5s score 0 pts but grant +1 Coin',
+    },
+    [BossType.Usuraio]: {
+      name: 'LOAN SHARK',
+      desc: 'Bank only with Pot ≥ 450 pts',
+    },
+    [BossType.Purista]: {
+      name: 'PURIST',
+      desc: 'Trips halved, Straights +50% pts',
+    },
+  },
+  relics: {
+    DenteOro: {
+      name: 'GOLDEN TOOTH',
+      desc: '+10% Bank points per Coin held',
+    },
+    GuantoGhiaccio: {
+      name: 'FROST GAUNTLET',
+      desc: 'Each Frozen die adds +1x to multiplier',
+    },
+    FiammaResidua: {
+      name: 'EMBER CORE',
+      desc: 'Hot Dice only drops by -1x between turns',
+    },
+    MonocoloBaro: {
+      name: "CHEATER'S MONOCLE",
+      desc: 'Unlocks Three Pairs (600 pts) as a valid combo',
+    },
+    MicciaLunga: {
+      name: 'LONG FUSE',
+      desc: 'Volatile Die: bonus on 2nd roll too, explodes on 4th',
+    },
+  },
+  specialDice: {
+    Standard: {
+      name: 'STANDARD DIE',
+      desc: 'Classic 6-sided die',
+    },
+    Golden: {
+      name: 'GOLDEN DIE',
+      desc: '1s score 250 pts, 5s score 100 pts',
+    },
+    Loaded: {
+      name: 'LOADED DIE',
+      desc: 'Weighted faces: 1, 1, 5, 5, 3, 6',
+    },
+    Multiplier: {
+      name: 'x2 DIE',
+      desc: 'Doubles the score of the selection',
+    },
+    Merchant: {
+      name: 'MERCHANT DIE',
+      desc: '+1 Coin whenever locked in a combo',
+    },
+    Volatile: {
+      name: 'VOLATILE DIE',
+      desc: '+250 pts on 1st roll; explodes on 3rd+ roll',
     },
   },
   consumables: {

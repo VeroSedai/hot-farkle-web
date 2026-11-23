@@ -15,15 +15,21 @@ export const GameConfig = {
   MaxOverkillBonusCoins: 5,
 
   MaxConsumableSlots: 2,
+  MaxRelicSlots: 2,
   SpintaSuccessBonus: 150,
 
   ShopCostRepairShield: 2,
   ShopCostConsumable: 2,
   ShopConsumableSellValue: 1,
   ShopCostSpecialDie: 3,
+  ShopCostRelic: 5,
+  ShopRelicSellValue: 2,
   ShopCostTrisMultiplierUpgrade: 4,
   ShopCostTrisMultiplierStep: 2,
   ShopCostReroll: 1,
+
+  DenteOroPercentPerCoin: 0.1,
+  MonocoloThreePairsScore: 600,
 
   DefaultDiceCount: 6,
   ReducedHotDiceCount: 5,
@@ -34,6 +40,12 @@ export const GameConfig = {
   FornaceMaxTurns: 3,
   FornaceHotDiceLevelStep: 2,
   EsattoreSingleFiveCoinReward: 1,
+  UsuraioMinBankPot: 450,
+  PuristaTrisMultiplier: 0.5,
+  PuristaStraightMultiplier: 1.5,
+  MerchantDieCoinReward: 1,
+  VolatileFirstRollBonus: 250,
+  VolatileExplodeRoll: 3,
   IceDieFrozenBonusPerDie: 100,
 } as const;
 

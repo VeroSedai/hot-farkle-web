@@ -84,6 +84,20 @@ body,
   --bg-mint-deep-dot: #2e2100;
 }
 
+.pop-bg-boss-usuraio {
+  --bg-mint: #c084fc;
+  --bg-mint-dot: #9333ea;
+  --bg-mint-deep: #3b0764;
+  --bg-mint-deep-dot: #240340;
+}
+
+.pop-bg-boss-purista {
+  --bg-mint: #e2e8f0;
+  --bg-mint-dot: #94a3b8;
+  --bg-mint-deep: #1e293b;
+  --bg-mint-deep-dot: #0f172a;
+}
+
 .pop-bg-halftone-left,
 .pop-bg-halftone-right {
   position: absolute;
@@ -1656,6 +1670,52 @@ body,
   border-radius: 1px;
 }
 
+.die-type-merchant .die-face {
+  background: #a7f3d0;
+  border-color: var(--ink);
+}
+
+.die-type-merchant .die-depth {
+  background: #059669;
+}
+
+.die-type-volatile .die-face {
+  background: #fecaca;
+  border-color: var(--ink);
+}
+
+.die-type-volatile .die-depth {
+  background: #dc2626;
+}
+
+.die-corner-merchant {
+  background: var(--emerald);
+  color: var(--ink);
+}
+
+.die-corner-volatile {
+  background: var(--orange-hot);
+  color: var(--cream);
+}
+
+.die-corner-golden {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.die-corner-loaded {
+  background: var(--orange);
+  color: var(--ink);
+}
+
+.die-corner-multiplier {
+  background: var(--purple);
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  line-height: 1;
+}
+
 /* Die States */
 .die-card.die-state-selected {
   transform: translateY(-14px) rotate(0deg) !important;
@@ -2195,6 +2255,164 @@ body,
   color: var(--ink);
 }
 
+.shop-boss-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--boss-color, var(--gold)) 18%, var(--paper));
+  border: 3px solid var(--ink);
+  box-shadow: 3px 3px 0px var(--ink);
+  color: var(--ink);
+}
+
+.shop-boss-preview-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--boss-color, var(--gold));
+  border: 2.5px solid var(--ink);
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.shop-boss-preview-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  font-size: 0.85rem;
+  line-height: 1.25;
+}
+
+.shop-boss-preview-text strong {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  font-size: 0.9rem;
+}
+
+.shop-card-emerald {
+  border-color: var(--ink);
+}
+
+.medallion-emerald {
+  background: #a7f3d0;
+}
+
+.icon-emerald {
+  color: #065f46;
+}
+
+.chip-relic {
+  background: #d1fae5;
+  color: var(--ink);
+}
+
+.sidebar-relics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.relic-hud-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 2px solid var(--ink);
+  background: #d1fae5;
+  color: var(--ink);
+}
+
+.relic-hud-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
+.relic-hud-copy strong {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+}
+
+.dev-boss-panel {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 2.5px dashed var(--ink);
+  background: rgba(255, 255, 255, 0.72);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.dev-boss-panel-popover {
+  margin-top: 6px;
+  padding: 8px;
+}
+
+.dev-boss-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dev-shop-btn {
+  background: var(--gold);
+}
+
+.dev-boss-label {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  opacity: 0.8;
+}
+
+.dev-boss-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dev-boss-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  border: 2px solid var(--ink);
+  background: color-mix(in srgb, var(--boss-color, var(--gold)) 28%, var(--paper));
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--ink);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.dev-boss-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--ink);
+}
+
+.dev-boss-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--ink);
+}
+
 .shop-loadout-bar {
   background: var(--table-bg);
   border: 3px solid var(--ink);
@@ -2271,6 +2489,14 @@ body,
   background: var(--cream);
   border-radius: 1px;
   transform: rotate(45deg);
+}
+
+.shop-mini-die.mini-die-merchant {
+  background: var(--emerald);
+}
+
+.shop-mini-die.mini-die-volatile {
+  background: var(--orange-hot);
 }
 
 .chip-belt-empty {
@@ -2820,6 +3046,18 @@ body,
 
 .rules-special-item.special-mult strong {
   color: var(--purple);
+}
+
+.rules-special-item.special-merchant strong {
+  color: #059669;
+}
+
+.rules-special-item.special-volatile strong {
+  color: var(--orange-hot);
+}
+
+.rules-relics-note {
+  margin-top: 8px;
 }
 
 .rules-close-wrap {
