@@ -3629,15 +3629,15 @@ body,
   }
 
   .dice-pool-grid {
-    --die-w: 92px;
-    --die-gap: 18px;
-    max-width: 320px;
-    gap: 18px;
+    --die-w: clamp(88px, 23vw, 112px);
+    --die-gap: clamp(14px, 4vw, 22px);
+    max-width: calc(var(--die-w) * 3 + var(--die-gap) * 2.5);
+    gap: var(--die-gap);
   }
 
   .die-card {
-    width: 92px;
-    height: 98px;
+    width: var(--die-w);
+    height: calc(var(--die-w) * 1.07);
   }
 
   .die-pip {
