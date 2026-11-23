@@ -1,8 +1,8 @@
 export const GameConfig = {
-  StageTargets: [750, 1400, 2200] as const,
+  StageTargets: [750, 1400, 2200, 3000, 4000, 5200, 6800, 8800, 11500] as const,
   EndlessStageStep: 1000,
   EndlessStageMultiplier: 1.75,
-  TotalStages: 3,
+  TotalStages: 9,
 
   TargetPoints: 750,
   MaxTurns: 4,

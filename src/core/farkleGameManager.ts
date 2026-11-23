@@ -35,6 +35,7 @@ export class FarkleGameManager {
   private readonly _rng: RngFn;
   private readonly _dice: Die[] = [];
   private readonly _persistentPoolTypes: DieType[] = new Array(GameConfig.DefaultDiceCount).fill(DieType.Standard);
+  private _remainingBossPool: BossType[] = [];
   private _isFirstRollOfTurn = false;
 
   public currentStage = 1;
@@ -223,7 +224,8 @@ export class FarkleGameManager {
 
   private resetPersistentRunState(): void {
     this.currentStage = 1;
-    this.anteBoss = BOSS_CANDIDATES[Math.floor(this._rng() * BOSS_CANDIDATES.length)];
+    this._remainingBossPool = [...BOSS_CANDIDATES];
+    this.anteBoss = this.rollNextAnteBoss(BossType.None);
     this.coins = GameConfig.StartingCoins;
     this.remainingShields = GameConfig.StartingShields;
     this.trisBaseMultiplier = 1.0;
@@ -745,9 +747,17 @@ export class FarkleGameManager {
   }
 
   private rollNextAnteBoss(previous: BossType): BossType {
-    const candidates = BOSS_CANDIDATES.filter((b) => b !== previous);
-    if (candidates.length === 0) return previous;
-    return candidates[Math.floor(this._rng() * candidates.length)];
+    if (this._remainingBossPool.length === 0) {
+      this._remainingBossPool = BOSS_CANDIDATES.filter((b) => b !== previous);
+    }
+    const candidates = this._remainingBossPool.filter((b) => b !== previous);
+    const pool = candidates.length > 0 ? candidates : this._remainingBossPool;
+    const pick = pool[Math.floor(this._rng() * pool.length)];
+    const idx = this._remainingBossPool.indexOf(pick);
+    if (idx !== -1) {
+      this._remainingBossPool.splice(idx, 1);
+    }
+    return pick;
   }
 
   public advanceToNextStage(): boolean {

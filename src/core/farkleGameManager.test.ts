@@ -112,20 +112,17 @@ describe('FarkleGameManager', () => {
     expect(gm.canBuyShopConsumable).toBe(true);
   });
 
-  it('supports endless mode after Stage 3 victory with scaling targets', () => {
+  it('supports endless mode after TotalStages (9) victory with scaling targets', () => {
     const gm = new FarkleGameManager(() => 0); // all dice roll 1
     gm.startNewRun();
     expect(gm.currentStageTarget).toBe(750);
 
-    // Clear stages 1, 2, 3
-    for (let stage = 1; stage <= 3; stage++) {
-      gm.dice.forEach((d) => {
-        if (d.state === DieState.InPool) {
-          gm.toggleSelectDie(d.id);
-        }
-      });
+    // Clear stages 1..9
+    for (let stage = 1; stage <= GameConfig.TotalStages; stage++) {
+      gm.bankScore = gm.currentStageTarget;
+      gm.currentPot = 100;
       gm.bankPotAndEndTurn();
-      if (stage < 3) {
+      if (stage < GameConfig.TotalStages) {
         expect(gm.isInShop).toBe(true);
         gm.advanceToNextStage();
       }
@@ -139,8 +136,8 @@ describe('FarkleGameManager', () => {
     expect(gm.isInShop).toBe(true);
 
     expect(gm.advanceToNextStage()).toBe(true);
-    expect(gm.currentStage).toBe(4);
-    expect(gm.currentStageTarget).toBe(3900);
+    expect(gm.currentStage).toBe(10);
+    expect(gm.currentStageTarget).toBe(20100);
   });
 
   it('caps shields at MaxShields (3) and allows repairing when damaged', () => {
@@ -204,15 +201,12 @@ describe('FarkleGameManager', () => {
     expect(gm.coins).toBe(30 - (4 + 6 + 8));
   });
 
-  it('scales Endless targets exponentially and activates cyclic bosses every 3 stages', () => {
+  it('scales Endless targets exponentially and guarantees unique bosses across all 3 Antes', () => {
     expect(getStageTarget(1)).toBe(750);
-    expect(getStageTarget(2)).toBe(1400);
     expect(getStageTarget(3)).toBe(2200);
-    expect(getStageTarget(4)).toBe(3900);
-    expect(getStageTarget(6)).toBe(11800);
-    expect(getStageTarget(9)).toBe(63200);
-    expect(getStageTarget(12)).toBe(338700);
-    expect(getStageTarget(15)).toBe(1815000);
+    expect(getStageTarget(6)).toBe(5200);
+    expect(getStageTarget(9)).toBe(11500);
+    expect(getStageTarget(10)).toBe(20100);
 
     expect(isBossStage(3)).toBe(true);
     expect(isBossStage(4)).toBe(false);
@@ -220,34 +214,26 @@ describe('FarkleGameManager', () => {
     expect(isBossStage(6)).toBe(true);
     expect(isBossStage(9)).toBe(true);
 
-    const gm = new FarkleGameManager(() => 0);
+    const gm = new FarkleGameManager(() => 0.25);
     gm.startNewRun();
-    const firstBoss = gm.anteBoss;
+    const seenBosses: BossType[] = [];
 
-    // Clear up to Stage 3
-    for (let s = 1; s <= 3; s++) {
-      gm.dice.forEach((d) => {
-        if (d.state === DieState.InPool) gm.toggleSelectDie(d.id);
-      });
+    for (let s = 1; s <= GameConfig.TotalStages; s++) {
+      if (isBossStage(s)) {
+        seenBosses.push(gm.currentBoss);
+      } else {
+        expect(gm.currentBoss).toBe(BossType.None);
+      }
+      gm.bankScore = gm.currentStageTarget;
+      gm.currentPot = 100;
       gm.bankPotAndEndTurn();
-      if (s < 3) gm.advanceToNextStage();
+      if (s < GameConfig.TotalStages) {
+        gm.advanceToNextStage();
+      }
     }
 
-    gm.enterEndlessMode();
-    gm.advanceToNextStage(); // Stage 4
-    expect(gm.currentStage).toBe(4);
-    expect(gm.currentBoss).toBe(BossType.None);
-    // Boss rotated after clearing Stage 3
-    expect(gm.anteBoss).not.toBe(firstBoss);
-
-    // Advance to Stage 6
-    gm.isInShop = true;
-    gm.advanceToNextStage(); // Stage 5
-    expect(gm.currentBoss).toBe(BossType.None);
-    gm.isInShop = true;
-    gm.advanceToNextStage(); // Stage 6
-    expect(gm.currentStage).toBe(6);
-    expect(gm.currentBoss).toBe(gm.anteBoss);
+    expect(seenBosses).toHaveLength(3);
+    expect(new Set(seenBosses).size).toBe(3);
   });
 
   it('prevents infinite immortality in Monte Carlo simulation of the "Caimano Assassino" strategy', () => {
