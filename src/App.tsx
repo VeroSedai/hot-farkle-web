@@ -123,6 +123,9 @@ export const App: React.FC = () => {
       }
       setStats(recordRunEnd(gm.isVictory, gm.bankScore));
     });
+    const unsubShopOpened = gm.on('shopOpened', () => {
+      soundManager.playYouWon();
+    });
     const unsubFarkle = gm.on('farkle', () => {
       triggerTableEffect('farkle', 550);
       if (gm.lastFarkleUsedClover) {
@@ -145,6 +148,7 @@ export const App: React.FC = () => {
       unsubHotDice();
       unsubGrace();
       unsubGameOver();
+      unsubShopOpened();
       unsubFarkle();
     };
   }, [gm]);
