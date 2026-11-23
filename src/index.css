@@ -3391,12 +3391,70 @@ body,
   }
 }
 
-/* ULTRA-NARROW PHONES (<= 330px wide, e.g. Fold cover / SE 320px) */
-@media (max-width: 330px) {
+/* ULTRA-NARROW OR VERY SHORT PHONES (<= 350px wide or <= 560px tall) */
+@media (max-width: 350px), (max-height: 560px) and (max-width: 767px) {
+  .game-layout,
+  .home-layout {
+    gap: 4px;
+    padding: 4px 4px max(6px, env(safe-area-inset-bottom)) 4px;
+  }
+
+  .hud-badges {
+    gap: 4px;
+  }
+
+  .pill {
+    padding: 0.14rem 0.34rem;
+    font-size: 0.74rem;
+    border-width: 2px;
+  }
+
+  .icon-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-width: 2px;
+  }
+
+  .bank-box {
+    padding: 4px 8px;
+    gap: 3px;
+  }
+
+  .bank-bar-track {
+    height: 9px;
+  }
+
+  .table-area {
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .pot-tray {
+    padding: 4px 6px;
+    gap: 4px;
+  }
+
+  .pot-caption {
+    font-size: 0.95rem;
+  }
+
+  .pot-value {
+    font-size: 1.25rem;
+  }
+
+  .mult-badge {
+    font-size: 1rem;
+    padding: 1px 8px;
+  }
+
+  .nel-piatto-well {
+    padding: 3px 4px;
+  }
+
   .die-card.die-compact,
   .nel-piatto-empty-slot {
-    width: 27px;
-    height: 29px;
+    width: 26px;
+    height: 28px;
   }
 
   .die-compact .die-face {
@@ -3422,14 +3480,19 @@ body,
     gap: 3px;
   }
 
+  .table-callout-slot {
+    min-height: 12px;
+  }
+
   .dice-pool-grid {
-    gap: 8px;
-    max-width: 216px;
+    gap: 6px;
+    padding: 2px;
+    max-width: 190px;
   }
 
   .die-card {
-    width: 60px;
-    height: 66px;
+    width: 54px;
+    height: 58px;
   }
 
   .die-face {
@@ -3437,18 +3500,19 @@ body,
   }
 
   .die-pip {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
   }
 
   .die-pip.crimson {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
   }
 
   .btn-action {
-    font-size: 0.85rem;
-    padding: 7px 6px;
+    min-height: 36px;
+    font-size: 0.84rem;
+    padding: 5px 6px;
   }
 }
 
