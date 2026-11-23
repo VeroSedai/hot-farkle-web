@@ -54,12 +54,13 @@ body,
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: var(--bg-mint);
+  background-color: var(--bg-mint);
+  transition: background-color 0.5s ease;
   overflow: hidden;
 }
 
 .pop-bg-hot {
-  background: #8af0cf;
+  background-color: #8af0cf;
 }
 
 .pop-bg-boss-fornace {
@@ -112,9 +113,10 @@ body,
   right: -4%;
   bottom: 0;
   height: 28%;
-  background: var(--bg-mint-deep);
+  background-color: var(--bg-mint-deep);
   border-top: 4px solid var(--ink);
   transform: rotate(-1.5deg) translateY(12px);
+  transition: background-color 0.5s ease;
   overflow: hidden;
 }
 
@@ -350,6 +352,21 @@ body,
 
   .sidebar-items-list .belt-text small {
     font-size: 0.78rem;
+  }
+
+  .game-sidebar .boss-mini-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 10px 12px;
+  }
+
+  .game-sidebar .boss-mini-title {
+    color: var(--ink) !important;
+  }
+
+  .game-sidebar .boss-mini-desc {
+    text-align: left;
   }
 
   .game-board-col {
@@ -909,7 +926,7 @@ body,
   font-family: var(--font-display);
   font-size: 0.88rem;
   white-space: nowrap;
-  color: var(--ink);
+  color: var(--ink) !important;
 }
 
 .boss-mini-desc {
@@ -1319,10 +1336,8 @@ body,
 
 @media (min-width: 900px) {
   .pot-tray {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
+    flex-direction: column;
+    gap: 8px;
     padding: 10px 14px;
   }
 
@@ -1361,6 +1376,13 @@ body,
 }
 
 @media (min-width: 1140px) {
+  .pot-tray {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
   .dice-pool-grid {
     flex-wrap: nowrap;
     max-width: none;
@@ -3235,56 +3257,44 @@ body,
   }
 }
 
-/* PORTRAIT WITH DESKTOP VIEWPORT (e.g. Chrome "Desktop site" on phone) */
-@media (min-width: 768px) and (orientation: portrait) {
+/* TABLET / MEDIUM PORTRAIT (768px - 899px) */
+@media (min-width: 768px) and (max-width: 899px) and (orientation: portrait) {
   html {
-    font-size: 32px;
+    font-size: 17px;
   }
 
   .game-layout,
   .home-layout {
-    max-width: 920px;
+    max-width: 560px;
   }
 
   .dice-pool-grid {
-    max-width: 620px;
-    gap: 28px;
+    max-width: 390px;
+    gap: 18px;
   }
 
   .die-card {
-    width: 176px;
-    height: 186px;
+    width: 108px;
+    height: 114px;
   }
 
   .die-pip {
-    width: 26px;
-    height: 26px;
+    width: 15px;
+    height: 15px;
   }
 
   .die-pip.crimson {
-    width: 34px;
-    height: 34px;
+    width: 22px;
+    height: 22px;
   }
 
-  .die-card.die-compact {
-    width: 70px;
-    height: 74px;
-  }
-
+  .die-card.die-compact,
   .nel-piatto-empty-slot {
-    width: 64px;
-    height: 68px;
+    width: 44px;
+    height: 46px;
   }
 
   .btn-action {
-    min-height: 98px;
-  }
-
-  .tutorial-bubble,
-  .shop-panel,
-  .rules-panel,
-  .stageclear-panel,
-  .gameover-panel {
-    max-width: 90vw;
+    min-height: 58px;
   }
 }
