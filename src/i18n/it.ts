@@ -135,7 +135,7 @@ export const it = {
     specialMerchantDesc: '+1 Moneta se bloccato',
     specialVolatile: 'ARD:',
     specialVolatileDesc: '+250 pt al 1° lancio; esplode al 3°+',
-    relicsNote: 'RELIQUIE: equipaggia fino a 2 bonus passivi nel Negozio (es. 3 Coppie con Monocolo del Baro).',
+    relicsNote: 'RELIQUIE: equipaggia fino a 2 bonus passivi nel Negozio (es. Coppie valide con Monocolo del Baro).',
     close: 'Chiudi',
   },
   tutorial: {
@@ -159,6 +159,7 @@ export const it = {
     highStraight: 'SCALA 2-6',
     lowStraight: 'SCALA 1-5',
     tris: 'TRIS DI {{face}}',
+    pair: 'COPPIA DI {{face}}',
     poker: 'POKER DI {{face}}',
     nOfAKind: '{{count}}x {{face}}',
   },
@@ -203,7 +204,7 @@ export const it = {
     },
     MonocoloBaro: {
       name: 'MONOCOLO DEL BARO',
-      desc: 'Sblocca le 3 Coppie (600 pt) come combo valida',
+      desc: 'Le Coppie sono valide e valgono metà del Tris base',
     },
     MicciaLunga: {
       name: 'MICCIA LUNGA',

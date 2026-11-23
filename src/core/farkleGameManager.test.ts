@@ -510,19 +510,16 @@ describe('FarkleGameManager', () => {
     gm.bankPotAndEndTurn();
     expect(gm.hotDiceLevel).toBe(2);
 
-    // MonocoloBaro: Three Pairs = 600 pts
-    const threePairs = [
-      new Die(0, 2),
-      new Die(1, 2),
-      new Die(2, 3),
-      new Die(3, 3),
-      new Die(4, 6),
-      new Die(5, 6),
-    ];
-    expect(ScoreEvaluator.evaluate(threePairs, 0, 1.0, BossType.None, false, false).isValidSelection).toBe(false);
-    const monoRes = ScoreEvaluator.evaluate(threePairs, 0, 1.0, BossType.None, false, true);
-    expect(monoRes.isValidSelection).toBe(true);
-    expect(monoRes.score).toBe(600);
+    // MonocoloBaro: Pairs score half of base Tris
+    const pairOfTwos = [new Die(0, 2), new Die(1, 2)];
+    expect(ScoreEvaluator.evaluate(pairOfTwos, 0, 1.0, BossType.None, false, false).isValidSelection).toBe(false);
+    const monoTwos = ScoreEvaluator.evaluate(pairOfTwos, 0, 1.0, BossType.None, false, true);
+    expect(monoTwos.isValidSelection).toBe(true);
+    expect(monoTwos.score).toBe(100);
+
+    const pairOfOnes = [new Die(0, 1), new Die(1, 1)];
+    expect(ScoreEvaluator.evaluate(pairOfOnes, 0, 1.0, BossType.None, false, true).score).toBe(500);
+    expect(ScoreEvaluator.hasAnyScoringCombination([2, 2, 3, 4], true)).toBe(true);
   });
 
   it('prevents infinite immortality when actively buying Relics and hoarding coins with DenteOro', () => {
@@ -574,20 +571,16 @@ describe('FarkleGameManager', () => {
         for (const d of inPool) counts[d.value]++;
 
         let picked = 0;
-        const isThreePairs =
-          gm.hasRelic(RelicType.MonocoloBaro) &&
-          inPool.length === 6 &&
-          counts.filter((c) => c === 2).length === 3;
-
-        if (isThreePairs) {
-          inPool.forEach((d) => gm.toggleSelectDie(d.id));
-          picked = 6;
-        } else {
-          for (const d of inPool) {
-            if (counts[d.value] >= 3 || d.value === 1 || d.value === 5) {
-              gm.toggleSelectDie(d.id);
-              picked++;
-            }
+        const hasMonocolo = gm.hasRelic(RelicType.MonocoloBaro);
+        for (const d of inPool) {
+          if (
+            counts[d.value] >= 3 ||
+            (hasMonocolo && counts[d.value] === 2) ||
+            d.value === 1 ||
+            d.value === 5
+          ) {
+            gm.toggleSelectDie(d.id);
+            picked++;
           }
         }
 

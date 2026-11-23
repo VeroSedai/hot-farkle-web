@@ -134,7 +134,7 @@ export const en: TranslationSchema = {
     specialMerchantDesc: '+1 Coin when locked',
     specialVolatile: 'VOL:',
     specialVolatileDesc: '+250 pts 1st roll; explodes on 3rd+',
-    relicsNote: "RELICS: equip up to 2 passive bonuses in the Shop (e.g. Three Pairs with Cheater's Monocle).",
+    relicsNote: "RELICS: equip up to 2 passive bonuses in the Shop (e.g. valid Pairs with Cheater's Monocle).",
     close: 'Close',
   },
   tutorial: {
@@ -158,6 +158,7 @@ export const en: TranslationSchema = {
     highStraight: 'STRAIGHT 2-6',
     lowStraight: 'STRAIGHT 1-5',
     tris: 'TRIPLE {{face}}s',
+    pair: 'PAIR OF {{face}}s',
     poker: 'FOUR {{face}}s',
     nOfAKind: '{{count}}x {{face}}',
   },
@@ -202,7 +203,7 @@ export const en: TranslationSchema = {
     },
     MonocoloBaro: {
       name: "CHEATER'S MONOCLE",
-      desc: 'Unlocks Three Pairs (600 pts) as a valid combo',
+      desc: 'Pairs are valid and score half of base Trips',
     },
     MicciaLunga: {
       name: 'LONG FUSE',

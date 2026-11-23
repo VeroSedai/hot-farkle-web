@@ -32,15 +32,6 @@ function isFullStraight(counts: number[]): boolean {
   return true;
 }
 
-function isThreePairs(counts: number[]): boolean {
-  let pairs = 0;
-  for (let face = 1; face <= 6; face++) {
-    if (counts[face] === 2) pairs++;
-    else if (counts[face] !== 0) return false;
-  }
-  return pairs === 3;
-}
-
 function hasRange(counts: number[], startFace: number, endFace: number): boolean {
   for (let face = startFace; face <= endFace; face++) {
     if (counts[face] < 1) return false;
@@ -62,7 +53,7 @@ function evaluateCounts(
   hasMultiplierDie: boolean,
   trisBaseMultiplier: number,
   activeBoss: BossType,
-  allowThreePairs: boolean = false
+  allowPairs: boolean = false
 ): ScoreEvaluationResult {
   if (totalDiceCount === 6 && isFullStraight(counts)) {
     let straightPoints = FULL_STRAIGHT_SCORE;
@@ -71,12 +62,6 @@ function evaluateCounts(
     }
     if (hasMultiplierDie) straightPoints *= 2;
     return { score: straightPoints, isValidSelection: true, bonusCoins: 0 };
-  }
-
-  if (allowThreePairs && totalDiceCount === 6 && isThreePairs(counts)) {
-    let pairsPoints = GameConfig.MonocoloThreePairsScore;
-    if (hasMultiplierDie) pairsPoints *= 2;
-    return { score: pairsPoints, isValidSelection: true, bonusCoins: 0 };
   }
 
   let totalScore = 0;
@@ -114,6 +99,12 @@ function evaluateCounts(
         boostedTrisScore = Math.round(boostedTrisScore * GameConfig.PuristaTrisMultiplier);
       }
       totalScore += boostedTrisScore;
+      continue;
+    }
+
+    if (allowPairs && count === 2) {
+      const baseTrisScore = face === 1 ? THREE_ONES_SCORE : face * 100;
+      totalScore += Math.round(baseTrisScore * 0.5);
       continue;
     }
 
@@ -169,7 +160,7 @@ export const ScoreEvaluator = {
     trisBaseMultiplier = 1.0,
     activeBoss: BossType = BossType.None,
     isFirstRollOfTurn = false,
-    allowThreePairs = false
+    allowPairs = false
   ): ScoreEvaluationResult {
     if (!selectedDice || selectedDice.length === 0 || selectedDice.length > 6) {
       return { score: 0, isValidSelection: false, bonusCoins: 0 };
@@ -208,7 +199,7 @@ export const ScoreEvaluator = {
       hasMultiplierDie,
       trisBaseMultiplier,
       activeBoss,
-      allowThreePairs
+      allowPairs
     );
 
     if (!result.isValidSelection) {
@@ -232,7 +223,7 @@ export const ScoreEvaluator = {
     hotDiceLevel = 0,
     activeBoss: BossType = BossType.None,
     lang: Language = 'it',
-    allowThreePairs = false
+    allowPairs = false
   ): string {
     if (!selectedDice || selectedDice.length === 0 || selectedDice.length > 6) {
       return '';
@@ -244,7 +235,7 @@ export const ScoreEvaluator = {
       1.0,
       activeBoss,
       false,
-      allowThreePairs
+      allowPairs
     );
     if (!evalResult.isValidSelection || (evalResult.score <= 0 && evalResult.bonusCoins <= 0)) {
       return '';
@@ -260,10 +251,6 @@ export const ScoreEvaluator = {
 
     if (selectedDice.length === 6 && isFullStraight(counts)) {
       return translate(lang, 'combos.fullStraight');
-    }
-
-    if (allowThreePairs && selectedDice.length === 6 && isThreePairs(counts)) {
-      return translate(lang, 'combos.threePairs');
     }
 
     const parts: string[] = [];
@@ -282,6 +269,8 @@ export const ScoreEvaluator = {
 
       if (count === 3) {
         parts.push(translate(lang, 'combos.tris', { face }));
+      } else if (allowPairs && count === 2) {
+        parts.push(translate(lang, 'combos.pair', { face }));
       } else if (count === 4) {
         parts.push(translate(lang, 'combos.poker', { face }));
       } else if (count >= 5) {
@@ -296,7 +285,7 @@ export const ScoreEvaluator = {
     return parts.join(' + ');
   },
 
-  hasAnyScoringCombination(poolValues: readonly number[], allowThreePairs = false): boolean {
+  hasAnyScoringCombination(poolValues: readonly number[], allowPairs = false): boolean {
     if (!poolValues || poolValues.length === 0) return false;
 
     const counts = new Array<number>(7).fill(0);
@@ -307,7 +296,6 @@ export const ScoreEvaluator = {
 
     if (
       (poolValues.length === 6 && isFullStraight(counts)) ||
-      (allowThreePairs && poolValues.length === 6 && isThreePairs(counts)) ||
       hasRange(counts, 1, 5) ||
       hasRange(counts, 2, 6)
     ) {
@@ -319,7 +307,7 @@ export const ScoreEvaluator = {
     }
 
     for (let face = Die.MinValue; face <= Die.MaxValue; face++) {
-      if (counts[face] >= 3) return true;
+      if (counts[face] >= 3 || (allowPairs && counts[face] >= 2)) return true;
     }
 
     return false;
