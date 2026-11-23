@@ -94,7 +94,8 @@ class SoundManager {
     buffer: AudioBuffer | null,
     offset: number,
     pitch: number,
-    volume: number
+    volume: number,
+    delaySeconds = 0
   ): void {
     if (!this.audioCtx || !buffer) return;
     if (this.audioCtx.state === 'suspended') {
@@ -110,7 +111,8 @@ class SoundManager {
 
     source.connect(gainNode);
     gainNode.connect(this.audioCtx.destination);
-    source.start(0, offset);
+    const when = delaySeconds > 0 ? this.audioCtx.currentTime + delaySeconds : 0;
+    source.start(when, offset);
   }
 
   public unlock(): void {
@@ -123,21 +125,22 @@ class SoundManager {
     }
   }
 
-  private playSfx(key: SfxKey, pitch = 1.0, volume = 0.65): void {
+  private playSfx(key: SfxKey, pitch = 1.0, volume = 0.65, delaySeconds = 0): void {
     this.unlock();
     if (this.sfxMuted) return;
     const entry = this.sfxMap.get(key);
     if (entry) {
-      this.playOneShot(entry.buffer, entry.offset, pitch, volume);
+      this.playOneShot(entry.buffer, entry.offset, pitch, volume, delaySeconds);
     }
   }
 
-  public playRoll(isSingleDie = false): void {
+  public playRoll(isSingleDie = false, delaySeconds = 0, volumeScale = 1.0): void {
     const pitch = isSingleDie
       ? 1.12 + Math.random() * 0.12
       : 0.95 + Math.random() * 0.12;
-    const volume = isSingleDie ? 0.5 : 0.65;
-    this.playSfx('roll', pitch, volume);
+    const baseVolume = isSingleDie ? 0.5 : 0.65;
+    const volume = baseVolume * Math.max(0, Math.min(1, volumeScale));
+    this.playSfx('roll', pitch, volume, delaySeconds);
   }
 
   public playSelect(isSelecting = true, selectedCount = 1): void {
@@ -173,8 +176,16 @@ class SoundManager {
     this.playSfx('useItem', 1.0, 0.65);
   }
 
-  public playSelectionLand(): void {
-    this.playSfx('selectionLand', 0.97 + Math.random() * 0.06, 0.6);
+  public playSelectionLand(startIndex = 0, addedCount = 1): void {
+    this.unlock();
+    if (this.sfxMuted || addedCount <= 0) return;
+    const entry = this.sfxMap.get('selectionLand');
+    if (!entry) return;
+    for (let i = 0; i < addedCount; i++) {
+      const semitone = startIndex + i;
+      const pitch = Math.pow(2, semitone / 12);
+      this.playOneShot(entry.buffer, entry.offset, pitch, 0.6, i * 0.06);
+    }
   }
 
   public toggleBgm(): boolean {

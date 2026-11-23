@@ -82,8 +82,8 @@ export const App: React.FC = () => {
     }, durationMs);
   };
 
-  const triggerRollAnim = () => {
-    soundManager.playRoll();
+  const triggerRollAnim = (volumeScale = 1.0, delaySeconds = 0) => {
+    soundManager.playRoll(false, delaySeconds, volumeScale);
     setIsRollingAnim(true);
     window.setTimeout(() => setIsRollingAnim(false), 480);
   };
@@ -207,7 +207,7 @@ export const App: React.FC = () => {
       if (ok) {
         soundManager.playUseItem();
         if (usedType === 'GettoneSpinta') {
-          soundManager.playRoll(true);
+          soundManager.playRoll(true, 0.14, 0.76);
         }
         showTableToast(t('feedback.consumableApplied'), 1400);
       }
@@ -229,9 +229,14 @@ export const App: React.FC = () => {
     if (!gm.canConfirmAndRoll) return;
     setTargetingSlot(null);
     setTargetPrompt('');
+    const alreadyLocked = gm.dice.filter(
+      (d) => d.state === DieState.Locked || d.state === DieState.Frozen
+    ).length;
+    const selectedCount = gm.dice.filter((d) => d.state === DieState.Selected).length;
+    const triggersHotDice = willTriggerHotDice;
     if (gm.confirmSelectionAndRoll()) {
-      soundManager.playSelectionLand();
-      triggerRollAnim();
+      soundManager.playSelectionLand(alreadyLocked, selectedCount);
+      triggerRollAnim(triggersHotDice ? 0.58 : 0.7, triggersHotDice ? 0.12 : 0.05);
     }
   };
 
@@ -240,8 +245,14 @@ export const App: React.FC = () => {
     setTargetingSlot(null);
     setTargetPrompt('');
     const potToBank = gm.totalBankablePot;
+    const alreadyLocked = gm.dice.filter(
+      (d) => d.state === DieState.Locked || d.state === DieState.Frozen
+    ).length;
+    const selectedCount = gm.dice.filter((d) => d.state === DieState.Selected).length;
     if (gm.bankPotAndEndTurn()) {
-      soundManager.playSelectionLand();
+      if (selectedCount > 0) {
+        soundManager.playSelectionLand(alreadyLocked, selectedCount);
+      }
       setStats(recordBankedPot(potToBank, gm.bankScore));
       if (!gm.isGameOver && !gm.isInShop) {
         triggerRollAnim();
