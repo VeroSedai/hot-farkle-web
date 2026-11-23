@@ -308,309 +308,386 @@ export const App: React.FC = () => {
         />
       ) : (
         <div className="game-layout">
-          {/* TOP HUD */}
-          <header className="hud-header">
-            <div className="hud-top-row">
-              <div className="hud-badges">
-                <span className="pill pill-stage">
-                  S{gm.currentStage}
-                  {gm.isEndlessMode ? ' ∞' : `/${GameConfig.TotalStages}`}
-                </span>
-                <span className="pill pill-turn">
-                  T{gm.currentTurn}/{gm.maxTurns}
-                </span>
-                <span className="pill pill-shields" title={t('hud.shieldsTitle')}>
-                  <GameIcons.Shield size={17} /> {gm.remainingShields}/{GameConfig.MaxShields}
-                </span>
-                <span className="pill pill-coins" title={t('hud.coinsTitle')}>
-                  <GameIcons.Coins size={17} /> {gm.coins}
-                </span>
-              </div>
-
-              <div className="hud-actions">
-                <button
-                  type="button"
-                  className="icon-btn"
-                  onClick={() => setOpenPopover((p) => (p === 'audio' ? 'none' : 'audio'))}
-                  aria-label={t('hud.audioOptions')}
-                >
-                  {bgmMuted && sfxMuted ? (
-                    <GameIcons.SoundOff size={17} />
-                  ) : (
-                    <GameIcons.SoundOn size={17} />
-                  )}
-                </button>
-                <button
-                  type="button"
-                  className="icon-btn"
-                  onClick={() => {
-                    setOpenPopover('none');
-                    setShowRules(true);
-                  }}
-                  aria-label={t('hud.rules')}
-                >
-                  <GameIcons.Rules size={17} />
-                </button>
-                <button
-                  type="button"
-                  className="icon-btn"
-                  onClick={() => setOpenPopover((p) => (p === 'quick' ? 'none' : 'quick'))}
-                  aria-label={t('hud.menuOptions')}
-                >
-                  <GameIcons.Menu size={17} />
-                </button>
-              </div>
-            </div>
-
-            {openPopover !== 'none' && (
-              <>
-                <div className="popover-backdrop" onClick={() => setOpenPopover('none')} />
-                {openPopover === 'audio' && (
-                  <div className="popover-panel">
-                    <button
-                      type="button"
-                      className={`btn ${!bgmMuted ? 'btn-primary' : 'btn-ghost'} popover-btn`}
-                      onClick={() => setBgmMuted(soundManager.toggleBgm())}
-                    >
-                      {t('hud.music')}: {!bgmMuted ? t('hud.on') : t('hud.off')}
-                    </button>
-                    <button
-                      type="button"
-                      className={`btn ${!sfxMuted ? 'btn-primary' : 'btn-ghost'} popover-btn`}
-                      onClick={() => setSfxMuted(soundManager.toggleSfx())}
-                    >
-                      {t('hud.effects')}: {!sfxMuted ? t('hud.on') : t('hud.off')}
-                    </button>
-                  </div>
-                )}
-
-                {openPopover === 'quick' && (
-                  <div className="popover-panel">
-                    <button
-                      type="button"
-                      className="btn btn-gold popover-btn"
-                      onClick={() => {
-                        setOpenPopover('none');
-                        handleRestart();
-                      }}
-                    >
-                      {t('hud.newGame')}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary popover-btn"
-                      onClick={() => {
-                        setOpenPopover('none');
-                        setTutorialStep(1);
-                      }}
-                    >
-                      {t('hud.reviewTutorial')}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-ghost popover-btn"
-                      onClick={() => {
-                        setOpenPopover('none');
-                        setScreen('home');
-                      }}
-                    >
-                      {t('hud.backHome')}
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* BANK PROGRESS & BOSS STRIP (impilati per mobile verticale) */}
-            <div className="bank-box">
-              <div className="bank-labels">
-                <span className="muted-label">{t('hud.bankStage', { stage: gm.currentStage })}</span>
-                <span className="bank-numbers">
-                  {gm.bankScore} / {gm.currentStageTarget}
-                </span>
-              </div>
-              <div className="bank-bar-track">
-                {gm.totalBankablePot > 0 && (
-                  <div
-                    className={`bank-bar-preview ${willClearStageOnBank ? 'bank-bar-preview-clear' : ''}`}
-                    style={{ width: `${bankPreviewPercent}%` }}
-                  />
-                )}
-                <div className="bank-bar-fill" style={{ width: `${bankPercent}%` }} />
-              </div>
-            </div>
-
-            {isBossActiveNow && (
-              <div
-                className="boss-mini-card boss-active"
-                style={{ borderColor: bossMeta.themeColorHex }}
-              >
-                <div className="boss-mini-title" style={{ color: bossMeta.themeColorHex }}>
-                  <BossIcon boss={gm.anteBoss} size={14} />
-                  <span>{t('hud.bossPrefix', { name: t(`bosses.${gm.anteBoss}.name`) })}</span>
-                </div>
-                <span className="boss-mini-desc">{t(`bosses.${gm.anteBoss}.desc`)}</span>
-              </div>
-            )}
-          </header>
-
-          {/* CENTER TABLE (stile tavolo originale Unity) */}
-          <main
-            className={`table-area ${
-              tableEffect === 'farkle'
-                ? 'table-fx-farkle'
-                : tableEffect === 'hotdice'
-                  ? 'table-fx-hotdice'
-                  : ''
-            }`}
-          >
-            {/* VASSOIO DEL PIATTO: Punteggio + Moltiplicatore + 6 alloggiamenti dadi bloccati */}
-            <div className="pot-tray">
-              <div className="pot-row">
-                <div className="pot-main">
-                  <span className="pot-caption">{t('table.potCaption')}</span>
-                  <span className={`pot-value ${gm.currentPot > 0 ? 'pot-value-active' : ''}`}>
-                    {gm.currentPot}
+          {/* LEFT SIDEBAR ON DESKTOP (display: contents on mobile) */}
+          <aside className="game-sidebar">
+            {/* TOP HUD */}
+            <header className="hud-header">
+              <div className="hud-top-row">
+                <div className="hud-badges">
+                  <span className="pill pill-stage">
+                    S{gm.currentStage}
+                    {gm.isEndlessMode ? ' ∞' : `/${GameConfig.TotalStages}`}
                   </span>
-                  {gm.previewSelectionScore > 0 && (
-                    <span className="pot-delta">+{gm.previewSelectionScore}</span>
-                  )}
-                  {gm.previewSelectionCoins > 0 && (
-                    <span className="pot-coins-delta">
-                      +{gm.previewSelectionCoins} <GameIcons.Coins size={14} />
-                    </span>
-                  )}
-                </div>
-
-                <div className="pot-meta">
-                  {gm.hasCloverProtection && (
-                    <span className="clover-badge" title={t('table.cloverTitle')}>
-                      <GameIcons.Clover size={15} /> {t('table.cloverBadge')}
-                    </span>
-                  )}
-                  <span className={`mult-badge ${gm.multiplier > 1 ? 'mult-hot' : ''}`}>
-                    x{gm.multiplier}
+                  <span className="pill pill-turn">
+                    T{gm.currentTurn}/{gm.maxTurns}
+                  </span>
+                  <span className="pill pill-shields" title={t('hud.shieldsTitle')}>
+                    <GameIcons.Shield size={17} /> {gm.remainingShields}/{GameConfig.MaxShields}
+                  </span>
+                  <span className="pill pill-coins" title={t('hud.coinsTitle')}>
+                    <GameIcons.Coins size={17} /> {gm.coins}
                   </span>
                 </div>
+
+                <div className="hud-actions">
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    onClick={() => setOpenPopover((p) => (p === 'audio' ? 'none' : 'audio'))}
+                    aria-label={t('hud.audioOptions')}
+                  >
+                    {bgmMuted && sfxMuted ? (
+                      <GameIcons.SoundOff size={17} />
+                    ) : (
+                      <GameIcons.SoundOn size={17} />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    onClick={() => {
+                      setOpenPopover('none');
+                      setShowRules(true);
+                    }}
+                    aria-label={t('hud.rules')}
+                  >
+                    <GameIcons.Rules size={17} />
+                  </button>
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    onClick={() => setOpenPopover((p) => (p === 'quick' ? 'none' : 'quick'))}
+                    aria-label={t('hud.menuOptions')}
+                  >
+                    <GameIcons.Menu size={17} />
+                  </button>
+                </div>
               </div>
 
-              <div className="nel-piatto-well" aria-label={t('table.inPotRack')}>
-                <div className="nel-piatto-slots">
-                  {Array.from({ length: GameConfig.DefaultDiceCount }, (_, idx) => {
-                    const lockedDie = lockedAndFrozenDice[idx];
-                    if (lockedDie) {
-                      return <DieView key={lockedDie.id} die={lockedDie} compact disabled />;
+              {openPopover !== 'none' && (
+                <>
+                  <div className="popover-backdrop" onClick={() => setOpenPopover('none')} />
+                  {openPopover === 'audio' && (
+                    <div className="popover-panel">
+                      <button
+                        type="button"
+                        className={`btn ${!bgmMuted ? 'btn-primary' : 'btn-ghost'} popover-btn`}
+                        onClick={() => setBgmMuted(soundManager.toggleBgm())}
+                      >
+                        {t('hud.music')}: {!bgmMuted ? t('hud.on') : t('hud.off')}
+                      </button>
+                      <button
+                        type="button"
+                        className={`btn ${!sfxMuted ? 'btn-primary' : 'btn-ghost'} popover-btn`}
+                        onClick={() => setSfxMuted(soundManager.toggleSfx())}
+                      >
+                        {t('hud.effects')}: {!sfxMuted ? t('hud.on') : t('hud.off')}
+                      </button>
+                    </div>
+                  )}
+
+                  {openPopover === 'quick' && (
+                    <div className="popover-panel">
+                      <button
+                        type="button"
+                        className="btn btn-gold popover-btn"
+                        onClick={() => {
+                          setOpenPopover('none');
+                          handleRestart();
+                        }}
+                      >
+                        {t('hud.newGame')}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary popover-btn"
+                        onClick={() => {
+                          setOpenPopover('none');
+                          setTutorialStep(1);
+                        }}
+                      >
+                        {t('hud.reviewTutorial')}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-ghost popover-btn"
+                        onClick={() => {
+                          setOpenPopover('none');
+                          setScreen('home');
+                        }}
+                      >
+                        {t('hud.backHome')}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* BANK PROGRESS & BOSS STRIP */}
+              <div className="desktop-stat-grid">
+                <div className="stat-tile stat-tile-stage">
+                  <span className="stat-tile-label">STAGE</span>
+                  <strong className="stat-tile-val">
+                    {gm.currentStage} / {gm.isEndlessMode ? '∞' : GameConfig.TotalStages}
+                  </strong>
+                </div>
+                <div className="stat-tile stat-tile-turn">
+                  <span className="stat-tile-label">{lang === 'it' ? 'TURNO' : 'TURN'}</span>
+                  <strong className="stat-tile-val">
+                    {gm.currentTurn} / {gm.maxTurns}
+                  </strong>
+                </div>
+                <div className="stat-tile stat-tile-shields" title={t('hud.shieldsTitle')}>
+                  <span className="stat-tile-label">{lang === 'it' ? 'SCUDI' : 'SHIELDS'}</span>
+                  <strong className="stat-tile-val">
+                    <GameIcons.Shield size={18} /> {gm.remainingShields} / {GameConfig.MaxShields}
+                  </strong>
+                </div>
+                <div className="stat-tile stat-tile-coins" title={t('hud.coinsTitle')}>
+                  <span className="stat-tile-label">{lang === 'it' ? 'MONETE' : 'COINS'}</span>
+                  <strong className="stat-tile-val">
+                    <GameIcons.Coins size={18} /> {gm.coins}
+                  </strong>
+                </div>
+              </div>
+
+              <div className="bank-box">
+                <div className="bank-labels">
+                  <span className="muted-label">{t('hud.bankStage', { stage: gm.currentStage })}</span>
+                  <span className="bank-numbers">
+                    {gm.bankScore} / {gm.currentStageTarget}
+                  </span>
+                </div>
+                <div className="bank-bar-track">
+                  {gm.totalBankablePot > 0 && (
+                    <div
+                      className={`bank-bar-preview ${willClearStageOnBank ? 'bank-bar-preview-clear' : ''}`}
+                      style={{ width: `${bankPreviewPercent}%` }}
+                    />
+                  )}
+                  <div className="bank-bar-fill" style={{ width: `${bankPercent}%` }} />
+                </div>
+              </div>
+
+              {isBossActiveNow && (
+                <div
+                  className="boss-mini-card boss-active"
+                  style={{ borderColor: bossMeta.themeColorHex }}
+                >
+                  <div className="boss-mini-title" style={{ color: bossMeta.themeColorHex }}>
+                    <BossIcon boss={gm.anteBoss} size={14} />
+                    <span>{t('hud.bossPrefix', { name: t(`bosses.${gm.anteBoss}.name`) })}</span>
+                  </div>
+                  <span className="boss-mini-desc">{t(`bosses.${gm.anteBoss}.desc`)}</span>
+                </div>
+              )}
+            </header>
+
+            {/* DESKTOP SIDEBAR: CONSUMABLES */}
+            <div className="desktop-sidebar-panels">
+              <section className="sidebar-card sidebar-items-card">
+                <div className="sidebar-card-header">
+                  <span>
+                    {lang === 'it' ? 'OGGETTI' : 'ITEMS'} ({gm.equippedConsumables.length}/
+                    {GameConfig.MaxConsumableSlots})
+                  </span>
+                </div>
+                <div className="sidebar-items-list">
+                  {Array.from({ length: GameConfig.MaxConsumableSlots }, (_, idx) => {
+                    const item = gm.equippedConsumables[idx];
+                    if (!item) {
+                      return (
+                        <div key={`sidebar-empty-${idx}`} className="belt-slot belt-empty">
+                          <span>{lang === 'it' ? 'Slot vuoto' : 'Empty slot'}</span>
+                        </div>
+                      );
                     }
-                    return <div key={`empty-${idx}`} className="nel-piatto-empty-slot" />;
+                    const usable = gm.canUseConsumable(idx);
+                    const isSelectedTarget = targetingSlot === idx;
+                    return (
+                      <button
+                        key={`sidebar-${item}-${idx}`}
+                        type="button"
+                        className={`belt-slot belt-filled ${isSelectedTarget ? 'belt-targeting' : ''}`}
+                        disabled={!usable && !isSelectedTarget}
+                        onClick={() => handleConsumableClick(idx)}
+                      >
+                        <ConsumableIcon type={item} size={24} className="belt-icon" />
+                        <div className="belt-text">
+                          <strong>{t(`consumables.${item}.name`)}</strong>
+                          <small>{t(`consumables.${item}.desc`)}</small>
+                        </div>
+                      </button>
+                    );
                   })}
                 </div>
-              </div>
+              </section>
             </div>
+          </aside>
 
-            {/* CENTER STAGE: callout contestuale (solo targeting / combo / eventi) + DICE POOL */}
-            <div className="table-stage">
-              <div className="table-callout-slot">
-                {targetingSlot !== null ? (
-                  <div className="targeting-banner">
-                    <span>{targetPrompt}</span>
-                    <button
-                      type="button"
-                      className="btn-cancel-target"
-                      onClick={() => {
-                        setTargetingSlot(null);
-                        setTargetPrompt('');
-                      }}
-                    >
-                      {t('table.cancel')}
-                    </button>
+          {/* RIGHT COLUMN ON DESKTOP (display: contents on mobile) */}
+          <div className="game-board-col">
+            {/* CENTER TABLE */}
+            <main
+              className={`table-area ${
+                tableEffect === 'farkle'
+                  ? 'table-fx-farkle'
+                  : tableEffect === 'hotdice'
+                    ? 'table-fx-hotdice'
+                    : ''
+              }`}
+            >
+              {/* VASSOIO DEL PIATTO: Punteggio + Moltiplicatore + 6 alloggiamenti dadi bloccati */}
+              <div className="pot-tray">
+                <div className="pot-row">
+                  <div className="pot-main">
+                    <span className="pot-caption">{t('table.potCaption')}</span>
+                    <span className={`pot-value ${gm.currentPot > 0 ? 'pot-value-active' : ''}`}>
+                      {gm.currentPot}
+                    </span>
+                    {gm.previewSelectionScore > 0 && (
+                      <span className="pot-delta">+{gm.previewSelectionScore}</span>
+                    )}
+                    {gm.previewSelectionCoins > 0 && (
+                      <span className="pot-coins-delta">
+                        +{gm.previewSelectionCoins} <GameIcons.Coins size={14} />
+                      </span>
+                    )}
                   </div>
-                ) : isSpecialCombo ? (
-                  <span className="combo-callout-pill">{selectionDescription}</span>
-                ) : tableToast ? (
-                  <span className="event-toast-pill">{tableToast}</span>
-                ) : null}
+
+                  <div className="pot-meta">
+                    {gm.hasCloverProtection && (
+                      <span className="clover-badge" title={t('table.cloverTitle')}>
+                        <GameIcons.Clover size={15} /> {t('table.cloverBadge')}
+                      </span>
+                    )}
+                    <span className={`mult-badge ${gm.multiplier > 1 ? 'mult-hot' : ''}`}>
+                      x{gm.multiplier}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="nel-piatto-well" aria-label={t('table.inPotRack')}>
+                  <span className="nel-piatto-label">
+                    {t('table.inPotRack').replace(/:$/, '')}
+                  </span>
+                  <div className="nel-piatto-slots">
+                    {Array.from({ length: GameConfig.DefaultDiceCount }, (_, idx) => {
+                      const lockedDie = lockedAndFrozenDice[idx];
+                      if (lockedDie) {
+                        return <DieView key={lockedDie.id} die={lockedDie} compact disabled />;
+                      }
+                      return <div key={`empty-${idx}`} className="nel-piatto-empty-slot" />;
+                    })}
+                  </div>
+                </div>
               </div>
 
-              {/* ACTIVE DICE POOL (3x2 mobile-first, tint rosso su Farkle) */}
-              <div
-                className={`dice-pool-grid ${gm.isAwaitingFarkleResolution ? 'is-farkle-dice' : ''} ${
-                  tutorialStep === 2 ? 'tutorial-highlight-dice' : ''
-                }`}
-              >
-                {activeDice.map((die) => (
-                  <DieView
-                    key={die.id}
-                    die={die}
-                    rolling={isRollingAnim}
-                    isTargeting={targetingSlot !== null}
-                    isValidTarget={
-                      targetingSlot !== null &&
-                      gm.canTargetDieWithConsumable(gm.equippedConsumables[targetingSlot], die)
-                    }
-                    disabled={gm.isAwaitingFarkleResolution}
-                    onClick={handleDieClick}
-                  />
-                ))}
-              </div>
-            </div>
+              {/* CENTER STAGE: callout contestuale (solo targeting / combo / eventi) + DICE POOL */}
+              <div className="table-stage">
+                <div className="table-callout-slot">
+                  {targetingSlot !== null ? (
+                    <div className="targeting-banner">
+                      <span>{targetPrompt}</span>
+                      <button
+                        type="button"
+                        className="btn-cancel-target"
+                        onClick={() => {
+                          setTargetingSlot(null);
+                          setTargetPrompt('');
+                        }}
+                      >
+                        {t('table.cancel')}
+                      </button>
+                    </div>
+                  ) : isSpecialCombo ? (
+                    <span className="combo-callout-pill">{selectionDescription}</span>
+                  ) : tableToast ? (
+                    <span className="event-toast-pill">{tableToast}</span>
+                  ) : null}
+                </div>
 
-            {tableEffect !== 'none' && (
-              <div
-                className={`table-stamp ${
-                  tableEffect === 'farkle' ? 'table-stamp-farkle' : 'table-stamp-hotdice'
-                }`}
-                aria-hidden="true"
-              >
-                {tableEffect === 'farkle' ? 'FARKLE!' : `HOT DICE! x${gm.multiplier}`}
+                {/* ACTIVE DICE POOL (3x2 mobile-first, 6x1 desktop) */}
+                <div
+                  className={`dice-pool-grid ${gm.isAwaitingFarkleResolution ? 'is-farkle-dice' : ''} ${
+                    tutorialStep === 2 ? 'tutorial-highlight-dice' : ''
+                  }`}
+                >
+                  {activeDice.map((die) => (
+                    <DieView
+                      key={die.id}
+                      die={die}
+                      rolling={isRollingAnim}
+                      isTargeting={targetingSlot !== null}
+                      isValidTarget={
+                        targetingSlot !== null &&
+                        gm.canTargetDieWithConsumable(gm.equippedConsumables[targetingSlot], die)
+                      }
+                      disabled={gm.isAwaitingFarkleResolution}
+                      onClick={handleDieClick}
+                    />
+                  ))}
+                </div>
               </div>
-            )}
-          </main>
 
-          {/* CONSUMABLES BELT (solo se possiedi consumabili) + BOTTOM ACTIONS */}
-          <footer className="bottom-dock">
-            {gm.equippedConsumables.length > 0 && (
-              <div className="consumable-belt">
-                {gm.equippedConsumables.map((item, idx) => {
-                  const usable = gm.canUseConsumable(idx);
-                  const isSelectedTarget = targetingSlot === idx;
-                  return (
-                    <button
-                      key={`${item}-${idx}`}
-                      type="button"
-                      className={`belt-slot belt-filled ${isSelectedTarget ? 'belt-targeting' : ''}`}
-                      disabled={!usable && !isSelectedTarget}
-                      onClick={() => handleConsumableClick(idx)}
-                    >
-                      <ConsumableIcon type={item} size={22} className="belt-icon" />
-                      <div className="belt-text">
-                        <strong>{t(`consumables.${item}.name`)}</strong>
-                        <small>{t(`consumables.${item}.desc`)}</small>
-                      </div>
-                    </button>
-                  );
-                })}
+              {tableEffect !== 'none' && (
+                <div
+                  className={`table-stamp ${
+                    tableEffect === 'farkle' ? 'table-stamp-farkle' : 'table-stamp-hotdice'
+                  }`}
+                  aria-hidden="true"
+                >
+                  {tableEffect === 'farkle' ? 'FARKLE!' : `HOT DICE! x${gm.multiplier}`}
+                </div>
+              )}
+            </main>
+
+            {/* CONSUMABLES BELT (mobile only) + BOTTOM ACTIONS */}
+            <footer className="bottom-dock">
+              {gm.equippedConsumables.length > 0 && (
+                <div className="consumable-belt mobile-only-belt">
+                  {gm.equippedConsumables.map((item, idx) => {
+                    const usable = gm.canUseConsumable(idx);
+                    const isSelectedTarget = targetingSlot === idx;
+                    return (
+                      <button
+                        key={`${item}-${idx}`}
+                        type="button"
+                        className={`belt-slot belt-filled ${isSelectedTarget ? 'belt-targeting' : ''}`}
+                        disabled={!usable && !isSelectedTarget}
+                        onClick={() => handleConsumableClick(idx)}
+                      >
+                        <ConsumableIcon type={item} size={22} className="belt-icon" />
+                        <div className="belt-text">
+                          <strong>{t(`consumables.${item}.name`)}</strong>
+                          <small>{t(`consumables.${item}.desc`)}</small>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="action-buttons">
+                <button
+                  type="button"
+                  className={`btn ${willTriggerHotDice ? 'btn-hot-dice' : 'btn-orange'} btn-action`}
+                  disabled={!gm.canConfirmAndRoll}
+                  onClick={handleConfirmAndRoll}
+                >
+                  {willTriggerHotDice ? t('table.hotDiceBtn') : t('table.keepAndRollBtn')}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary btn-action"
+                  disabled={!gm.canBank}
+                  onClick={handleBank}
+                >
+                  {t('table.bankBtn', { amount: gm.totalBankablePot })}
+                </button>
               </div>
-            )}
-
-            <div className="action-buttons">
-              <button
-                type="button"
-                className={`btn ${willTriggerHotDice ? 'btn-hot-dice' : 'btn-gold'} btn-action`}
-                disabled={!gm.canConfirmAndRoll}
-                onClick={handleConfirmAndRoll}
-              >
-                {willTriggerHotDice ? t('table.hotDiceBtn') : t('table.keepAndRollBtn')}
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary btn-action"
-                disabled={!gm.canBank}
-                onClick={handleBank}
-              >
-                {t('table.bankBtn', { amount: gm.totalBankablePot })}
-              </button>
-            </div>
-          </footer>
+            </footer>
+          </div>
         </div>
       )}
 
