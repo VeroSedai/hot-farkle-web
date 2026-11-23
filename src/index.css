@@ -178,7 +178,7 @@ body,
   }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 900px) and (orientation: landscape) {
   html {
     font-size: 17px;
   }
@@ -1334,7 +1334,7 @@ body,
   }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 900px) and (orientation: landscape) {
   .pot-tray {
     flex-direction: column;
     gap: 8px;
@@ -1375,7 +1375,7 @@ body,
   }
 }
 
-@media (min-width: 1140px) {
+@media (min-width: 1140px) and (orientation: landscape) {
   .pot-tray {
     flex-direction: row;
     align-items: center;
@@ -3296,5 +3296,55 @@ body,
 
   .btn-action {
     min-height: 58px;
+  }
+}
+
+/* PHONE IN PORTRAIT INSIDE 980px DESKTOP IFRAME (e.g. itch.io on Pixel 9 Pro XL) */
+@media (min-width: 900px) and (orientation: portrait) {
+  html {
+    font-size: 26px;
+  }
+
+  .game-layout,
+  .home-layout {
+    max-width: 780px;
+  }
+
+  .dice-pool-grid {
+    max-width: 540px;
+    gap: 24px;
+  }
+
+  .die-card {
+    width: 148px;
+    height: 158px;
+  }
+
+  .die-pip {
+    width: 22px;
+    height: 22px;
+  }
+
+  .die-pip.crimson {
+    width: 30px;
+    height: 30px;
+  }
+
+  .die-card.die-compact,
+  .nel-piatto-empty-slot {
+    width: 56px;
+    height: 58px;
+  }
+
+  .btn-action {
+    min-height: 82px;
+  }
+
+  .tutorial-bubble,
+  .shop-panel,
+  .rules-panel,
+  .stageclear-panel,
+  .gameover-panel {
+    max-width: 88vw;
   }
 }
