@@ -485,16 +485,36 @@ body,
 }
 
 .home-showcase-dice {
+  --die-w: clamp(58px, min(18vw, 12dvh), 88px);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: clamp(18px, 6vw, 36px);
-  min-height: clamp(60px, 14dvh, 108px);
+  min-height: clamp(64px, 14dvh, 108px);
 }
 
 .home-showcase-dice .die-card {
-  width: clamp(54px, 12dvh, 82px);
-  height: clamp(58px, 13dvh, 88px);
+  width: var(--die-w);
+  height: calc(var(--die-w) * 1.07);
+}
+
+.home-showcase-dice .die-card .die-face {
+  padding: calc(var(--die-w) * 0.11);
+  border-radius: calc(var(--die-w) * 0.15);
+}
+
+.home-showcase-dice .die-card .die-depth {
+  border-radius: calc(var(--die-w) * 0.15);
+}
+
+.home-showcase-dice .die-card .die-pip {
+  width: calc(var(--die-w) * 0.145);
+  height: calc(var(--die-w) * 0.145);
+}
+
+.home-showcase-dice .die-card .die-pip.crimson {
+  width: calc(var(--die-w) * 0.21);
+  height: calc(var(--die-w) * 0.21);
 }
 
 .showcase-die {
@@ -1553,8 +1573,8 @@ body,
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   place-items: center;
 }
 
