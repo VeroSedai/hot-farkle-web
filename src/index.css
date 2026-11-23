@@ -3677,6 +3677,8 @@ body,
   }
 
   .dice-pool-grid {
+    --die-w: 108px;
+    --die-gap: 18px;
     max-width: 390px;
     gap: 18px;
   }
@@ -3719,6 +3721,8 @@ body,
   }
 
   .dice-pool-grid {
+    --die-w: 148px;
+    --die-gap: 24px;
     max-width: 540px;
     gap: 24px;
   }
