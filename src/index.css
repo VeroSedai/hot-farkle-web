@@ -393,7 +393,8 @@ body,
     min-height: 0;
   }
 
-  .bottom-dock .mobile-only-belt {
+  .bottom-dock .mobile-only-belt,
+  .bottom-dock .mobile-only-relics {
     display: none;
   }
 
@@ -969,21 +970,28 @@ body,
 }
 
 .table-stage {
+  container-type: size;
+  width: 100%;
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 12px;
+  gap: clamp(2px, 1.5cqh, 12px);
 }
 
 .table-callout-slot {
-  min-height: 30px;
+  min-height: clamp(10px, 4cqh, 28px);
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
+  flex-shrink: 0;
+}
+
+.table-callout-slot:empty {
+  display: none;
 }
 
 .combo-callout-pill,
@@ -1326,23 +1334,50 @@ body,
   cursor: pointer;
 }
 
-/* DICE POOL - Mobile-first 3x2 centered, Desktop 6x1 centered */
+/* DICE POOL - Fluid container-aware 3x2 on mobile/portrait, 6x1 on desktop */
 .dice-pool-grid {
-  display: flex;
-  flex-wrap: wrap;
+  --die-w: clamp(26px, min(26cqw, 40cqh), 90px);
+  --die-gap: clamp(3px, min(2.4cqw, 2.8cqh), 16px);
+  display: grid;
+  grid-template-columns: repeat(3, var(--die-w));
   justify-content: center;
+  align-content: center;
+  justify-items: center;
   align-items: center;
-  gap: 14px;
-  padding: 12px 6px;
+  gap: var(--die-gap);
+  padding: clamp(2px, 1.2cqh, 10px) 4px;
   width: 100%;
-  max-width: 306px;
   margin: 0 auto;
+}
+
+.dice-pool-grid .die-card {
+  width: var(--die-w);
+  height: calc(var(--die-w) * 1.07);
+}
+
+.dice-pool-grid .die-card .die-face {
+  padding: calc(var(--die-w) * 0.11);
+  border-radius: calc(var(--die-w) * 0.15);
+}
+
+.dice-pool-grid .die-card .die-depth {
+  border-radius: calc(var(--die-w) * 0.15);
+}
+
+.dice-pool-grid .die-card .die-pip {
+  width: calc(var(--die-w) * 0.145);
+  height: calc(var(--die-w) * 0.145);
+}
+
+.dice-pool-grid .die-card .die-pip.crimson {
+  width: calc(var(--die-w) * 0.21);
+  height: calc(var(--die-w) * 0.21);
 }
 
 @media (min-width: 768px) and (max-width: 899px) and (orientation: landscape) {
   .dice-pool-grid {
-    flex-wrap: nowrap;
-    max-width: none;
+    --die-w: 76px;
+    grid-template-columns: repeat(6, var(--die-w));
     gap: 14px;
     padding: 12px 8px;
   }
@@ -1356,12 +1391,15 @@ body,
   }
 
   .dice-pool-grid {
+    --die-w: 96px;
+    --die-gap: 18px;
     flex-wrap: wrap;
     max-width: 420px;
     gap: 18px;
     padding: 14px 8px;
   }
 
+  .dice-pool-grid .die-card,
   .die-card {
     width: 96px;
     height: 102px;
@@ -1398,11 +1436,13 @@ body,
   }
 
   .dice-pool-grid {
-    flex-wrap: nowrap;
-    max-width: none;
+    --die-w: 102px;
+    --die-gap: 20px;
+    grid-template-columns: repeat(6, var(--die-w));
     gap: 20px;
   }
 
+  .dice-pool-grid .die-card,
   .die-card {
     width: 102px;
     height: 108px;
@@ -2341,6 +2381,32 @@ body,
   font-family: var(--font-display);
   font-size: 0.78rem;
   letter-spacing: 0.03em;
+}
+
+.mobile-only-relics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mobile-relic-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 8px;
+  border: 2px solid var(--ink);
+  background: #d1fae5;
+  color: var(--ink);
+  box-shadow: 2px 2px 0px var(--ink);
+  cursor: pointer;
+}
+
+.mobile-relic-pill:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--ink);
 }
 
 .dev-boss-panel {
@@ -3302,44 +3368,10 @@ body,
     gap: 6px;
   }
 
-  .table-callout-slot {
-    min-height: 16px;
-  }
-
-  .dice-pool-grid {
-    gap: 10px;
-    padding: 6px 2px;
-    max-width: 248px;
-  }
-
-  .die-card {
-    width: 68px;
-    height: 74px;
-  }
-
-  .die-face {
-    padding: 8px;
-    border-radius: 10px;
-  }
-
-  .die-depth {
-    border-radius: 10px;
-  }
-
-  .die-pip {
-    width: 10px;
-    height: 10px;
-  }
-
-  .die-pip.crimson {
-    width: 14px;
-    height: 14px;
-  }
-
   .btn-action {
-    min-height: 44px;
-    font-size: 0.96rem;
-    padding: 8px 8px;
+    min-height: clamp(34px, 7.5dvh, 46px);
+    font-size: clamp(0.8rem, 2.6vw, 0.98rem);
+    padding: 6px 8px;
   }
 
   .shop-panel,
@@ -3440,8 +3472,8 @@ body,
   }
 }
 
-/* ULTRA-NARROW OR VERY SHORT PHONES (<= 350px wide or <= 560px tall) */
-@media (max-width: 350px), (max-height: 560px) and (max-width: 767px) {
+/* SHORT MOBILE VIEWPORTS: keep chrome compact so table-stage keeps maximum height */
+@media (max-height: 620px) and (max-width: 767px), (max-width: 340px) {
   .game-layout,
   .home-layout {
     gap: 4px;
@@ -3449,32 +3481,42 @@ body,
   }
 
   .hud-badges {
-    gap: 4px;
+    gap: 3px;
   }
 
   .pill {
-    padding: 0.14rem 0.34rem;
-    font-size: 0.74rem;
+    padding: 0.12rem 0.32rem;
+    font-size: 0.72rem;
     border-width: 2px;
   }
 
   .icon-btn {
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 1.65rem;
+    height: 1.65rem;
     border-width: 2px;
   }
 
   .bank-box {
     padding: 4px 8px;
-    gap: 3px;
+    gap: 2px;
   }
 
   .bank-bar-track {
-    height: 9px;
+    height: 8px;
+  }
+
+  .boss-mini-card {
+    padding: 3px 8px;
+    font-size: 0.72rem;
+    gap: 4px;
+  }
+
+  .boss-mini-desc {
+    font-size: 0.68rem;
   }
 
   .table-area {
-    padding: 6px;
+    padding: 5px;
     gap: 4px;
   }
 
@@ -3484,16 +3526,20 @@ body,
   }
 
   .pot-caption {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .pot-value {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
   }
 
   .mult-badge {
-    font-size: 1rem;
-    padding: 1px 8px;
+    font-size: 0.95rem;
+    padding: 1px 7px;
+  }
+
+  .nel-piatto-label {
+    display: none;
   }
 
   .nel-piatto-well {
@@ -3502,148 +3548,8 @@ body,
 
   .die-card.die-compact,
   .nel-piatto-empty-slot {
-    width: 26px;
-    height: 28px;
-  }
-
-  .die-compact .die-face {
-    padding: 2px;
-    border-radius: 6px;
-  }
-
-  .die-compact .die-depth {
-    border-radius: 6px;
-  }
-
-  .die-compact .die-pip {
-    width: 3.5px;
-    height: 3.5px;
-  }
-
-  .die-compact .die-pip.crimson {
-    width: 6px;
-    height: 6px;
-  }
-
-  .nel-piatto-slots {
-    gap: 3px;
-  }
-
-  .table-callout-slot {
-    min-height: 12px;
-  }
-
-  .dice-pool-grid {
-    gap: 6px;
-    padding: 2px;
-    max-width: 190px;
-  }
-
-  .die-card {
-    width: 54px;
-    height: 58px;
-  }
-
-  .die-face {
-    padding: 6px;
-  }
-
-  .die-pip {
-    width: 8px;
-    height: 8px;
-  }
-
-  .die-pip.crimson {
-    width: 11px;
-    height: 11px;
-  }
-
-  .btn-action {
-    min-height: 36px;
-    font-size: 0.84rem;
-    padding: 5px 6px;
-  }
-}
-
-/* EXTREME MINI VIEWPORTS (<= 300px wide or <= 460px tall, e.g. 279x387) */
-@media (max-width: 300px), (max-height: 460px) and (max-width: 767px) {
-  .game-layout,
-  .home-layout {
-    gap: 3px;
-    padding: 3px 3px max(4px, env(safe-area-inset-bottom)) 3px;
-  }
-
-  .hud-top-row {
-    gap: 4px;
-  }
-
-  .hud-badges {
-    gap: 3px;
-    flex-wrap: nowrap;
-  }
-
-  .pill {
-    padding: 0.1rem 0.26rem;
-    font-size: 0.65rem;
-    border-width: 1.5px;
-    gap: 2px;
-  }
-
-  .hud-actions {
-    gap: 3px;
-  }
-
-  .icon-btn {
-    width: 1.45rem;
-    height: 1.45rem;
-    border-width: 1.5px;
-  }
-
-  .bank-box {
-    padding: 3px 6px;
-    gap: 2px;
-    font-size: 0.72rem;
-  }
-
-  .bank-bar-track {
-    height: 7px;
-  }
-
-  .table-area {
-    padding: 4px;
-    gap: 3px;
-  }
-
-  .pot-tray {
-    padding: 3px 5px;
-    gap: 3px;
-  }
-
-  .pot-caption {
-    font-size: 0.82rem;
-  }
-
-  .pot-value {
-    font-size: 1.05rem;
-  }
-
-  .mult-badge {
-    font-size: 0.85rem;
-    padding: 1px 6px;
-  }
-
-  .nel-piatto-label {
-    display: none;
-  }
-
-  .nel-piatto-well {
-    padding: 2px 3px;
-  }
-
-  .die-card.die-compact,
-  .nel-piatto-empty-slot {
-    width: 22px;
-    height: 24px;
+    width: 24px;
+    height: 26px;
   }
 
   .die-compact .die-pip {
@@ -3652,49 +3558,35 @@ body,
   }
 
   .die-compact .die-pip.crimson {
-    width: 5px;
-    height: 5px;
+    width: 5.5px;
+    height: 5.5px;
   }
 
-  .table-callout-slot {
-    min-height: 8px;
+  .bottom-dock {
+    gap: 4px;
   }
 
-  .dice-pool-grid {
-    gap: 5px;
-    max-width: 152px;
+  .mobile-relic-pill {
+    width: 24px;
+    height: 24px;
   }
 
-  .die-card {
-    width: 44px;
-    height: 48px;
+  .consumable-belt .belt-slot {
+    padding: 4px 6px;
+    gap: 6px;
   }
 
-  .die-face {
-    inset: 0 0 3px 0;
-    padding: 4px;
-    border-radius: 7px;
+  .consumable-belt .item-icon-badge {
+    width: 24px;
+    height: 24px;
   }
 
-  .die-depth {
-    inset: 3px 0 0 0;
-    border-radius: 7px;
+  .consumable-belt .belt-text strong {
+    font-size: 0.72rem;
   }
 
-  .die-pip {
-    width: 6.5px;
-    height: 6.5px;
-  }
-
-  .die-pip.crimson {
-    width: 9px;
-    height: 9px;
-  }
-
-  .btn-action {
-    min-height: 30px;
-    font-size: 0.75rem;
-    padding: 4px 5px;
+  .consumable-belt .belt-text small {
+    display: none;
   }
 }
 

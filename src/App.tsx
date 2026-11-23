@@ -739,8 +739,30 @@ export const App: React.FC = () => {
               )}
             </main>
 
-            {/* CONSUMABLES BELT (mobile only) + BOTTOM ACTIONS */}
+            {/* RELICS + CONSUMABLES BELT (mobile only) + BOTTOM ACTIONS */}
             <footer className="bottom-dock">
+              {gm.equippedRelics.length > 0 && (
+                <div className="mobile-only-relics">
+                  {gm.equippedRelics.map((relic) => (
+                    <button
+                      key={`mob-relic-${relic}`}
+                      type="button"
+                      className="mobile-relic-pill"
+                      aria-label={t(`relics.${relic}.name`)}
+                      title={`${t(`relics.${relic}.name`)}: ${t(`relics.${relic}.desc`)}`}
+                      onClick={() =>
+                        showTableToast(
+                          `${t(`relics.${relic}.name`)}: ${t(`relics.${relic}.desc`)}`,
+                          2600
+                        )
+                      }
+                    >
+                      <RelicIcon relic={relic} size={15} />
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {gm.equippedConsumables.length > 0 && (
                 <div className="consumable-belt mobile-only-belt">
                   {gm.equippedConsumables.map((item, idx) => {
