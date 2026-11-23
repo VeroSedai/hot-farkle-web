@@ -3346,32 +3346,81 @@ body,
   .rules-panel,
   .gameover-panel,
   .stageclear-panel {
-    padding: 12px;
-    gap: 10px;
+    padding: 10px;
+    gap: 8px;
+    max-height: calc(100dvh - 16px);
+    border-width: 3px;
+    box-shadow: 5px 5px 0px var(--ink);
+  }
+
+  .modal-backdrop {
+    padding: 8px;
+  }
+
+  .shop-header {
+    position: sticky;
+    top: -10px;
+    z-index: 3;
+    background: var(--cream);
+    padding: 6px 0 4px 0;
+    margin-top: -6px;
+    border-bottom: 2px solid rgba(20, 20, 20, 0.12);
   }
 
   .shop-title {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
 
   .coins-pill.large {
-    padding: 4px 10px;
-    font-size: 1.05rem;
+    padding: 3px 9px;
+    font-size: 1rem;
+  }
+
+  .shop-boss-preview {
+    padding: 6px 8px;
+    gap: 8px;
+  }
+
+  .shop-boss-preview-text {
+    font-size: 0.76rem;
+  }
+
+  .shop-loadout-bar {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .shop-grid {
+    gap: 7px;
   }
 
   .shop-card {
-    padding: 10px;
-    gap: 9px;
+    padding: 8px;
+    gap: 7px;
+  }
+
+  .shop-card-copy h3 {
+    font-size: 0.86rem;
+  }
+
+  .shop-card-copy p {
+    font-size: 0.74rem;
   }
 
   .shop-icon-medallion {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
   }
 
   .shop-buy-btn {
-    padding: 6px 8px;
-    font-size: 0.9rem;
+    padding: 5px 8px;
+    font-size: 0.85rem;
+    min-height: 34px;
+  }
+
+  .shop-reroll-btn {
+    min-height: 34px;
+    padding: 4px 8px;
   }
 
   .breakdown-leader {
@@ -3513,6 +3562,139 @@ body,
     min-height: 36px;
     font-size: 0.84rem;
     padding: 5px 6px;
+  }
+}
+
+/* EXTREME MINI VIEWPORTS (<= 300px wide or <= 460px tall, e.g. 279x387) */
+@media (max-width: 300px), (max-height: 460px) and (max-width: 767px) {
+  .game-layout,
+  .home-layout {
+    gap: 3px;
+    padding: 3px 3px max(4px, env(safe-area-inset-bottom)) 3px;
+  }
+
+  .hud-top-row {
+    gap: 4px;
+  }
+
+  .hud-badges {
+    gap: 3px;
+    flex-wrap: nowrap;
+  }
+
+  .pill {
+    padding: 0.1rem 0.26rem;
+    font-size: 0.65rem;
+    border-width: 1.5px;
+    gap: 2px;
+  }
+
+  .hud-actions {
+    gap: 3px;
+  }
+
+  .icon-btn {
+    width: 1.45rem;
+    height: 1.45rem;
+    border-width: 1.5px;
+  }
+
+  .bank-box {
+    padding: 3px 6px;
+    gap: 2px;
+    font-size: 0.72rem;
+  }
+
+  .bank-bar-track {
+    height: 7px;
+  }
+
+  .table-area {
+    padding: 4px;
+    gap: 3px;
+  }
+
+  .pot-tray {
+    padding: 3px 5px;
+    gap: 3px;
+  }
+
+  .pot-caption {
+    font-size: 0.82rem;
+  }
+
+  .pot-value {
+    font-size: 1.05rem;
+  }
+
+  .mult-badge {
+    font-size: 0.85rem;
+    padding: 1px 6px;
+  }
+
+  .nel-piatto-label {
+    display: none;
+  }
+
+  .nel-piatto-well {
+    padding: 2px 3px;
+  }
+
+  .die-card.die-compact,
+  .nel-piatto-empty-slot {
+    width: 22px;
+    height: 24px;
+  }
+
+  .die-compact .die-pip {
+    width: 3px;
+    height: 3px;
+  }
+
+  .die-compact .die-pip.crimson {
+    width: 5px;
+    height: 5px;
+  }
+
+  .table-callout-slot {
+    min-height: 8px;
+  }
+
+  .dice-pool-grid {
+    gap: 5px;
+    max-width: 152px;
+  }
+
+  .die-card {
+    width: 44px;
+    height: 48px;
+  }
+
+  .die-face {
+    inset: 0 0 3px 0;
+    padding: 4px;
+    border-radius: 7px;
+  }
+
+  .die-depth {
+    inset: 3px 0 0 0;
+    border-radius: 7px;
+  }
+
+  .die-pip {
+    width: 6.5px;
+    height: 6.5px;
+  }
+
+  .die-pip.crimson {
+    width: 9px;
+    height: 9px;
+  }
+
+  .btn-action {
+    min-height: 30px;
+    font-size: 0.75rem;
+    padding: 4px 5px;
   }
 }
 
