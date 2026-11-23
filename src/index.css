@@ -400,12 +400,20 @@ body,
 }
 
 .home-fire-icon {
-  width: clamp(42px, 12vw, 68px);
-  height: clamp(42px, 12vw, 68px);
+  width: clamp(2.5rem, 11.2vw, 4.5rem);
+  height: clamp(2.5rem, 11.2vw, 4.5rem);
+  display: block;
   color: var(--orange);
-  stroke: var(--ink);
-  transform: translateY(-3px);
+  filter: drop-shadow(2px 2px 0px var(--ink));
   flex-shrink: 0;
+}
+
+.home-fire-icon path {
+  stroke: var(--ink);
+  stroke-width: 2.5px;
+  vector-effect: non-scaling-stroke;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
 }
 
 .home-title {
