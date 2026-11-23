@@ -11,14 +11,29 @@ import { TutorialOverlay } from './components/TutorialOverlay';
 import { DieState, DieType } from './core/die';
 import { FarkleGameManager } from './core/farkleGameManager';
 import { ScoreEvaluator } from './core/scoreEvaluator';
-import { BOSS_METADATA } from './data/bossType';
-import { CONSUMABLE_METADATA } from './data/consumableType';
+import { BOSS_METADATA, BossType } from './data/bossType';
+import { CONSUMABLE_METADATA, ConsumableType } from './data/consumableType';
 import { GameConfig } from './data/gameConfig';
 import { useI18n } from './i18n/I18nContext';
 import { soundManager } from './utils/audio';
 import { loadStats, PlayerStats, recordBankedPot, recordRunEnd } from './utils/stats';
 
 const TUTORIAL_STORAGE_KEY = 'hotfarkle_tutorial_completed';
+
+function getConsumableBadgeClass(type: ConsumableType): string {
+  switch (type) {
+    case ConsumableType.GhiaccioSecco:
+      return 'item-badge-ice';
+    case ConsumableType.Trifoglio:
+      return 'item-badge-clover';
+    case ConsumableType.GettoneSpinta:
+      return 'item-badge-fire';
+    case ConsumableType.Polizza:
+      return 'item-badge-gold';
+    case ConsumableType.DadoJolly:
+      return 'item-badge-purple';
+  }
+}
 
 export const App: React.FC = () => {
   const { lang, t } = useI18n();
@@ -292,6 +307,7 @@ export const App: React.FC = () => {
       <SwirlBackground
         heat={swirlHeat}
         accentHex={screen === 'game' && isBossActiveNow ? bossMeta.themeColorHex : undefined}
+        bossType={screen === 'game' && isBossActiveNow ? gm.anteBoss : BossType.None}
       />
 
       {screen === 'home' ? (
@@ -512,7 +528,9 @@ export const App: React.FC = () => {
                         disabled={!usable && !isSelectedTarget}
                         onClick={() => handleConsumableClick(idx)}
                       >
-                        <ConsumableIcon type={item} size={24} className="belt-icon" />
+                        <span className={`item-icon-badge ${getConsumableBadgeClass(item)}`}>
+                          <ConsumableIcon type={item} size={22} />
+                        </span>
                         <div className="belt-text">
                           <strong>{t(`consumables.${item}.name`)}</strong>
                           <small>{t(`consumables.${item}.desc`)}</small>
@@ -657,7 +675,9 @@ export const App: React.FC = () => {
                         disabled={!usable && !isSelectedTarget}
                         onClick={() => handleConsumableClick(idx)}
                       >
-                        <ConsumableIcon type={item} size={22} className="belt-icon" />
+                        <span className={`item-icon-badge ${getConsumableBadgeClass(item)}`}>
+                          <ConsumableIcon type={item} size={20} />
+                        </span>
                         <div className="belt-text">
                           <strong>{t(`consumables.${item}.name`)}</strong>
                           <small>{t(`consumables.${item}.desc`)}</small>
