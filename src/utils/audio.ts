@@ -7,7 +7,8 @@ type SfxKey =
   | 'openShop'
   | 'buyItem'
   | 'useItem'
-  | 'selectionLand';
+  | 'selectionLand'
+  | 'bank';
 
 const SFX_URLS: Record<SfxKey, string> = {
   roll: './audio/dice_roll.wav',
@@ -19,6 +20,7 @@ const SFX_URLS: Record<SfxKey, string> = {
   buyItem: './audio/sfx_buy_item.wav',
   useItem: './audio/sfx_use_item.wav',
   selectionLand: './audio/sfx_die_selection_land.wav',
+  bank: './audio/coin_bag_ring_gemstone_item_09.wav',
 };
 
 interface LoadedSfx {
@@ -174,6 +176,10 @@ class SoundManager {
 
   public playUseItem(): void {
     this.playSfx('useItem', 1.0, 0.65);
+  }
+
+  public playBank(): void {
+    this.playSfx('bank', 1.0, 0.7);
   }
 
   public playSelectionLand(startIndex = 0, addedCount = 1): void {

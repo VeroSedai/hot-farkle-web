@@ -249,17 +249,11 @@ export const App: React.FC = () => {
     setTargetingSlot(null);
     setTargetPrompt('');
     const potToBank = gm.totalBankablePot;
-    const alreadyLocked = gm.dice.filter(
-      (d) => d.state === DieState.Locked || d.state === DieState.Frozen
-    ).length;
-    const selectedCount = gm.dice.filter((d) => d.state === DieState.Selected).length;
     if (gm.bankPotAndEndTurn()) {
-      if (selectedCount > 0) {
-        soundManager.playSelectionLand(alreadyLocked, selectedCount);
-      }
+      soundManager.playBank();
       setStats(recordBankedPot(potToBank, gm.bankScore));
       if (!gm.isGameOver && !gm.isInShop) {
-        triggerRollAnim();
+        triggerRollAnim(0.65, 0.16);
       }
     }
   };

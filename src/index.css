@@ -405,17 +405,18 @@ body,
 
 /* HOMEPAGE */
 .home-layout {
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .home-top-bar {
-  position: absolute;
-  top: 10px;
-  right: 6px;
+  align-self: flex-end;
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 @media (min-width: 768px) {
@@ -438,10 +439,11 @@ body,
 }
 
 .home-center-box {
+  margin: auto 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
+  gap: clamp(10px, 3.2dvh, 32px);
   width: 100%;
 }
 
@@ -449,12 +451,12 @@ body,
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: clamp(8px, 2vw, 12px);
 }
 
 .home-fire-icon {
-  width: clamp(2.5rem, 11.2vw, 4.5rem);
-  height: clamp(2.5rem, 11.2vw, 4.5rem);
+  width: clamp(2rem, min(11vw, 7dvh), 4.5rem);
+  height: clamp(2rem, min(11vw, 7dvh), 4.5rem);
   display: block;
   color: var(--orange);
   filter: drop-shadow(2px 2px 0px var(--ink));
@@ -472,7 +474,7 @@ body,
 .home-title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 11vw, 4.4rem);
+  font-size: clamp(1.85rem, min(11vw, 7dvh), 4.4rem);
   letter-spacing: 2px;
   line-height: 1;
   color: var(--gold);
@@ -486,8 +488,13 @@ body,
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 36px;
-  min-height: 108px;
+  gap: clamp(18px, 6vw, 36px);
+  min-height: clamp(60px, 14dvh, 108px);
+}
+
+.home-showcase-dice .die-card {
+  width: clamp(54px, 12dvh, 82px);
+  height: clamp(58px, 13dvh, 88px);
 }
 
 .showcase-die {
