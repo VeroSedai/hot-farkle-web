@@ -3622,8 +3622,8 @@ body,
   }
 }
 
-/* LARGE / HIGH-RES PHONES (e.g. Pixel 9 Pro XL, Pro Max) */
-@media (min-width: 400px) and (max-width: 767px) and (min-height: 760px) {
+/* LARGE / HIGH-RES PHONES (e.g. Pixel 9 Pro XL 412x732 with browser bar, Pro Max) */
+@media (min-width: 400px) and (max-width: 767px) and (min-height: 660px) {
   html {
     font-size: clamp(17.5px, 4.2vw, 21px);
   }
