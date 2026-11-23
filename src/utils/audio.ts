@@ -1,10 +1,35 @@
+type SfxKey =
+  | 'roll'
+  | 'select'
+  | 'hotDice'
+  | 'youDied'
+  | 'youWon'
+  | 'openShop'
+  | 'buyItem'
+  | 'useItem'
+  | 'selectionLand';
+
+const SFX_URLS: Record<SfxKey, string> = {
+  roll: './audio/dice_roll.wav',
+  select: './audio/dice_select.wav',
+  hotDice: './audio/sfx_HOT_DICE.wav',
+  youDied: './audio/sfx_YOU_DIED.wav',
+  youWon: './audio/sfx_YOU_WON.wav',
+  openShop: './audio/sfx_open_shop.wav',
+  buyItem: './audio/sfx_buy_item.wav',
+  useItem: './audio/sfx_use_item.wav',
+  selectionLand: './audio/sfx_die_selection_land.wav',
+};
+
+interface LoadedSfx {
+  buffer: AudioBuffer;
+  offset: number;
+}
+
 class SoundManager {
   private bgm: HTMLAudioElement | null = null;
   private audioCtx: AudioContext | null = null;
-  private rollBuffer: AudioBuffer | null = null;
-  private rollOffset = 0;
-  private selectBuffer: AudioBuffer | null = null;
-  private selectOffset = 0;
+  private sfxMap = new Map<SfxKey, LoadedSfx>();
   private buffersLoading = false;
   private bgmMuted = false;
   private sfxMuted = false;
@@ -28,16 +53,18 @@ class SoundManager {
       }
     }
 
-    if (this.audioCtx && !this.buffersLoading && !this.rollBuffer && !this.selectBuffer) {
+    if (this.audioCtx && !this.buffersLoading && this.sfxMap.size === 0) {
       this.buffersLoading = true;
-      this.loadBuffer('./audio/dice_roll.wav').then((buf) => {
-        this.rollBuffer = buf;
-        this.rollOffset = buf ? this.findSoundStartOffset(buf) : 0;
-      });
-      this.loadBuffer('./audio/dice_select.wav').then((buf) => {
-        this.selectBuffer = buf;
-        this.selectOffset = buf ? this.findSoundStartOffset(buf) : 0;
-      });
+      for (const [key, url] of Object.entries(SFX_URLS) as [SfxKey, string][]) {
+        this.loadBuffer(url).then((buf) => {
+          if (buf) {
+            this.sfxMap.set(key, {
+              buffer: buf,
+              offset: this.findSoundStartOffset(buf),
+            });
+          }
+        });
+      }
     }
   }
 
@@ -96,25 +123,58 @@ class SoundManager {
     }
   }
 
-  public playRoll(isSingleDie = false): void {
+  private playSfx(key: SfxKey, pitch = 1.0, volume = 0.65): void {
     this.unlock();
     if (this.sfxMuted) return;
+    const entry = this.sfxMap.get(key);
+    if (entry) {
+      this.playOneShot(entry.buffer, entry.offset, pitch, volume);
+    }
+  }
+
+  public playRoll(isSingleDie = false): void {
     const pitch = isSingleDie
       ? 1.12 + Math.random() * 0.12
       : 0.95 + Math.random() * 0.12;
     const volume = isSingleDie ? 0.5 : 0.65;
-    this.playOneShot(this.rollBuffer, this.rollOffset, pitch, volume);
+    this.playSfx('roll', pitch, volume);
   }
 
   public playSelect(isSelecting = true, selectedCount = 1): void {
-    this.unlock();
-    if (this.sfxMuted) return;
     const clampedCount = Math.max(1, selectedCount);
     const pitch = isSelecting
       ? Math.min(1.35, Math.max(1.0, 1.0 + (clampedCount - 1) * 0.05))
       : 0.86;
     const volume = isSelecting ? 0.6 : 0.45;
-    this.playOneShot(this.selectBuffer, this.selectOffset, pitch, volume);
+    this.playSfx('select', pitch, volume);
+  }
+
+  public playHotDice(): void {
+    this.playSfx('hotDice', 1.0, 0.75);
+  }
+
+  public playYouDied(): void {
+    this.playSfx('youDied', 1.0, 0.75);
+  }
+
+  public playYouWon(): void {
+    this.playSfx('youWon', 1.0, 0.75);
+  }
+
+  public playOpenShop(): void {
+    this.playSfx('openShop', 1.0, 0.65);
+  }
+
+  public playBuyItem(): void {
+    this.playSfx('buyItem', 0.96 + Math.random() * 0.08, 0.65);
+  }
+
+  public playUseItem(): void {
+    this.playSfx('useItem', 1.0, 0.65);
+  }
+
+  public playSelectionLand(): void {
+    this.playSfx('selectionLand', 0.97 + Math.random() * 0.06, 0.6);
   }
 
   public toggleBgm(): boolean {

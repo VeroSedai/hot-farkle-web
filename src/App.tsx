@@ -109,12 +109,18 @@ export const App: React.FC = () => {
 
     const unsubState = gm.on('stateChanged', forceUpdate);
     const unsubHotDice = gm.on('hotDice', () => {
+      soundManager.playHotDice();
       triggerTableEffect('hotdice', 700);
     });
     const unsubGrace = gm.on('graceRoll', () => {
       showTableToast(tRef.current('feedback.graceRoll'), 2000);
     });
     const unsubGameOver = gm.on('gameOver', () => {
+      if (gm.isVictory) {
+        soundManager.playYouWon();
+      } else {
+        soundManager.playYouDied();
+      }
       setStats(recordRunEnd(gm.isVictory, gm.bankScore));
     });
     const unsubFarkle = gm.on('farkle', () => {
@@ -199,10 +205,9 @@ export const App: React.FC = () => {
       setTargetingSlot(null);
       setTargetPrompt('');
       if (ok) {
+        soundManager.playUseItem();
         if (usedType === 'GettoneSpinta') {
           soundManager.playRoll(true);
-        } else {
-          soundManager.playSelect(true, 2);
         }
         showTableToast(t('feedback.consumableApplied'), 1400);
       }
@@ -225,6 +230,7 @@ export const App: React.FC = () => {
     setTargetingSlot(null);
     setTargetPrompt('');
     if (gm.confirmSelectionAndRoll()) {
+      soundManager.playSelectionLand();
       triggerRollAnim();
     }
   };
@@ -235,11 +241,10 @@ export const App: React.FC = () => {
     setTargetPrompt('');
     const potToBank = gm.totalBankablePot;
     if (gm.bankPotAndEndTurn()) {
+      soundManager.playSelectionLand();
       setStats(recordBankedPot(potToBank, gm.bankScore));
       if (!gm.isGameOver && !gm.isInShop) {
         triggerRollAnim();
-      } else {
-        soundManager.playSelect(true, 3);
       }
     }
   };
@@ -260,7 +265,7 @@ export const App: React.FC = () => {
       setTargetingSlot(slotIndex);
       setTargetPrompt(t('feedback.targetPrompt', { name: consumableName }));
     } else if (gm.useImmediateConsumable(slotIndex)) {
-      soundManager.playSelect();
+      soundManager.playUseItem();
       showTableToast(t('feedback.consumableActivated', { name: consumableName }), 1500);
     }
   };
@@ -822,7 +827,10 @@ export const App: React.FC = () => {
           totalCoinsEarned={gm.lastStageCoinsEarned}
           currentCoins={gm.coins}
           anteBoss={gm.anteBoss}
-          onOpenShop={() => setShopUnlockedForStage(gm.currentStage)}
+          onOpenShop={() => {
+            soundManager.playOpenShop();
+            setShopUnlockedForStage(gm.currentStage);
+          }}
         />
       )}
 
@@ -843,11 +851,15 @@ export const App: React.FC = () => {
           hasStandardDie={gm.hasStandardDieInPersistentPool()}
           feedback={shopFeedback}
           onBuyShield={() => {
-            if (gm.buyRepairShield()) setShopFeedback(t('shopFeedback.shieldRepaired'));
+            if (gm.buyRepairShield()) {
+              soundManager.playBuyItem();
+              setShopFeedback(t('shopFeedback.shieldRepaired'));
+            }
           }}
           onBuyConsumable={() => {
             const bought = gm.buyShopConsumable();
             if (bought) {
+              soundManager.playBuyItem();
               setShopFeedback(
                 t('shopFeedback.boughtConsumable', { name: t(`consumables.${bought}.name`) })
               );
@@ -871,6 +883,7 @@ export const App: React.FC = () => {
           onBuySpecialDie={() => {
             const newType = gm.buyRandomSpecialDie();
             if (newType) {
+              soundManager.playBuyItem();
               const label =
                 newType === DieType.Golden
                   ? t('shopFeedback.dieGolden')
@@ -890,6 +903,7 @@ export const App: React.FC = () => {
           onBuyRelic={() => {
             const bought = gm.buyShopRelic();
             if (bought) {
+              soundManager.playBuyItem();
               setShopFeedback(
                 t('shopFeedback.boughtRelic', { name: t(`relics.${bought}.name`) })
               );
@@ -912,6 +926,7 @@ export const App: React.FC = () => {
           }}
           onBuyTrisUpgrade={() => {
             if (gm.buyTrisMultiplierUpgrade()) {
+              soundManager.playBuyItem();
               setShopFeedback(
                 t('shopFeedback.trisUpgraded', { mult: gm.trisBaseMultiplier.toFixed(1) })
               );
