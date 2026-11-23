@@ -1340,19 +1340,18 @@ body,
   cursor: pointer;
 }
 
-/* DICE POOL - Fluid viewport-aware 3x2 on mobile/portrait, 6x1 on desktop */
+/* DICE POOL - Fluid viewport-aware 3x2 on mobile/portrait, 6x1 on desktop, always centered */
 .dice-pool-grid {
   --die-w: clamp(34px, min(22vw, calc((100dvh - 270px) * 0.34)), 94px);
   --die-gap: clamp(4px, min(2.4vw, 1.8dvh), 16px);
-  display: grid;
-  grid-template-columns: repeat(3, var(--die-w));
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  align-content: center;
-  justify-items: center;
   align-items: center;
   gap: var(--die-gap);
-  padding: clamp(2px, 1dvh, 10px) 4px;
+  padding: clamp(2px, 1dvh, 10px) 0;
   width: 100%;
+  max-width: calc(var(--die-w) * 3 + var(--die-gap) * 2.5);
   margin: 0 auto;
 }
 
@@ -1383,7 +1382,8 @@ body,
 @media (min-width: 768px) and (max-width: 899px) and (orientation: landscape) {
   .dice-pool-grid {
     --die-w: 76px;
-    grid-template-columns: repeat(6, var(--die-w));
+    flex-wrap: nowrap;
+    max-width: none;
     gap: 14px;
     padding: 12px 8px;
   }
@@ -1444,7 +1444,8 @@ body,
   .dice-pool-grid {
     --die-w: 102px;
     --die-gap: 20px;
-    grid-template-columns: repeat(6, var(--die-w));
+    flex-wrap: nowrap;
+    max-width: none;
     gap: 20px;
   }
 
