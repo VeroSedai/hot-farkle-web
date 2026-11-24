@@ -7,6 +7,8 @@ export const it = {
   home: {
     muteOn: 'Attiva audio',
     muteOff: 'Disattiva audio',
+    themeDark: 'Attiva Dark Mode',
+    themeLight: 'Attiva Light Mode',
     langLabel: 'Cambia lingua (IT / EN)',
     play: 'GIOCA',
     rules: 'REGOLE',
@@ -22,6 +24,7 @@ export const it = {
     menuOptions: 'Menu opzioni',
     music: 'MUSICA',
     effects: 'EFFETTI',
+    darkMode: 'DARK MODE',
     on: 'ON',
     off: 'OFF',
     newGame: 'NUOVA PARTITA',

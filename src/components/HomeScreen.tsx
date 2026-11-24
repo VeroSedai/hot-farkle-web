@@ -9,6 +9,7 @@ import { BossIcon, GameIcons } from './Icons';
 
 interface HomeScreenProps {
   muted: boolean;
+  darkMode: boolean;
   stats: PlayerStats;
   isDevMode?: boolean;
   onStartGame: () => void;
@@ -16,6 +17,7 @@ interface HomeScreenProps {
   onOpenDevShop?: () => void;
   onOpenRules: () => void;
   onToggleMute: () => void;
+  onToggleDarkMode: () => void;
 }
 
 const SHOWCASE_DIE_1 = new Die(0, 1, DieState.InPool, DieType.Standard);
@@ -23,6 +25,7 @@ const SHOWCASE_DIE_2 = new Die(1, 5, DieState.InPool, DieType.Golden);
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   muted,
+  darkMode,
   stats,
   isDevMode = false,
   onStartGame,
@@ -30,6 +33,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenDevShop,
   onOpenRules,
   onToggleMute,
+  onToggleDarkMode,
 }) => {
   const { lang, toggleLang, t } = useI18n();
   const hasStats = stats.runsPlayed > 0 || stats.bestPot > 0;
@@ -37,6 +41,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   return (
     <div className="home-layout">
       <div className="home-top-bar">
+        <button
+          type="button"
+          className="icon-btn"
+          onClick={onToggleDarkMode}
+          aria-label={darkMode ? t('home.themeLight') : t('home.themeDark')}
+          title={darkMode ? t('home.themeLight') : t('home.themeDark')}
+        >
+          {darkMode ? <GameIcons.Sun size={20} /> : <GameIcons.Moon size={20} />}
+        </button>
         <button
           type="button"
           className="icon-btn lang-btn"

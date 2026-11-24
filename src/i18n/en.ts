@@ -6,6 +6,8 @@ export const en: TranslationSchema = {
   home: {
     muteOn: 'Unmute audio',
     muteOff: 'Mute audio',
+    themeDark: 'Enable Dark Mode',
+    themeLight: 'Switch to Light Mode',
     langLabel: 'Switch language (IT / EN)',
     play: 'PLAY',
     rules: 'RULES',
@@ -21,6 +23,7 @@ export const en: TranslationSchema = {
     menuOptions: 'Options menu',
     music: 'MUSIC',
     effects: 'SFX',
+    darkMode: 'DARK MODE',
     on: 'ON',
     off: 'OFF',
     newGame: 'NEW RUN',

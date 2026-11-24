@@ -3769,3 +3769,711 @@ body,
     max-width: 88vw;
   }
 }
+
+/* ==========================================================================
+   NOIR DARK MODE (95% Monochrome Neo-Brutalism + 5% Gameplay Micro-Accents)
+   ========================================================================== */
+:root[data-theme='dark'] {
+  --bg-mint: #0d0d0d;
+  --bg-mint-dot: #242424;
+  --bg-mint-deep: #383838;
+  --bg-mint-deep-dot: #050505;
+  --table-bg: #212121;
+  --tray-bg: #181818;
+  --cream: #242424;
+  --cream-depth: #969696;
+  --ink: #000000;
+  --ink-muted: #a3a3a3;
+  --bank-track: #0f0f0f;
+}
+
+:root[data-theme='dark'],
+:root[data-theme='dark'] body,
+:root[data-theme='dark'] #root {
+  background: var(--bg-mint);
+  color: #f0f0f0;
+}
+
+/* Background & Halftone Band */
+:root[data-theme='dark'] .pop-bg-hot {
+  background-color: #151515;
+}
+
+:root[data-theme='dark'] .pop-bg-band-halftone {
+  opacity: 0.92;
+}
+
+:root[data-theme='dark'] .pop-bg-boss-fornace {
+  --bg-mint: #110b09;
+  --bg-mint-dot: #4a1e12;
+  --bg-mint-deep: #331811;
+  --bg-mint-deep-dot: #080302;
+}
+
+:root[data-theme='dark'] .pop-bg-boss-gelo {
+  --bg-mint: #090f14;
+  --bg-mint-dot: #163e59;
+  --bg-mint-deep: #162b3b;
+  --bg-mint-deep-dot: #04090d;
+}
+
+:root[data-theme='dark'] .pop-bg-boss-esattore {
+  --bg-mint: #110e08;
+  --bg-mint-dot: #4d3b0e;
+  --bg-mint-deep: #302711;
+  --bg-mint-deep-dot: #080602;
+}
+
+:root[data-theme='dark'] .pop-bg-boss-usuraio {
+  --bg-mint: #0f0914;
+  --bg-mint-dot: #3f1863;
+  --bg-mint-deep: #271538;
+  --bg-mint-deep-dot: #06020a;
+}
+
+:root[data-theme='dark'] .pop-bg-boss-purista {
+  --bg-mint: #0c0e12;
+  --bg-mint-dot: #2e3846;
+  --bg-mint-deep: #28303b;
+  --bg-mint-deep-dot: #050709;
+}
+
+/* Top HUD White Icon Buttons */
+:root[data-theme='dark'] .icon-btn {
+  background: #f5f5f5;
+  color: #0d0d0d;
+  border-color: #000000;
+}
+
+@media (hover: hover) {
+  :root[data-theme='dark'] .icon-btn:hover {
+    background: #dcdcdc;
+    color: #000000;
+  }
+}
+
+/* Desktop Stat Tiles & Mobile HUD Pills (Two-Tone Grayscale Contrast) */
+:root[data-theme='dark'] .stat-tile-stage,
+:root[data-theme='dark'] .stat-tile-shields {
+  background: #363636;
+}
+
+:root[data-theme='dark'] .stat-tile-stage .stat-tile-label,
+:root[data-theme='dark'] .stat-tile-shields .stat-tile-label {
+  color: #b8b8b8;
+}
+
+:root[data-theme='dark'] .stat-tile-stage .stat-tile-val,
+:root[data-theme='dark'] .stat-tile-shields .stat-tile-val {
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .stat-tile-turn,
+:root[data-theme='dark'] .stat-tile-coins {
+  background: #848484;
+}
+
+:root[data-theme='dark'] .stat-tile-turn .stat-tile-label,
+:root[data-theme='dark'] .stat-tile-coins .stat-tile-label {
+  color: #1f1f1f;
+}
+
+:root[data-theme='dark'] .stat-tile-turn .stat-tile-val,
+:root[data-theme='dark'] .stat-tile-coins .stat-tile-val {
+  color: #0d0d0d;
+}
+
+:root[data-theme='dark'] .pill-stage,
+:root[data-theme='dark'] .pill-shields {
+  background: #363636;
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .pill-turn,
+:root[data-theme='dark'] .pill-coins {
+  background: #888888;
+  color: #0d0d0d;
+}
+
+/* Bank Progress Box */
+:root[data-theme='dark'] .bank-box {
+  background: #0f0f0f;
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .bank-box .muted-label {
+  color: #d4d4d4;
+}
+
+:root[data-theme='dark'] .bank-numbers {
+  color: #ffffff;
+}
+
+:root[data-theme='dark'] .bank-bar-track {
+  background: #2b2b2b;
+  border-color: #000000;
+}
+
+:root[data-theme='dark'] .bank-bar-fill {
+  background: #f2f2f2;
+  border-right-color: #000000;
+}
+
+:root[data-theme='dark'] .bank-bar-preview {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+:root[data-theme='dark'] .bank-bar-preview.bank-bar-preview-clear {
+  background: rgba(28, 200, 119, 0.58);
+}
+
+/* Sidebar Cards, Items Belt & Relics */
+:root[data-theme='dark'] .sidebar-card {
+  background: #212121;
+  color: #f0f0f0;
+}
+
+:root[data-theme='dark'] .sidebar-card-header {
+  color: #f0f0f0;
+  border-bottom-color: #3a3a3a;
+}
+
+:root[data-theme='dark'] .belt-slot {
+  background: #2b2b2b;
+  color: #f0f0f0;
+}
+
+:root[data-theme='dark'] .belt-empty {
+  background: #262626;
+  border-color: #8c8c8c;
+  color: #9e9e9e;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+
+:root[data-theme='dark'] .belt-filled.belt-targeting {
+  background: #163647;
+  border-color: var(--sky);
+  color: #f0f9ff;
+}
+
+:root[data-theme='dark'] .belt-text small {
+  color: #a8a8a8;
+}
+
+:root[data-theme='dark'] .relic-hud-chip,
+:root[data-theme='dark'] .mobile-relic-pill {
+  background: #2b2b2b;
+  color: #f0f0f0;
+}
+
+:root[data-theme='dark'] .relic-hud-chip svg,
+:root[data-theme='dark'] .mobile-relic-pill svg {
+  color: #34d399;
+  flex-shrink: 0;
+}
+
+:root[data-theme='dark'] .relic-hud-copy span {
+  color: #b0b0b0;
+}
+
+:root[data-theme='dark'] .boss-mini-card,
+:root[data-theme='dark'] .boss-mini-card.boss-active {
+  background: #1b1b1b;
+  color: #f0f0f0;
+}
+
+:root[data-theme='dark'] .boss-mini-title,
+:root[data-theme='dark'] .game-sidebar .boss-mini-title {
+  color: var(--boss-color, #f5f5f5) !important;
+}
+
+:root[data-theme='dark'] .boss-mini-desc {
+  color: #b8b8b8;
+}
+
+/* Center Table, Pot Tray & "Nel Piatto" Rack */
+:root[data-theme='dark'] .table-area {
+  background: #212121;
+}
+
+:root[data-theme='dark'] .table-fx-farkle {
+  background: #3d1217;
+}
+
+:root[data-theme='dark'] .table-fx-hotdice {
+  animation: tableHotDiceGlowDark 0.65s ease-out both;
+}
+
+@keyframes tableHotDiceGlowDark {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.015);
+    background: #3a2410;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+:root[data-theme='dark'] .pot-tray {
+  background: #181818;
+}
+
+:root[data-theme='dark'] .pot-caption,
+:root[data-theme='dark'] .pot-value {
+  color: #ffffff;
+}
+
+:root[data-theme='dark'] .pot-delta {
+  color: #dcdcdc;
+}
+
+:root[data-theme='dark'] .mult-badge {
+  background: #111111;
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .mult-badge.mult-hot {
+  background: var(--orange-hot);
+  color: var(--gold);
+}
+
+:root[data-theme='dark'] .nel-piatto-well {
+  background: #1b1b1b;
+}
+
+:root[data-theme='dark'] .nel-piatto-label {
+  color: #f0f0f0;
+}
+
+:root[data-theme='dark'] .nel-piatto-empty-slot {
+  background: #1f1f1f;
+  border-color: #555555;
+}
+
+:root[data-theme='dark'] .event-toast-pill {
+  background: #2e2e2e;
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .targeting-banner {
+  background: #163647;
+  border-color: var(--sky);
+  color: #e0f2fe;
+}
+
+:root[data-theme='dark'] .btn-cancel-target {
+  background: #262626;
+  color: #f5f5f5;
+}
+
+/* 2D Dice: Standard Monochrome + Inverted Selected + Gray Locked + Sin City Special Accents */
+:root[data-theme='dark'] .die-face {
+  background: #ededed;
+  border-color: #000000;
+}
+
+:root[data-theme='dark'] .die-depth {
+  background: #969696;
+  border-color: #000000;
+}
+
+:root[data-theme='dark'] .die-pip {
+  background: #111111;
+}
+
+:root[data-theme='dark'] .die-type-standard .die-pip.crimson {
+  background: #111111;
+  border-color: #111111;
+}
+
+/* Special Dice in Pool (Subtle Tinted Metallic Face + Vivid Accent Depth/Badge) */
+:root[data-theme='dark'] .die-type-golden .die-face {
+  background: #f5db76;
+}
+
+:root[data-theme='dark'] .die-type-golden .die-depth {
+  background: #b8860b;
+}
+
+:root[data-theme='dark'] .die-type-loaded .die-face {
+  background: #e8ddd5;
+}
+
+:root[data-theme='dark'] .die-type-loaded .die-depth {
+  background: #d97736;
+}
+
+:root[data-theme='dark'] .die-type-multiplier .die-face {
+  background: #4c1d95;
+}
+
+:root[data-theme='dark'] .die-type-multiplier .die-depth {
+  background: #2e1065;
+}
+
+:root[data-theme='dark'] .die-type-multiplier .die-pip.active:not(.crimson) {
+  background: #f5f3ff;
+  border-color: #000000;
+}
+
+:root[data-theme='dark'] .die-type-merchant .die-face {
+  background: #ccece0;
+}
+
+:root[data-theme='dark'] .die-type-merchant .die-depth {
+  background: #059669;
+}
+
+:root[data-theme='dark'] .die-type-volatile .die-face {
+  background: #f5d0d3;
+}
+
+:root[data-theme='dark'] .die-type-volatile .die-depth {
+  background: #dc2626;
+}
+
+/* Selected Die: Inverted Obsidian Face with Crisp White Pips */
+:root[data-theme='dark'] .die-state-selected .die-face {
+  background: #1c1c1c;
+  border-color: #000000;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.18);
+}
+
+:root[data-theme='dark'] .die-state-selected .die-face::after {
+  display: none;
+}
+
+:root[data-theme='dark'] .die-state-selected.die-type-loaded .die-face::before {
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.45) 0 1.8px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.45) 0 1.8px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.45) 0 1.8px, transparent 2px),
+    radial-gradient(circle, rgba(255, 255, 255, 0.45) 0 1.8px, transparent 2px);
+}
+
+:root[data-theme='dark'] .die-state-selected.die-type-standard .die-depth {
+  background: #080808;
+}
+
+:root[data-theme='dark'] .die-card.die-state-selected .die-pip.active,
+:root[data-theme='dark'] .die-card.die-state-selected .die-pip.active:not(.crimson),
+:root[data-theme='dark'] .die-card.die-state-selected .die-pip.crimson {
+  background: #f5f5f5;
+  border-color: #000000;
+}
+
+/* Locked Die in "Nel Piatto": Neutral Medium Gray */
+:root[data-theme='dark'] .die-state-locked .die-face {
+  background: #8e8e8e;
+  box-shadow: none;
+}
+
+:root[data-theme='dark'] .die-state-locked .die-depth {
+  background: #525252;
+}
+
+:root[data-theme='dark'] .die-card.die-state-locked .die-pip,
+:root[data-theme='dark'] .die-card.die-state-locked .die-pip.active,
+:root[data-theme='dark'] .die-card.die-state-locked .die-pip.active:not(.crimson),
+:root[data-theme='dark'] .die-card.die-state-locked .die-pip.crimson {
+  background: #121212;
+  border-color: #121212;
+}
+
+/* Frozen Die: Icy Sin City Accent */
+:root[data-theme='dark'] .die-state-frozen .die-face {
+  background: #7dd3fc;
+}
+
+:root[data-theme='dark'] .die-state-frozen .die-depth {
+  background: #0284c7;
+}
+
+:root[data-theme='dark'] .die-state-frozen .die-pip.active {
+  background: #082f49;
+}
+
+/* Farkle Resolution Flash */
+:root[data-theme='dark'] .is-farkle-dice .die-face {
+  background: #4c1118 !important;
+}
+
+:root[data-theme='dark'] .is-farkle-dice .die-pip.active {
+  background: #fecaca !important;
+  border-color: #000000 !important;
+}
+
+/* Buttons & Bottom Dock Actions */
+:root[data-theme='dark'] .btn-gold {
+  background: #ececec;
+  color: #0d0d0d;
+}
+
+:root[data-theme='dark'] .btn-ghost {
+  background: #2b2b2b;
+  color: #f0f0f0;
+}
+
+:root[data-theme='dark'] .popover-panel .btn-primary,
+:root[data-theme='dark'] .tutorial-bubble .btn-primary,
+:root[data-theme='dark'] .gameover-panel .btn-primary {
+  background: #e5e5e5;
+  color: #0d0d0d;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+:root[data-theme='dark'] .shop-panel .btn-primary {
+  background: #363636;
+  color: #ffffff;
+}
+
+:root[data-theme='dark'] .action-buttons .btn-orange {
+  background: #949494;
+  color: #ffffff;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -4px 0 #5e5e5e,
+    0px 6px 0px #000000;
+}
+
+:root[data-theme='dark'] .action-buttons .btn-primary {
+  background: #1f1f1f;
+  color: #ffffff;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -4px 0 #0d0d0d,
+    0px 6px 0px #000000;
+}
+
+:root[data-theme='dark'] .btn:disabled,
+:root[data-theme='dark'] .action-buttons .btn:disabled,
+:root[data-theme='dark'] .shop-panel .btn:disabled {
+  background: #151515;
+  color: #4d4d4d;
+  border-color: #080808;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  box-shadow: 0px 2px 0px #000000;
+}
+
+/* Home Screen */
+:root[data-theme='dark'] .home-title {
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .showcase-die::after {
+  background: #000000;
+  opacity: 0.55;
+}
+
+:root[data-theme='dark'] .home-stats-strip {
+  background: #1c1c1c;
+}
+
+:root[data-theme='dark'] .home-stat-val {
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .home-stat-lbl {
+  color: #a0a0a0;
+}
+
+:root[data-theme='dark'] .dev-boss-panel {
+  background: rgba(24, 24, 24, 0.92);
+  border-color: #525252;
+}
+
+:root[data-theme='dark'] .dev-boss-label {
+  color: #d4d4d4;
+}
+
+:root[data-theme='dark'] .dev-boss-btn {
+  background: color-mix(in srgb, var(--boss-color, var(--gold)) 22%, #242424);
+  color: #f5f5f5;
+}
+
+/* Popovers, Tutorial & Modals (Shop, Stage Clear, Rules, Game Over) */
+:root[data-theme='dark'] .modal-backdrop,
+:root[data-theme='dark'] .tutorial-backdrop:not(.tutorial-passthrough) {
+  background: rgba(0, 0, 0, 0.82);
+}
+
+:root[data-theme='dark'] .popover-panel,
+:root[data-theme='dark'] .tutorial-bubble,
+:root[data-theme='dark'] .shop-panel,
+:root[data-theme='dark'] .rules-panel,
+:root[data-theme='dark'] .gameover-panel,
+:root[data-theme='dark'] .stageclear-panel {
+  background: #1c1c1c;
+  color: #f0f0f0;
+}
+
+:root[data-theme='dark'] .shop-header {
+  background: #1c1c1c;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme='dark'] .shop-title,
+:root[data-theme='dark'] .rules-main-title {
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .shop-stage-pill {
+  background: #2b2b2b;
+  color: #e5e5e5;
+}
+
+:root[data-theme='dark'] .coins-pill.large {
+  background: #2e2e2e;
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .coins-pill.large svg {
+  color: var(--gold);
+}
+
+:root[data-theme='dark'] .shop-boss-preview,
+:root[data-theme='dark'] .shop-next-boss {
+  background: color-mix(in srgb, var(--boss-color, var(--gold)) 16%, #242424);
+  color: #f0f0f0;
+}
+
+:root[data-theme='dark'] .boss-alert-icon {
+  background: #181818;
+}
+
+:root[data-theme='dark'] .shop-next-boss small {
+  color: #b8b8b8;
+}
+
+:root[data-theme='dark'] .shop-loadout-bar,
+:root[data-theme='dark'] .stageclear-breakdown,
+:root[data-theme='dark'] .stageclear-next,
+:root[data-theme='dark'] .rules-roguelike-card,
+:root[data-theme='dark'] .gameover-progress-box,
+:root[data-theme='dark'] .gameover-stat-tile {
+  background: #252525;
+  color: #f0f0f0;
+}
+
+:root[data-theme='dark'] .shop-loadout-divider,
+:root[data-theme='dark'] .breakdown-divider,
+:root[data-theme='dark'] .rules-divider {
+  background: #404040;
+}
+
+:root[data-theme='dark'] .breakdown-leader,
+:root[data-theme='dark'] .rules-combo-leader {
+  border-bottom-color: rgba(255, 255, 255, 0.22);
+}
+
+:root[data-theme='dark'] .breakdown-val,
+:root[data-theme='dark'] .breakdown-total,
+:root[data-theme='dark'] .stageclear-score span,
+:root[data-theme='dark'] .next-target-val,
+:root[data-theme='dark'] .shop-status-label,
+:root[data-theme='dark'] .shop-card-top h3,
+:root[data-theme='dark'] .rules-special-text strong,
+:root[data-theme='dark'] .tutorial-body,
+:root[data-theme='dark'] .gameover-progress-head {
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .shop-card,
+:root[data-theme='dark'] .shop-card-sky,
+:root[data-theme='dark'] .shop-card-gold,
+:root[data-theme='dark'] .shop-card-purple,
+:root[data-theme='dark'] .shop-card-emerald,
+:root[data-theme='dark'] .shop-card-orange {
+  background: #262626;
+}
+
+:root[data-theme='dark'] .shop-card-top p,
+:root[data-theme='dark'] .breakdown-hint,
+:root[data-theme='dark'] .stageclear-score,
+:root[data-theme='dark'] .stageclear-next .muted-label,
+:root[data-theme='dark'] .rules-extra-note,
+:root[data-theme='dark'] .rules-special-text span,
+:root[data-theme='dark'] .gameover-sub,
+:root[data-theme='dark'] .gameover-stat-lbl,
+:root[data-theme='dark'] .tutorial-step-count {
+  color: #a8a8a8;
+}
+
+:root[data-theme='dark'] .shop-mini-die.mini-die-std {
+  background: #ededed;
+}
+
+:root[data-theme='dark'] .shop-mini-die.mini-die-mult .shop-mini-pip {
+  background: #f5f3ff;
+}
+
+:root[data-theme='dark'] .chip-belt-empty {
+  background: #1d1d1d;
+  border-color: #555555;
+  color: #888888;
+}
+
+:root[data-theme='dark'] .chip-relic {
+  background: #183329;
+  color: #d1fae5;
+}
+
+:root[data-theme='dark'] .chip-sell-badge {
+  background: #181818;
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .shop-price-pill-muted {
+  background: #1c1c1c;
+  color: #e5e5e5;
+}
+
+:root[data-theme='dark'] .btn-shop-maxed {
+  background: #1a1a1a;
+  color: #737373;
+}
+
+:root[data-theme='dark'] .rules-combo-row:nth-child(odd) {
+  background: #262626;
+  border-color: #000000;
+}
+
+:root[data-theme='dark'] .rules-combo-score,
+:root[data-theme='dark'] .gameover-stat-val {
+  color: #f5f5f5;
+}
+
+:root[data-theme='dark'] .rules-special-heading {
+  color: #e5e5e5;
+}
+
+:root[data-theme='dark'] .rules-special-item {
+  background: #1e1e1e;
+}
+
+:root[data-theme='dark'] .rules-special-item.special-gold strong {
+  color: #fbbf24;
+}
+
+:root[data-theme='dark'] .rules-special-item.special-loaded strong {
+  color: #fb923c;
+}
+
+:root[data-theme='dark'] .rules-special-item.special-mult strong {
+  color: #c084fc;
+}
+
+:root[data-theme='dark'] .rules-special-item.special-merchant strong {
+  color: #34d399;
+}
+
+:root[data-theme='dark'] .rules-special-item.special-volatile strong {
+  color: #f87171;
+}

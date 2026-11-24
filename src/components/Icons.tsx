@@ -14,6 +14,7 @@ import {
   LuLock,
   LuMagnet,
   LuMenu,
+  LuMoon,
   LuPlay,
   LuRefreshCw,
   LuScale,
@@ -21,6 +22,7 @@ import {
   LuShieldCheck,
   LuSkull,
   LuSnowflake,
+  LuSun,
   LuTrophy,
   LuVolume2,
   LuVolumeX,
@@ -114,4 +116,6 @@ export const GameIcons = {
   Play: (p: IconProps) => <LuPlay {...p} />,
   SoundOn: (p: IconProps) => <LuVolume2 {...p} />,
   SoundOff: (p: IconProps) => <LuVolumeX {...p} />,
+  Moon: (p: IconProps) => <LuMoon {...p} />,
+  Sun: (p: IconProps) => <LuSun {...p} />,
 };

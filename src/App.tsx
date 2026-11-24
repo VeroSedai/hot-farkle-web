@@ -19,6 +19,7 @@ import { soundManager } from './utils/audio';
 import { loadStats, PlayerStats, recordBankedPot, recordRunEnd } from './utils/stats';
 
 const TUTORIAL_STORAGE_KEY = 'hotfarkle_tutorial_completed';
+const THEME_STORAGE_KEY = 'hotfarkle_theme';
 
 function getConsumableBadgeClass(type: ConsumableType): string {
   switch (type) {
@@ -60,6 +61,13 @@ export const App: React.FC = () => {
   const [tutorialStep, setTutorialStep] = useState<number>(0);
   const [bgmMuted, setBgmMuted] = useState(false);
   const [sfxMuted, setSfxMuted] = useState(false);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(THEME_STORAGE_KEY) === 'dark';
+    } catch {
+      return false;
+    }
+  });
   const [isRollingAnim, setIsRollingAnim] = useState(false);
   const [tableEffect, setTableEffect] = useState<'none' | 'farkle' | 'hotdice'>('none');
   const tableEffectTimerRef = useRef<number | null>(null);
@@ -70,6 +78,25 @@ export const App: React.FC = () => {
   const [shopFeedback, setShopFeedback] = useState<string>('');
 
   const forceUpdate = () => setTick((t) => t + 1);
+
+  useEffect(() => {
+    const themeValue = darkMode ? 'dark' : 'light';
+    document.documentElement.dataset.theme = themeValue;
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      metaTheme.setAttribute('content', darkMode ? '#0D0D0D' : '#7EE8C9');
+    }
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, themeValue);
+    } catch {
+      // ignore storage errors
+    }
+  }, [darkMode]);
+
+  const handleToggleDarkMode = () => {
+    soundManager.playSelect();
+    setDarkMode((prev) => !prev);
+  };
 
   const showTableToast = (msg: string, durationMs = 1700) => {
     if (tableToastTimerRef.current !== null) {
@@ -352,6 +379,7 @@ export const App: React.FC = () => {
       {screen === 'home' ? (
         <HomeScreen
           muted={bgmMuted && sfxMuted}
+          darkMode={darkMode}
           stats={stats}
           isDevMode={isDevMode}
           onStartGame={handleStartFromHome}
@@ -363,6 +391,7 @@ export const App: React.FC = () => {
             setBgmMuted(allMuted);
             setSfxMuted(allMuted);
           }}
+          onToggleDarkMode={handleToggleDarkMode}
         />
       ) : (
         <div className="game-layout">
@@ -446,6 +475,14 @@ export const App: React.FC = () => {
 
                   {openPopover === 'quick' && (
                     <div className="popover-panel">
+                      <button
+                        type="button"
+                        className={`btn ${darkMode ? 'btn-primary' : 'btn-ghost'} popover-btn`}
+                        onClick={handleToggleDarkMode}
+                      >
+                        {darkMode ? <GameIcons.Moon size={16} /> : <GameIcons.Sun size={16} />}
+                        {t('hud.darkMode')}: {darkMode ? t('hud.on') : t('hud.off')}
+                      </button>
                       <button
                         type="button"
                         className="btn btn-gold popover-btn"
@@ -560,7 +597,12 @@ export const App: React.FC = () => {
               {isBossActiveNow && (
                 <div
                   className="boss-mini-card boss-active"
-                  style={{ borderColor: bossMeta.themeColorHex }}
+                  style={
+                    {
+                      borderColor: bossMeta.themeColorHex,
+                      '--boss-color': bossMeta.themeColorHex,
+                    } as React.CSSProperties
+                  }
                 >
                   <div className="boss-mini-title" style={{ color: bossMeta.themeColorHex }}>
                     <BossIcon boss={gm.anteBoss} size={14} />
