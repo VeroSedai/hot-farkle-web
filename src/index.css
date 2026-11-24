@@ -198,27 +198,26 @@ body,
   }
 
   .game-layout {
-    width: 92vw;
+    width: 94vw;
     max-width: 1240px;
-    height: 86vh;
-    max-height: 820px;
+    height: min(94vh, 840px);
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 310px 1fr;
     grid-template-rows: 1fr;
-    gap: 24px;
+    gap: 20px;
     padding: 0;
   }
 
   .game-sidebar {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 10px;
     height: 100%;
     min-height: 0;
   }
 
   .game-sidebar .hud-header {
-    gap: 18px;
+    gap: 10px;
   }
 
   .game-sidebar .hud-badges {
@@ -316,23 +315,31 @@ body,
   .desktop-sidebar-panels {
     display: flex;
     flex-direction: column;
+    gap: 8px;
     flex: 1;
     min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .desktop-sidebar-panels::-webkit-scrollbar {
+    display: none;
   }
 
   .sidebar-card {
     background: var(--cream);
     border: 3px solid var(--ink);
     border-radius: 14px;
-    padding: 14px;
+    padding: 10px 12px;
     box-shadow: 4px 4px 0px var(--ink);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
+    flex-shrink: 0;
   }
 
   .sidebar-items-card {
-    flex: 1;
+    flex: 1 0 auto;
     min-height: 0;
   }
 
@@ -341,23 +348,23 @@ body,
     align-items: center;
     justify-content: space-between;
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     letter-spacing: 0.04em;
     color: var(--ink);
-    border-bottom: 2.5px solid var(--ink);
-    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 5px;
   }
 
   .sidebar-items-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     flex: 1;
   }
 
   .sidebar-items-list .belt-slot {
-    min-height: 66px;
-    padding: 10px 12px;
+    min-height: 42px;
+    padding: 5px 10px;
   }
 
   .sidebar-items-list .belt-text strong {
@@ -1453,14 +1460,7 @@ body,
   }
 }
 
-@media (min-width: 1140px) and (orientation: landscape) {
-  .pot-tray {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-  }
-
+@media (min-width: 1360px) and (orientation: landscape) {
   .dice-pool-grid {
     --die-w: 102px;
     --die-gap: 20px;
@@ -1483,6 +1483,15 @@ body,
   .die-pip.crimson {
     width: 22px;
     height: 22px;
+  }
+}
+
+@media (min-width: 1140px) and (orientation: landscape) {
+  .pot-tray {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
   }
 }
 
