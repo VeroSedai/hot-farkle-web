@@ -163,3 +163,11 @@ hot-farkle-web/
 ├── package.json
 └── vite.config.ts
 ```
+
+---
+
+## License & Copyright
+
+© 2026 Veronica Puddu — **All Rights Reserved**.
+
+Source code, UI design, and custom audio assets are proprietary and may not be copied, redistributed, or re-uploaded without explicit permission.

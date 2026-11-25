@@ -144,6 +144,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
           </div>
         )}
+
+        <p className="home-copyright">© 2026 Veronica Puddu · All Rights Reserved</p>
       </div>
     </div>
   );

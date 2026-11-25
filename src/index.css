@@ -643,6 +643,15 @@ body,
   line-height: 1.15;
 }
 
+.home-copyright {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--ink-muted);
+  opacity: 0.8;
+  text-align: center;
+}
+
 .btn-hero {
   width: 100%;
   min-height: 58px;
