@@ -1,5 +1,9 @@
 # Hot Farkle Web
 
+
+<img width="519" height="365" alt="image" src="https://github.com/user-attachments/assets/19ed8145-8e29-4f70-9675-3688ac03632e" />
+
+
 **Hot Farkle** is a fast-paced, roguelike dice game built for the web with React, TypeScript, and Vite. Inspired by classic **Farkle** and modern deck/dice-builders, you push your luck across 3 Antes (9 escalating stages) plus Endless Mode, customize your 6-die pool, equip passive Relics, use tactical consumables, and adapt to unique Boss modifiers.
 
 ---
